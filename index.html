@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LegalOn Brand Asset Portal Prototype</title>
+    <meta
+      name="description"
+      content="ブランドアセットを検索・絞り込み・推薦表示・詳細閲覧できる社内向けWebプロトタイプ"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-bg page-bg-a"></div>
+    <div class="page-bg page-bg-b"></div>
+
+    <main class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Brand Asset Portal</p>
+          <h1>
+            <img class="hero-logo" src="./assets/legalon-logo-color.svg" alt="LegalOn" />
+            <span>Brand Asset Portal</span>
+          </h1>
+
+          <div class="hero-stats">
+            <div class="stat-card">
+              <span>assets</span>
+              <strong id="totalCount">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>recommended</span>
+              <strong id="recommendedCount">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>matches</span>
+              <strong id="matchCount">0</strong>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="topbar panel">
+        <div class="search-block">
+          <label class="search-input">
+            <span>Search</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="例: logo / guideline / JP / white background"
+              autocomplete="off"
+            />
+          </label>
+
+          <div class="popular-searches" id="popularSearches"></div>
+          <div class="filters-inline">
+            <div class="section-head section-head--compact">
+              <div>
+                <p class="section-kicker">Filters</p>
+                <h2>用途に合わせて絞り込む</h2>
+              </div>
+              <div class="status-toggles">
+                <label class="toggle">
+                  <input id="showDeprecated" type="checkbox" />
+                  <span>Deprecatedを表示</span>
+                </label>
+                <label class="toggle">
+                  <input id="showArchived" type="checkbox" />
+                  <span>Archivedを表示</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="filters-grid">
+              <div class="filter-group">
+                <div class="filter-title">プロダクト</div>
+                <div id="productFilters" class="chip-row"></div>
+              </div>
+              <div class="filter-group">
+                <div class="filter-title">ファイル形式</div>
+                <div id="fileFormatFilters" class="chip-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <label class="control">
+            <span>Sort</span>
+            <select id="sortSelect">
+              <option value="recommended">推奨優先</option>
+              <option value="updatedDesc">更新日順</option>
+              <option value="nameAsc">名前順</option>
+            </select>
+          </label>
+
+          <button id="clearBtn" class="secondary-btn" type="button">フィルタ解除</button>
+        </div>
+      </section>
+
+      <section class="panel recommendations">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Recommended</p>
+            <h2>よく使われるアセット</h2>
+          </div>
+          <div class="section-sub">recommended: true かつ current のものを優先表示</div>
+        </div>
+        <div id="recommendationGrid" class="grid grid--recommendations"></div>
+      </section>
+
+      <section class="panel results" id="resultsSection">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Results</p>
+            <h2>検索結果</h2>
+          </div>
+          <div class="results-meta">
+            <div id="summaryText" class="summary-text">-</div>
+            <div id="activeChips" class="active-chips"></div>
+          </div>
+        </div>
+
+        <div id="grid" class="grid"></div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <h3>該当するアセットが見つかりませんでした</h3>
+          <p>検索語を広げるか、Deprecated / Archived の表示を切り替えてみてください。</p>
+          <button id="resetEmptyBtn" class="primary-btn" type="button">フィルタを解除して再検索</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-backdrop" data-close="true"></div>
+      <article class="modal-card">
+        <button class="modal-close" type="button" data-close="true" aria-label="閉じる">×</button>
+
+        <div class="modal-preview" id="modalPreview"></div>
+
+        <div class="modal-body">
+          <div class="modal-kicker" id="modalPath"></div>
+          <div class="modal-title-row">
+            <h2 id="modalTitle"></h2>
+            <span id="modalStatus" class="status-pill"></span>
+          </div>
+
+          <div class="modal-meta-grid" id="modalMetaGrid"></div>
+          <p class="modal-description" id="modalDescription"></p>
+
+          <div class="modal-section">
+            <div class="modal-section__head">
+              <h3>Download</h3>
+              <span>形式を選んで取得</span>
+            </div>
+            <div class="download-row">
+              <label class="select-wrap">
+                <span>File</span>
+                <select id="formatSelect"></select>
+              </label>
+              <a id="downloadLink" class="primary-btn" href="#" download>ダウンロード</a>
+              <a id="driveLink" class="secondary-btn" href="#" target="_blank" rel="noreferrer">
+                Google Driveで確認する
+              </a>
+            </div>
+          </div>
+
+          <div id="modalNoticeWrap"></div>
+
+          <div class="modal-section">
+            <div class="modal-section__head">
+              <h3>Variants</h3>
+              <span>同一アセットグループ内のバリエーション</span>
+            </div>
+            <div id="variantList" class="variant-list"></div>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section__head">
+              <h3>Version history</h3>
+              <span>最新が上</span>
+            </div>
+            <div id="versionList" class="version-list"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+    <template id="chipTemplate">
+      <button class="chip" type="button"></button>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
