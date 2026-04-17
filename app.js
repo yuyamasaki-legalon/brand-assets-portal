@@ -257,6 +257,18 @@ function getAssetClickCount(asset) {
 }
 
 function bindEvents() {
+  const defaultSearchPlaceholder = nodes.searchInput.dataset.placeholder || nodes.searchInput.placeholder;
+
+  nodes.searchInput.addEventListener("focus", () => {
+    nodes.searchInput.placeholder = "";
+  });
+
+  nodes.searchInput.addEventListener("blur", () => {
+    if (!nodes.searchInput.value.trim()) {
+      nodes.searchInput.placeholder = defaultSearchPlaceholder;
+    }
+  });
+
   nodes.searchInput.addEventListener("input", (event) => {
     state.query = event.target.value.trim();
     render();
@@ -358,6 +370,7 @@ function resetAll() {
   Object.values(state.filters).forEach((bucket) => bucket.clear());
 
   nodes.searchInput.value = "";
+  nodes.searchInput.placeholder = nodes.searchInput.dataset.placeholder || nodes.searchInput.placeholder;
   nodes.sortSelect.value = "recommended";
   nodes.showDeprecated.checked = false;
   nodes.showArchived.checked = false;

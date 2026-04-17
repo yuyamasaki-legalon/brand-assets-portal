@@ -347,6 +347,10 @@ a {
   line-height: 1.4;
 }
 
+.search-input input::placeholder {
+  color: #8a94a5;
+}
+
 .popular-searches {
   display: flex;
   gap: 8px;
