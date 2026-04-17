@@ -612,7 +612,10 @@ function createCard(asset, compact) {
   const thumbInner = document.createElement("div");
   thumbInner.className = "thumb-inner";
   thumbInner.innerHTML = `
-    <div class="thumb-meta">${escapeHtml(asset.assetType)} · ${escapeHtml(asset.locale)}</div>
+    <div class="thumb-caption">
+      <span>${escapeHtml(asset.assetType)}</span>
+      <span>${escapeHtml(asset.locale)}</span>
+    </div>
   `;
 
   thumb.append(badgeRow, visual, thumbInner);
@@ -620,13 +623,24 @@ function createCard(asset, compact) {
   const body = document.createElement("div");
   body.className = "asset-body";
 
+  const eyebrow = document.createElement("div");
+  eyebrow.className = "asset-eyebrow";
+  eyebrow.innerHTML = `
+    <span class="asset-brand">${escapeHtml(asset.brand)}</span>
+    <span class="asset-type">${escapeHtml(asset.assetType)}</span>
+  `;
+
   const title = document.createElement("div");
   title.className = "asset-title";
   title.textContent = asset.title;
 
+  const summary = document.createElement("div");
+  summary.className = "asset-summary";
+  summary.textContent = getCardSummary(asset);
+
   const meta = document.createElement("div");
   meta.className = "asset-meta";
-  meta.textContent = `${asset.brand} · ${asset.assetType} · ${asset.locale}`;
+  meta.textContent = `${asset.locale} · ${formatDate(asset.updatedAt)}更新`;
 
   const status = document.createElement("div");
   status.className = "asset-status";
@@ -635,7 +649,7 @@ function createCard(asset, compact) {
     makePillList(asset.usage, "pill"),
   );
 
-  body.append(title, meta, status);
+  body.append(eyebrow, title, summary, meta, status);
   button.append(thumb, body);
   return button;
 }
@@ -735,15 +749,21 @@ function renderPreview(asset) {
   const body = document.createElement("div");
   body.className = "preview-body";
   body.innerHTML = `
-    <div class="preview-badges">
-      <span>${escapeHtml(asset.brand)}</span>
-      <span>${escapeHtml(asset.fileFormat)}</span>
-      <span>${escapeHtml(statusMeta[asset.status].label)}</span>
+    <div class="preview-header">
+      <div class="preview-badges">
+        <span>${escapeHtml(asset.brand)}</span>
+        <span>${escapeHtml(asset.fileFormat)}</span>
+        <span>${escapeHtml(statusMeta[asset.status].label)}</span>
+      </div>
+      <div class="preview-kicker">${escapeHtml(asset.assetType)} · ${escapeHtml(asset.locale)}</div>
     </div>
     <div class="preview-main">
       <div class="preview-title">${escapeHtml(asset.title)}</div>
       <div class="preview-copy">${escapeHtml(asset.description)}</div>
-      <div class="preview-footer">${escapeHtml(asset.assetType)} · ${escapeHtml(asset.locale)}</div>
+      <div class="preview-footer">
+        <span>Variant: ${escapeHtml(getVariantLabel(asset))}</span>
+        <span>${escapeHtml(formatDate(asset.updatedAt))}更新</span>
+      </div>
     </div>
   `;
   preview.append(visual, body);
@@ -815,7 +835,7 @@ function buildModalMeta(asset) {
     ["Usage", asset.usage.join(" / ")],
     ["Tags", (asset.tags || []).join(" / ") || "—"],
     ["Locale", asset.locale],
-    ["Updated", formatDate(asset.updatedAt)],
+    ["Updated", `${formatDate(asset.updatedAt)}`],
   ];
   return rows
     .map(
@@ -827,6 +847,22 @@ function buildModalMeta(asset) {
       `,
     )
     .join("");
+}
+
+function getCardSummary(asset) {
+  const summaryParts = [];
+  if (asset.description) {
+    summaryParts.push(asset.description);
+  }
+  if (summaryParts.length === 0 && asset.usage.length > 0) {
+    summaryParts.push(asset.usage.join(" / "));
+  }
+  return truncateText(summaryParts.join(" "), 120);
+}
+
+function truncateText(value, maxLength) {
+  if (!value) return "詳細情報はモーダルで確認できます";
+  return value.length > maxLength ? `${value.slice(0, maxLength - 1).trimEnd()}…` : value;
 }
 
 function setModalAsset(assetId) {
