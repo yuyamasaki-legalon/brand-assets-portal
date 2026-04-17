@@ -96,7 +96,8 @@ const popularSearches = [
   "guideline",
   "3D",
   "ProfessionalAI",
-  "white background",
+  "white",
+  "black",
   "deprecated",
   "LegalOn",
   "GovernOn",
@@ -108,6 +109,8 @@ const popularSearches = [
   "EU",
   "template",
   "motion",
+  "pptx",
+  "UI",
 ];
 
 const searchAliases = {
