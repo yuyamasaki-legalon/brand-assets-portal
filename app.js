@@ -383,8 +383,8 @@ function render() {
   syncLayoutState();
 
   const filtered = getFilteredAssets();
-  const visible = sortAssets(filtered);
-  const recommendations = getRecommendationAssets(filtered);
+  const visible = buildDisplayGroups(sortAssets(filtered));
+  const recommendations = buildDisplayGroups(getRecommendationAssets(filtered)).slice(0, 8);
 
   nodes.matchCount.textContent = String(visible.length);
   nodes.summaryText.textContent = buildSummaryText(visible.length);
@@ -573,8 +573,7 @@ function getRecommendationAssets(filtered) {
       const updatedDiff = dateValue(b.updatedAt) - dateValue(a.updatedAt);
       if (updatedDiff !== 0) return updatedDiff;
       return a.title.localeCompare(b.title, "ja");
-    })
-    .slice(0, 8);
+    });
 }
 
 function renderRecommendationGrid(list) {
@@ -589,25 +588,26 @@ function renderRecommendationGrid(list) {
     return;
   }
 
-  list.forEach((asset) => {
-    const card = createCard(asset, true);
+  list.forEach((group) => {
+    const card = createCard(group, true);
     nodes.recommendationGrid.appendChild(card);
   });
 }
 
 function renderAssetGrid(list) {
   nodes.grid.innerHTML = "";
-  list.forEach((asset) => {
-    const card = createCard(asset, false);
+  list.forEach((group) => {
+    const card = createCard(group, false);
     nodes.grid.appendChild(card);
   });
 }
 
-function createCard(asset, compact) {
+function createCard(group, compact) {
+  const asset = group.representative;
   const button = document.createElement("button");
   button.type = "button";
   button.className = compact ? "asset-card asset-card--compact" : "asset-card";
-  button.addEventListener("click", () => openModal(asset.id));
+  button.addEventListener("click", () => openModal(getPreferredModalAsset(group).id));
 
   const thumb = document.createElement("div");
   thumb.className = "asset-thumb";
@@ -618,21 +618,30 @@ function createCard(asset, compact) {
   badgeRow.className = "badge-row";
   badgeRow.append(
     makeBadge(asset.recommended ? "Recommended" : statusMeta[asset.status].label, asset.status),
-    makeBadge(asset.fileFormat, "format"),
+    makeBadge(buildFormatBadgeLabel(group.fileFormats), "format"),
   );
 
   const visual = document.createElement("div");
   visual.className = "thumb-visual";
-  visual.appendChild(buildAssetVisual(asset, "thumb"));
+  visual.appendChild(buildCardVisual(group));
 
   const thumbInner = document.createElement("div");
   thumbInner.className = "thumb-inner";
-  thumbInner.innerHTML = `
-    <div class="thumb-caption">
-      <span>${escapeHtml(asset.assetType)}</span>
-      <span>${escapeHtml(asset.locale)}</span>
-    </div>
-  `;
+  thumbInner.innerHTML =
+    group.variantCount > 1
+      ? `
+        <div class="thumb-format-row">${group.fileFormats.map((format) => `<span>${escapeHtml(format)}</span>`).join("")}</div>
+        <div class="thumb-caption">
+          <span>${escapeHtml(group.colorLabels.join(" / "))}</span>
+          <span>${escapeHtml(`${group.variantCount} variants`)}</span>
+        </div>
+      `
+      : `
+        <div class="thumb-caption">
+          <span>${escapeHtml(asset.assetType)}</span>
+          <span>${escapeHtml(asset.locale)}</span>
+        </div>
+      `;
 
   thumb.append(badgeRow, visual, thumbInner);
 
@@ -648,15 +657,15 @@ function createCard(asset, compact) {
 
   const title = document.createElement("div");
   title.className = "asset-title";
-  title.textContent = asset.title;
+  title.textContent = group.title;
 
   const summary = document.createElement("div");
   summary.className = "asset-summary";
-  summary.textContent = getCardSummary(asset);
+  summary.textContent = getCardSummary(group);
 
   const meta = document.createElement("div");
   meta.className = "asset-meta";
-  meta.textContent = `${asset.locale} · ${formatDate(asset.updatedAt)}更新`;
+  meta.textContent = `${group.localeLabel} · ${formatDate(group.updatedAt)}更新`;
 
   const status = document.createElement("div");
   status.className = "asset-status";
@@ -865,13 +874,17 @@ function buildModalMeta(asset) {
     .join("");
 }
 
-function getCardSummary(asset) {
-  const summaryParts = [];
-  if (asset.description) {
-    summaryParts.push(asset.description);
+function getCardSummary(group) {
+  if (group.variantCount > 1) {
+    return `${group.fileFormats.join(" / ")} · ${group.colorLabels.join(" / ")} · ${group.variantCount} variants`;
   }
-  if (summaryParts.length === 0 && asset.usage.length > 0) {
-    summaryParts.push(asset.usage.join(" / "));
+
+  const summaryParts = [];
+  if (group.representative.description) {
+    summaryParts.push(group.representative.description);
+  }
+  if (summaryParts.length === 0 && group.representative.usage.length > 0) {
+    summaryParts.push(group.representative.usage.join(" / "));
   }
   return truncateText(summaryParts.join(" "), 120);
 }
@@ -879,6 +892,85 @@ function getCardSummary(asset) {
 function truncateText(value, maxLength) {
   if (!value) return "詳細情報はモーダルで確認できます";
   return value.length > maxLength ? `${value.slice(0, maxLength - 1).trimEnd()}…` : value;
+}
+
+function buildDisplayGroups(list) {
+  const grouped = new Map();
+  list.forEach((asset) => {
+    const key = getAssetFamilyKey(asset) || asset.id;
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key).push(asset);
+  });
+
+  return [...grouped.values()].map((variants) => makeDisplayGroup(variants));
+}
+
+function makeDisplayGroup(variants) {
+  const representative = variants[0];
+  const fileFormats = uniqueValues(variants.map((asset) => asset.fileFormat));
+  const colorLabels = uniqueValues(variants.map((asset) => getVariantLabel(asset)));
+  const locales = uniqueValues(variants.map((asset) => asset.locale));
+  const updatedAt = variants.reduce((latest, asset) => {
+    return dateValue(asset.updatedAt) > dateValue(latest) ? asset.updatedAt : latest;
+  }, representative.updatedAt);
+
+  return {
+    id: getAssetFamilyKey(representative) || representative.id,
+    representative,
+    variants,
+    title: representative.title,
+    fileFormats,
+    colorLabels,
+    variantCount: variants.length,
+    localeLabel: locales.join(" / "),
+    updatedAt,
+  };
+}
+
+function uniqueValues(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function buildFormatBadgeLabel(formats) {
+  if (formats.length <= 2) return formats.join(" / ");
+  return `${formats.slice(0, 2).join(" / ")} +${formats.length - 2}`;
+}
+
+function getPreferredModalAsset(group) {
+  return group.variants.find((asset) => asset.fileFormat === "PNG") ?? group.representative;
+}
+
+function buildCardVisual(group) {
+  const asset = group.representative;
+  if (group.fileFormats.length <= 1) {
+    return buildAssetVisual(asset, "thumb");
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "thumb-visual__stack";
+
+  const marks = document.createElement("div");
+  marks.className = "thumb-visual__marks";
+  group.fileFormats.forEach((format) => {
+    const item = document.createElement("span");
+    item.className = "thumb-visual__mark thumb-visual__mark--multi";
+    item.textContent = format;
+    item.style.background = getFormatColor(format);
+    marks.appendChild(item);
+  });
+
+  const kind = document.createElement("div");
+  kind.className = "thumb-visual__kind";
+  kind.textContent = getThumbnailKindLabel(asset.assetType);
+
+  const brand = document.createElement("div");
+  brand.className = "thumb-visual__brand";
+  brand.textContent = asset.brand;
+
+  wrapper.append(marks, kind, brand);
+  return wrapper;
 }
 
 function setModalAsset(assetId) {
