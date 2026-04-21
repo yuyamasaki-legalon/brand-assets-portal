@@ -17,24 +17,28 @@
     <main class="app-shell">
       <header class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Brand Asset Portal</p>
-          <h1>
-            <img class="hero-logo" src="./assets/legalon-logo-color.svg" alt="LegalOn" />
-            <span>Brand Asset Portal</span>
-          </h1>
+          <div class="hero-head">
+            <div class="hero-heading">
+              <p class="eyebrow">Brand Asset Portal</p>
+              <h1>
+                <img class="hero-logo" src="./assets/legalon-logo-color.svg" alt="LegalOn" />
+                <span>Brand Asset Portal</span>
+              </h1>
+            </div>
 
-          <div class="hero-stats">
-            <div class="stat-card">
-              <span>assets</span>
-              <strong id="totalCount">0</strong>
-            </div>
-            <div class="stat-card">
-              <span>recommended</span>
-              <strong id="recommendedCount">0</strong>
-            </div>
-            <div class="stat-card">
-              <span>matches</span>
-              <strong id="matchCount">0</strong>
+            <div class="hero-stats">
+              <div class="stat-card">
+                <span>assets</span>
+                <strong id="totalCount">0</strong>
+              </div>
+              <div class="stat-card">
+                <span>recommended</span>
+                <strong id="recommendedCount">0</strong>
+              </div>
+              <div class="stat-card">
+                <span>matches</span>
+                <strong id="matchCount">0</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -140,16 +144,16 @@
         <div class="modal-preview" id="modalPreview"></div>
 
         <div class="modal-body">
-          <div class="modal-kicker" id="modalPath"></div>
-          <div class="modal-title-row">
+          <div class="modal-kicker modal-pane-card" id="modalPath"></div>
+          <div class="modal-title-row modal-pane-card">
             <h2 id="modalTitle"></h2>
             <span id="modalStatus" class="status-pill"></span>
           </div>
 
-          <div class="modal-meta-grid" id="modalMetaGrid"></div>
-          <p class="modal-description" id="modalDescription"></p>
+          <div class="modal-meta-grid modal-pane-card" id="modalMetaGrid"></div>
+          <p class="modal-description modal-pane-card" id="modalDescription"></p>
 
-          <div class="modal-section">
+          <div class="modal-section modal-pane-card">
             <div class="modal-section__head">
               <h3>Download</h3>
               <span>形式を選んで取得</span>
@@ -166,9 +170,9 @@
             </div>
           </div>
 
-          <div id="modalNoticeWrap"></div>
+          <div id="modalNoticeWrap" class="modal-notice-wrap"></div>
 
-          <div class="modal-section">
+          <div class="modal-section modal-pane-card">
             <div class="modal-section__head">
               <h3>Variants</h3>
               <span>同一アセットグループ内のバリエーション</span>
@@ -176,7 +180,7 @@
             <div id="variantList" class="variant-list"></div>
           </div>
 
-          <div class="modal-section">
+          <div class="modal-section modal-pane-card">
             <div class="modal-section__head">
               <h3>Version history</h3>
               <span>最新が上</span>

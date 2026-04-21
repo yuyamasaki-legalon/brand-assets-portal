@@ -31,11 +31,11 @@ const statusMeta = {
 };
 
 const brandMeta = {
-  LegalOn: { label: "LegalOn", color: "#f15b55" },
-  GovernOn: { label: "GovernOn", color: "#13a48a" },
-  WorkOn: { label: "WorkOn", color: "#00a32a" },
-  DealOn: { label: "DealOn", color: "#f0b43b" },
-  CXOn: { label: "CXOn", color: "#005aff" },
+  LegalOn: { label: "LegalOn", color: "#d34638" },
+  GovernOn: { label: "GovernOn", color: "#039373" },
+  WorkOn: { label: "WorkOn", color: "#7b6bd0" },
+  DealOn: { label: "DealOn", color: "#c15d1e" },
+  CXOn: { label: "CXOn", color: "#3f7ecf" },
 };
 
 const brandDriveRoots = {
@@ -648,6 +648,12 @@ function createCard(group, compact) {
   const body = document.createElement("div");
   body.className = "asset-body";
 
+  const header = document.createElement("div");
+  header.className = "asset-header";
+
+  const titleWrap = document.createElement("div");
+  titleWrap.className = "asset-title-wrap";
+
   const eyebrow = document.createElement("div");
   eyebrow.className = "asset-eyebrow";
   eyebrow.innerHTML = `
@@ -659,22 +665,47 @@ function createCard(group, compact) {
   title.className = "asset-title";
   title.textContent = group.title;
 
+  titleWrap.append(eyebrow, title);
+
   const summary = document.createElement("div");
   summary.className = "asset-summary";
   summary.textContent = getCardSummary(group);
 
-  const meta = document.createElement("div");
-  meta.className = "asset-meta";
-  meta.textContent = `${group.localeLabel} · ${formatDate(group.updatedAt)}更新`;
-
   const status = document.createElement("div");
   status.className = "asset-status";
-  status.append(
-    makeStatusBadge(asset.status),
-    makePillList(asset.usage, "pill"),
-  );
+  status.appendChild(makeStatusBadge(asset.status));
 
-  body.append(eyebrow, title, summary, meta, status);
+  header.append(titleWrap, status);
+
+  const detailList = document.createElement("div");
+  detailList.className = "asset-detail-list";
+  detailList.innerHTML = `
+    <div class="asset-detail-item">
+      <span>Formats</span>
+      <strong>${escapeHtml(group.fileFormats.join(" / "))}</strong>
+    </div>
+    <div class="asset-detail-item">
+      <span>Colors</span>
+      <strong>${escapeHtml(group.colorLabels.join(" / "))}</strong>
+    </div>
+    <div class="asset-detail-item">
+      <span>Updated</span>
+      <strong>${escapeHtml(formatDate(group.updatedAt))}</strong>
+    </div>
+  `;
+
+  const footer = document.createElement("div");
+  footer.className = "asset-footer";
+
+  const meta = document.createElement("div");
+  meta.className = "asset-meta";
+  meta.textContent = `${group.localeLabel} · ${group.variantCount} variants`;
+
+  const usage = makePillList(asset.usage, "pill");
+  usage.classList.add("asset-usage");
+
+  footer.append(meta, usage);
+  body.append(header, summary, detailList, footer);
   button.append(thumb, body);
   return button;
 }
@@ -1064,28 +1095,28 @@ function getGroupColor(groupName, value) {
     return brandMeta[value].color;
   }
   const palette = {
-    ロゴ: "#2d6cff",
-    ガイドライン: "#7d5ef8",
-    営業資料素材: "#00a3a3",
-    モーション: "#d44f79",
-    テンプレート: "#f08a24",
-    PNG: "#4d8cff",
-    SVG: "#36a273",
-    PDF: "#d15f6a",
-    AI: "#8f67ff",
-    MP4: "#ef8d25",
-    Webサイト: "#0f9d58",
-    印刷: "#b35bd7",
-    SNS: "#d94f79",
-    イベント: "#f08a24",
-    社内資料: "#74829d",
-    営業提案: "#2d6cff",
-    Global: "#5a6b8c",
-    JP: "#2d6cff",
-    US: "#00a3a3",
-    EU: "#9b59b6",
+    ロゴ: "#3f7ecf",
+    ガイドライン: "#7b6bd0",
+    営業資料素材: "#039373",
+    モーション: "#c44d7b",
+    テンプレート: "#c15d1e",
+    PNG: "#3f7ecf",
+    SVG: "#039373",
+    PDF: "#d34638",
+    AI: "#9a5fc0",
+    MP4: "#c15d1e",
+    Webサイト: "#039373",
+    印刷: "#9a5fc0",
+    SNS: "#c44d7b",
+    イベント: "#c15d1e",
+    社内資料: "#7d7d7d",
+    営業提案: "#7b6bd0",
+    Global: "#5d5d5d",
+    JP: "#3f7ecf",
+    US: "#039373",
+    EU: "#9a5fc0",
   };
-  return palette[value] ?? "#5a6b8c";
+  return palette[value] ?? "#5d5d5d";
 }
 
 function getThumbnailKindLabel(assetType) {
@@ -1102,13 +1133,13 @@ function getThumbnailKindLabel(assetType) {
 
 function getFormatColor(fileFormat) {
   return {
-    PNG: "#4d8cff",
-    SVG: "#36a273",
-    PDF: "#d15f6a",
-    AI: "#8f67ff",
-    MP4: "#ef8d25",
-    JPG: "#3f7cff",
-  }[fileFormat] ?? "#2d6cff";
+    PNG: "#3f7ecf",
+    SVG: "#039373",
+    PDF: "#d34638",
+    AI: "#9a5fc0",
+    MP4: "#c15d1e",
+    JPG: "#3f7ecf",
+  }[fileFormat] ?? "#3f7ecf";
 }
 function extractDriveIdFromUrl(url) {
   if (!url) return "";
