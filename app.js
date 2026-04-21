@@ -1138,7 +1138,7 @@ function getFormatColor(fileFormat) {
     PDF: "#d34638",
     AI: "#9a5fc0",
     MP4: "#c15d1e",
-    JPG: "#3f7ecf",
+    JPG: "#7b6bd0",
   }[fileFormat] ?? "#3f7ecf";
 }
 function extractDriveIdFromUrl(url) {
