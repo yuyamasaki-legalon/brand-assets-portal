@@ -86,6 +86,94 @@ const brandBrowseFolders = {
   },
 };
 
+const illustrationCategoryMeta = {
+  people: {
+    display: "ひとイラスト",
+    thumbnail: "PEOPLE",
+    matchers: [
+      "ひとイラスト",
+      "people illustrations",
+      "people illustration",
+      "people",
+      "human",
+      "person",
+      "character",
+    ],
+    tags: [
+      "ひとイラスト",
+      "人物",
+      "人",
+      "ひと",
+      "people",
+      "person",
+      "human",
+      "worker",
+      "user",
+      "persona",
+      "キャラクター",
+      "担当者",
+      "利用者",
+    ],
+  },
+  object: {
+    display: "ものイラスト",
+    thumbnail: "OBJECT",
+    matchers: [
+      "ものイラスト",
+      "object illustrations",
+      "object illustration",
+      "object",
+      "tool",
+      "device",
+      "symbol",
+    ],
+    tags: [
+      "ものイラスト",
+      "モノ",
+      "もの",
+      "物",
+      "object",
+      "device",
+      "tool",
+      "symbol",
+      "document",
+      "ui",
+      "書類",
+      "デバイス",
+      "道具",
+      "記号",
+      "シンボル",
+    ],
+  },
+  scene: {
+    display: "ことイラスト",
+    thumbnail: "SCENE",
+    matchers: [
+      "ことイラスト",
+      "scene illustrations",
+      "scene illustration",
+      "scene",
+      "situation",
+      "workflow",
+      "narrative",
+    ],
+    tags: [
+      "ことイラスト",
+      "scene",
+      "situation",
+      "workflow",
+      "context",
+      "story",
+      "業務フロー",
+      "利用シーン",
+      "状況",
+      "シーン",
+      "文脈",
+      "ストーリー",
+    ],
+  },
+};
+
 const filterGroups = {
   product: ["LegalOn", "GovernOn", "WorkOn", "DealOn", "CXOn"],
   fileFormat: ["PNG", "SVG", "PDF", "AI", "PPT", "MP4", "JPG"],
@@ -123,9 +211,12 @@ const searchAliases = {
   ガイドライン: ["ガイドライン", "guideline"],
   template: ["template", "テンプレート"],
   テンプレート: ["テンプレート", "template"],
-  ppt: ["ppt", "pptx", "potx", "powerpoint", "パワーポイント"],
-  pptx: ["pptx", "ppt", "potx", "powerpoint", "パワーポイント"],
-  potx: ["potx", "pptx", "ppt", "powerpoint", "パワーポイント"],
+  ppt: ["ppt", "pptx", "potx", "powerpoint", "パワーポイント", "パワポ"],
+  pptx: ["pptx", "ppt", "potx", "powerpoint", "パワーポイント", "パワポ"],
+  potx: ["potx", "pptx", "ppt", "powerpoint", "パワーポイント", "パワポ"],
+  powerpoint: ["powerpoint", "ppt", "pptx", "potx", "パワーポイント", "パワポ"],
+  パワーポイント: ["パワーポイント", "パワポ", "powerpoint", "ppt", "pptx", "potx"],
+  パワポ: ["パワポ", "パワーポイント", "powerpoint", "ppt", "pptx", "potx"],
   motion: ["motion", "モーション"],
   モーション: ["モーション", "motion"],
   "3d": ["3d", "3d visual", "3dvisual", "3dビジュアル", "3d visuals"],
@@ -138,6 +229,14 @@ const searchAliases = {
   バナー: ["バナー", "banner"],
   icon: ["icon", "アイコン"],
   アイコン: ["アイコン", "icon"],
+  people: ["people", "person", "human", "worker", "user", "人物", "人", "ひと", "担当者", "利用者"],
+  人物: ["人物", "人", "ひと", "people", "person", "human", "worker", "user", "担当者", "利用者"],
+  object: ["object", "device", "tool", "symbol", "document", "もの", "モノ", "物", "デバイス", "道具", "記号", "シンボル", "書類"],
+  もの: ["もの", "モノ", "物", "object", "device", "tool", "symbol", "document", "デバイス", "道具", "記号", "シンボル", "書類"],
+  scene: ["scene", "situation", "workflow", "context", "story", "こと", "シーン", "状況", "業務フロー", "利用シーン", "ストーリー"],
+  シーン: ["シーン", "scene", "situation", "workflow", "context", "story", "状況", "業務フロー", "利用シーン", "ストーリー"],
+  裁判所: ["裁判所", "court"],
+  court: ["court", "裁判所"],
   black: ["black", "黒", "ブラック"],
   white: ["white", "白", "ホワイト"],
 };
@@ -544,6 +643,15 @@ function matchesQuery(asset, query) {
     const variants = expandSearchToken(token);
     return variants.some((variant) => haystack.includes(variant));
   });
+}
+
+function getIllustrationCategoryInfo(assetType) {
+  const normalizedType = normalize(String(assetType || ""));
+  if (!normalizedType) return null;
+
+  return Object.values(illustrationCategoryMeta).find((category) =>
+    category.matchers.some((matcher) => normalizedType.includes(normalize(matcher))),
+  ) ?? null;
 }
 
 function sortAssets(list) {
@@ -1104,6 +1212,9 @@ function getGroupColor(groupName, value) {
     営業資料素材: "#039373",
     モーション: "#c44d7b",
     テンプレート: "#c15d1e",
+    ひとイラスト: "#d34638",
+    ものイラスト: "#039373",
+    ことイラスト: "#7b6bd0",
     PNG: "#3f7ecf",
     SVG: "#039373",
     PDF: "#d34638",
@@ -1125,6 +1236,11 @@ function getGroupColor(groupName, value) {
 }
 
 function getThumbnailKindLabel(assetType) {
+  const illustrationCategory = getIllustrationCategoryInfo(assetType);
+  if (illustrationCategory) {
+    return illustrationCategory.thumbnail;
+  }
+
   const labels = {
     ロゴ: "LOGO",
     ガイドライン: "GUIDE",
@@ -1174,12 +1290,18 @@ function colorVariantRank(colorVariant) {
 
 function makeAsset(data) {
   const driveId = data.driveId || extractDriveIdFromUrl(data.driveUrl) || "";
-  const browseUrl = getBrandBrowseUrl(data.brand, data.assetType, data.locale);
+  const illustrationCategory = getIllustrationCategoryInfo(data.assetType);
+  const normalizedAssetType = illustrationCategory?.display || data.assetType;
+  const browseUrl = getBrandBrowseUrl(data.brand, normalizedAssetType, data.locale);
   const driveUrl = data.driveUrl && !isDriveSearchUrl(data.driveUrl) ? data.driveUrl : browseUrl;
   const colorVariant = data.colorVariant || inferColorVariant(data.title);
-  const tags = Array.isArray(data.tags) ? data.tags : [];
+  const tags = uniqueValues([
+    ...(Array.isArray(data.tags) ? data.tags : []),
+    ...(illustrationCategory?.tags || []),
+  ]);
   return {
     ...data,
+    assetType: normalizedAssetType,
     driveUrl: driveId ? `https://drive.google.com/file/d/${driveId}/view?usp=drivesdk` : driveUrl,
     driveId,
     thumbnailUrl: data.thumbnailUrl || (driveId ? `${API_THUMBNAIL_ENDPOINT}/${encodeURIComponent(driveId)}` : ""),
