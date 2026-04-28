@@ -1,0 +1,158 @@
+name: Reusable Checks
+
+on:
+  workflow_call:
+    inputs:
+      upload_artifact:
+        description: "Upload dist artifact for downstream jobs"
+        required: false
+        type: boolean
+        default: false
+      enable_pr_comment:
+        description: "Post PR comments on lint failure"
+        required: false
+        type: boolean
+        default: false
+      allow_lint_failure:
+        description: "Allow lint step to continue on error (e.g., for preview)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  check-and-build:
+    name: Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-pnpm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Lint ---
+      - name: Run Biome check
+        id: biome_check
+        continue-on-error: ${{ inputs.allow_lint_failure }}
+        run: pnpm lint
+
+      - name: Comment on format check failure
+        if: inputs.enable_pr_comment && steps.biome_check.outcome == 'failure'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const comment = `## ⚠️ フォーマットチェックが失敗しました
+
+            **AI に依頼する場合（推奨）：**
+
+            Claude Code や他の AI アシスタントに以下をコピーして依頼してください：
+
+            > \`pnpm format\` を実行してフォーマットとlintの問題を修正し、コミットしてください
+
+            **手動で修正する場合：**
+
+            以下のコマンドを実行してください：
+
+            \`\`\`bash
+            pnpm format       # Lint と Format の両方を自動修正
+            \`\`\`
+
+            修正後、変更をコミットしてプッシュしてください。`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('フォーマットチェックが失敗しました')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }
+
+      - name: Delete format check comment on success
+        if: inputs.enable_pr_comment && steps.biome_check.outcome == 'success'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('フォーマットチェックが失敗しました')
+            );
+
+            if (botComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id
+              });
+            }
+
+      # --- Typecheck ---
+      - name: Restore tsbuild cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules/.tmp
+          key: ${{ runner.os }}-tsgo-${{ hashFiles('pnpm-lock.yaml', 'tsconfig*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-tsgo-
+
+      - name: Run typecheck
+        run: pnpm exec tsgo -b
+
+      # --- Build ---
+      - name: Restore Vite cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules/.vite
+          key: ${{ runner.os }}-vite-${{ hashFiles('pnpm-lock.yaml', 'vite.config.ts', 'tsconfig*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vite-
+
+      - name: Run build
+        run: pnpm exec vite build
+
+      - name: Upload build artifact
+        if: inputs.upload_artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dist
+          path: dist

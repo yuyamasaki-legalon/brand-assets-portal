@@ -1,0 +1,7 @@
+interface:
+  display_name: "Spec Doc Normalizer"
+  short_description: "Normalize AI-facing spec docs for cross-project reuse"
+  default_prompt: "Use $spec-doc-normalizer to clean this spec directory for portable AI implementation use."
+
+policy:
+  allow_implicit_invocation: true

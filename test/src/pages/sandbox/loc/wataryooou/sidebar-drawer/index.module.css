@@ -1,0 +1,48 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.stackLarge {
+  composes: stack;
+  gap: var(--aegis-space-large);
+}
+
+.stackMedium {
+  composes: stack;
+  gap: var(--aegis-space-medium);
+}
+
+.controlGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--aegis-layout-width-x5Small), 1fr));
+  gap: var(--aegis-space-medium);
+}
+
+.actions {
+  display: flex;
+  gap: var(--aegis-space-medium);
+}
+
+.sectionTitle {
+  margin-bottom: var(--aegis-space-small);
+}
+
+.activityList {
+  composes: stack;
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+}
+
+.activityItem {
+  composes: stack;
+  gap: var(--aegis-space-xxSmall);
+  padding: var(--aegis-space-small) 0;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+}

@@ -1,0 +1,212 @@
+/* ============================================
+   Case Detail Layout - CSS Grid Based
+   ============================================ */
+
+/* メインレイアウト：左側メイン + 右側サイド + サイドナビ */
+.case-detail-page {
+  display: grid;
+  grid-template-columns: 1fr 380px auto;
+  gap: var(--aegis-space-medium);
+  height: calc(100vh - 100px);
+  padding: var(--aegis-space-medium);
+  overflow: hidden;
+}
+
+/* ============================================
+   左側メインエリア
+   ============================================ */
+.case-detail-main {
+  display: grid;
+  gap: var(--aegis-space-medium);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* 案件概要が右側にある場合：ドキュメントプレビューが全体を占める */
+.case-detail-main[data-layout="top-right"],
+.case-detail-main[data-layout="bottom-right"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* ============================================
+   右側サイドエリア
+   ============================================ */
+.case-detail-side {
+  display: grid;
+  gap: var(--aegis-space-medium);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* 案件概要が左側にある場合：案件情報が全体を占める */
+.case-detail-side[data-layout="bottom-left"],
+.case-detail-side[data-layout="top-left"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* ============================================
+   サイドナビゲーション
+   ============================================ */
+.case-detail-sidenav {
+  display: flex;
+  flex-direction: column;
+  padding: var(--aegis-space-small);
+  border: 1px solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  background-color: var(--aegis-color-surface-default);
+  height: fit-content;
+}
+
+/* ============================================
+   ドキュメントプレビューエリア
+   ============================================ */
+.case-detail-preview {
+  position: relative;
+  border: 1px solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  background-color: var(--aegis-color-surface-default);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition: border-color 0.2s ease;
+}
+
+.case-detail-preview[data-drop-position] {
+  border-color: var(--aegis-color-border-accent);
+}
+
+.case-detail-preview-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* ============================================
+   案件情報エリア
+   ============================================ */
+.case-detail-info {
+  position: relative;
+  border: 1px solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  background-color: var(--aegis-color-surface-default);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition: border-color 0.2s ease;
+}
+
+.case-detail-info[data-drop-position] {
+  border-color: var(--aegis-color-border-accent);
+}
+
+.case-detail-info-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding: var(--aegis-space-medium);
+}
+
+/* ============================================
+   案件概要エリア（ドラッグ可能）
+   ============================================ */
+.case-detail-summary {
+  border: 1px solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  background-color: var(--aegis-color-surface-default);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition: box-shadow 0.2s ease;
+}
+
+.case-detail-summary[data-dragging="true"] {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  opacity: 0.5;
+}
+
+.case-detail-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--aegis-space-small) var(--aegis-space-medium);
+  border-bottom: 1px solid var(--aegis-color-border-default);
+  cursor: grab;
+  user-select: none;
+  background-color: var(--aegis-color-background-neutral-xSubtle);
+  flex-shrink: 0;
+}
+
+.case-detail-summary-header:active {
+  cursor: grabbing;
+}
+
+.case-detail-summary-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding: var(--aegis-space-medium);
+}
+
+/* ============================================
+   ドロップインジケーター（同じサイド内での移動用 - フルエリア）
+   ============================================ */
+.case-detail-drop-indicator-full {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--aegis-color-background-accent-xSubtle);
+  border: 2px dashed var(--aegis-color-border-accent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.case-detail-drop-indicator-full[data-position="top"] {
+  top: 0;
+  border-radius: var(--aegis-radius-large) var(--aegis-radius-large) 0 0;
+}
+
+.case-detail-drop-indicator-full[data-position="bottom"] {
+  bottom: 0;
+  border-radius: 0 0 var(--aegis-radius-large) var(--aegis-radius-large);
+}
+
+/* ============================================
+   ドロップインジケーター（異なるサイドへの移動用 - 上辺/下辺のみ）
+   ============================================ */
+.case-detail-drop-indicator-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--aegis-color-background-accent-subtle);
+  border: 2px solid var(--aegis-color-border-accent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.case-detail-drop-indicator-edge[data-position="top"] {
+  top: 0;
+  border-radius: var(--aegis-radius-large) var(--aegis-radius-large) 0 0;
+  border-bottom-style: dashed;
+}
+
+.case-detail-drop-indicator-edge[data-position="bottom"] {
+  bottom: 0;
+  border-radius: 0 0 var(--aegis-radius-large) var(--aegis-radius-large);
+  border-top-style: dashed;
+}

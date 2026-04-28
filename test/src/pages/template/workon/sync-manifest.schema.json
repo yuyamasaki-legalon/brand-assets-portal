@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hueron Sync Manifest",
+  "description": "Tracks sync freshness between lib/hueron-app pages and src/pages/template/workon/ pages",
+  "type": "object",
+  "required": ["version", "hueronAppRepo", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version"
+    },
+    "hueronAppRepo": {
+      "type": "string",
+      "description": "Relative path to the hueron-app repository root from aegis-lab root",
+      "default": "lib/hueron-app"
+    },
+    "entries": {
+      "type": "object",
+      "description": "Map of template file path (relative to src/pages/template/workon/) to sync metadata",
+      "additionalProperties": {
+        "$ref": "#/definitions/SyncEntry"
+      }
+    }
+  },
+  "definitions": {
+    "SyncEntry": {
+      "type": "object",
+      "required": [
+        "pagePath",
+        "relatedGlobs",
+        "lastSyncedCommit",
+        "lastSyncedDate",
+        "templateRoute",
+        "referenceScreenshot"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "pagePath": {
+          "type": "string",
+          "description": "Path to the primary source directory relative to frontend/apps/main/src/app/. May include Next.js route groups like (with-navi)."
+        },
+        "relatedGlobs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Glob patterns for related page-local files, relative to frontend/apps/main/src/app/"
+        },
+        "lastSyncedCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{40}$",
+          "description": "Full SHA of the hueron-app commit this template was last synced from"
+        },
+        "lastSyncedDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of when the sync was performed"
+        },
+        "templateRoute": {
+          "type": "string",
+          "description": "Browser route for this template page (e.g. '/template/workon/procedure')"
+        },
+        "referenceScreenshot": {
+          "type": ["string", "null"],
+          "description": "Filename in .reference-screenshots/ directory, or null if not set"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "color": {
+    "foreground": {
+      "subtler": {
+        "$value": "{color.foreground.xSubtle}",
+        "$deprecated": true
+      },
+      "inverse": {
+        "$value": "{internal.color.palette.scale.white.1000}"
+      },
+      "inverse-subtle": {
+        "$value": "{internal.color.palette.scale.white-transparent.600}"
+      },
+      "danger": {
+        "$value": "{internal.color.palette.scale.red.600}"
+      },
+      "danger-pressed": {
+        "$value": "{internal.color.palette.scale.red.700}"
+      },
+      "danger-bold": {
+        "$value": "{internal.color.palette.scale.red.800}"
+      },
+      "information": {
+        "$value": "{internal.color.palette.scale.blue.600}"
+      },
+      "information-pressed": {
+        "$value": "{internal.color.palette.scale.blue.700}"
+      },
+      "information-bold": {
+        "$value": "{internal.color.palette.scale.blue.800}"
+      },
+      "success": {
+        "$value": "{internal.color.palette.scale.teal.600}"
+      },
+      "success-pressed": {
+        "$value": "{internal.color.palette.scale.teal.700}"
+      },
+      "success-bold": {
+        "$value": "{internal.color.palette.scale.teal.800}"
+      },
+      "warning-subtle": {
+        "$value": "{internal.color.palette.scale.yellow.500}"
+      },
+      "warning": {
+        "$value": "{internal.color.palette.scale.yellow.600}"
+      },
+      "warning-pressed": {
+        "$value": "{internal.color.palette.scale.yellow.700}"
+      },
+      "warning-bold": {
+        "$value": "{internal.color.palette.scale.yellow.800}"
+      },
+      "accent-gray-subtle": {
+        "$value": "{internal.color.palette.scale.neutral.600}"
+      },
+      "accent-gray": {
+        "$value": "{internal.color.palette.scale.neutral.700}"
+      },
+      "accent-blue-subtle": {
+        "$value": "{internal.color.palette.scale.blue.600}"
+      },
+      "accent-blue": {
+        "$value": "{internal.color.palette.scale.blue.700}"
+      },
+      "accent-blue-bold": {
+        "$value": "{internal.color.palette.scale.blue.800}"
+      },
+      "accent-yellow-subtle": {
+        "$value": "{internal.color.palette.scale.yellow.600}"
+      },
+      "accent-yellow": {
+        "$value": "{internal.color.palette.scale.yellow.700}"
+      },
+      "accent-yellow-bold": {
+        "$value": "{internal.color.palette.scale.yellow.800}"
+      },
+      "accent-orange-subtle": {
+        "$value": "{internal.color.palette.scale.orange.600}"
+      },
+      "accent-orange": {
+        "$value": "{internal.color.palette.scale.orange.700}"
+      },
+      "accent-orange-bold": {
+        "$value": "{internal.color.palette.scale.orange.800}"
+      },
+      "accent-red-subtle": {
+        "$value": "{internal.color.palette.scale.red.600}"
+      },
+      "accent-red": {
+        "$value": "{internal.color.palette.scale.red.700}"
+      },
+      "accent-red-bold": {
+        "$value": "{internal.color.palette.scale.red.800}"
+      },
+      "accent-purple-subtle": {
+        "$value": "{internal.color.palette.scale.purple.600}"
+      },
+      "accent-purple": {
+        "$value": "{internal.color.palette.scale.purple.700}"
+      },
+      "accent-purple-bold": {
+        "$value": "{internal.color.palette.scale.purple.800}"
+      },
+      "accent-lime-subtle": {
+        "$value": "{internal.color.palette.scale.lime.600}"
+      },
+      "accent-lime": {
+        "$value": "{internal.color.palette.scale.lime.700}"
+      },
+      "accent-lime-bold": {
+        "$value": "{internal.color.palette.scale.lime.800}"
+      },
+      "accent-teal-subtle": {
+        "$value": "{internal.color.palette.scale.teal.600}"
+      },
+      "accent-teal": {
+        "$value": "{internal.color.palette.scale.teal.700}"
+      },
+      "accent-teal-bold": {
+        "$value": "{internal.color.palette.scale.teal.800}"
+      },
+      "accent-indigo-subtle": {
+        "$value": "{internal.color.palette.scale.indigo.600}"
+      },
+      "accent-indigo": {
+        "$value": "{internal.color.palette.scale.indigo.700}"
+      },
+      "accent-indigo-bold": {
+        "$value": "{internal.color.palette.scale.indigo.800}"
+      },
+      "accent-magenta-subtle": {
+        "$value": "{internal.color.palette.scale.magenta.600}"
+      },
+      "accent-magenta": {
+        "$value": "{internal.color.palette.scale.magenta.700}"
+      },
+      "accent-magenta-bold": {
+        "$value": "{internal.color.palette.scale.magenta.800}"
+      },
+      "brand": {
+        "$value": "{internal.color.palette.scale.neutral.900}"
+      },
+      "default": {
+        "$value": "{internal.color.palette.scale.neutral.800}"
+      },
+      "bold": {
+        "$value": "{internal.color.palette.scale.neutral.900}"
+      },
+      "disabled": {
+        "$value": "{internal.color.palette.scale.neutral.300}"
+      },
+      "disabled-inverse": {
+        "$value": "{internal.color.palette.scale.neutral.400}"
+      },
+      "pressed": {
+        "$value": "{internal.color.palette.scale.neutral.900}"
+      },
+      "subtle": {
+        "$value": "{internal.color.palette.scale.neutral-transparent.600}"
+      },
+      "xSubtle": {
+        "$value": "{internal.color.palette.scale.neutral.500}"
+      }
+    }
+  }
+}

@@ -1,0 +1,776 @@
+name: Preview Deployment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+concurrency:
+  # Routing:
+  # - push / reopen / `preview:*` labeled events share `preview-<pr>` so the
+  #   newest event always wins (prevents an older label run from finishing
+  #   after a newer push and reverting the URL to a stale commit).
+  # - `preview:*` UNlabeled events get their own per-slug lane. Cleanup must
+  #   not be cancelled by a subsequent push, or the replacement run loses the
+  #   removed slug (`pull_request.labels` no longer includes it) and the
+  #   Cloudflare DELETE never happens.
+  # - Other labeled/unlabeled events are routed to a per-label noop lane so
+  #   toggling unrelated labels neither cancels the in-flight preview run nor
+  #   competes with each other.
+  group: >-
+    preview-${{ github.event.pull_request.number }}${{
+      github.event.action == 'unlabeled' && startsWith(github.event.label.name, 'preview:')
+      && format('-cleanup-{0}', github.event.label.name)
+      || (
+        (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+        && !startsWith(github.event.label.name, 'preview:')
+        && format('-noop-{0}', github.event.label.name)
+      )
+      || ''
+    }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+  packages: read
+
+jobs:
+  checks:
+    name: Typecheck & Build
+    if: >-
+      github.event.action != 'labeled' && github.event.action != 'unlabeled'
+      || (github.event.action == 'labeled' && startsWith(github.event.label.name, 'preview:'))
+    uses: ./.github/workflows/checks.yml
+    with:
+      upload_artifact: true
+      enable_pr_comment: true
+      allow_lint_failure: true
+
+  draft-notice:
+    name: Draft PR Notice
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.draft == true
+      && (github.event.action != 'labeled' && github.event.action != 'unlabeled'
+      || (github.event.action == 'labeled' && startsWith(github.event.label.name, 'preview:')))
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Comment about skipped preview deployment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const comment = `## 🚧 プレビューデプロイはスキップされました
+
+            この PR は現在 **Draft** 状態のため、プレビュー URL は生成されません。
+
+            プレビュー環境を確認するには、PR を **Ready for review** に変更してください。
+
+            > **Note**: Typecheck & Build のチェックは Draft 状態でも実行されます。`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('プレビューデプロイはスキップされました')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }
+
+  delete-draft-notice:
+    name: Clean Draft Notice
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.draft == false
+      && (github.event.action != 'labeled' && github.event.action != 'unlabeled'
+      || (github.event.action == 'labeled' && startsWith(github.event.label.name, 'preview:')))
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Delete draft notice comment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('プレビューデプロイはスキップされました')
+            );
+
+            if (botComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id
+              });
+            }
+
+  cleanup-removed-alias:
+    name: Cleanup Removed Preview Alias
+    runs-on: ubuntu-latest
+    # Must NOT depend on `checks` or require `draft == false`: removing a
+    # `preview:{slug}` label from a draft PR or a PR with failing checks still
+    # needs to retire the project alias. Keeping this as a top-level sibling
+    # job ensures the delete runs regardless of the deploy path.
+    if: >-
+      github.event.action == 'unlabeled'
+      && startsWith(github.event.label.name, 'preview:')
+      && github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-pnpm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup removed preview alias
+        id: cleanup
+        continue-on-error: true
+        env:
+          REMOVED_LABEL: ${{ github.event.label.name }}
+          SELF_PR_NUMBER: ${{ github.event.pull_request.number }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Classify the removed label through the shared helper so reserved
+          # slugs (pr-{N}, main, ...) are never passed to the Cloudflare DELETE
+          # call. Without this guard, removing e.g. `preview:pr-99` on this PR
+          # would delete PR #99's real preview alias.
+          CLASSIFY=$(pnpm exec tsx scripts/classify-preview-label.ts "$REMOVED_LABEL" || true)
+          echo "$CLASSIFY"
+          STATUS=$(printf '%s\n' "$CLASSIFY" | sed -n 's/^status=//p' | head -n1)
+          SLUG=$(printf '%s\n' "$CLASSIFY" | sed -n 's/^slug=//p' | head -n1)
+          REASON=$(printf '%s\n' "$CLASSIFY" | sed -n 's/^reason=//p' | head -n1)
+
+          echo "removed-slug=$SLUG" >> "$GITHUB_OUTPUT"
+
+          if [[ "$STATUS" == "reserved" ]]; then
+            echo "cleanup-status=reserved" >> "$GITHUB_OUTPUT"
+            echo "Skipping delete for reserved slug '$SLUG': $REASON"
+            exit 0
+          fi
+          if [[ "$STATUS" != "valid" ]]; then
+            echo "cleanup-status=invalid" >> "$GITHUB_OUTPUT"
+            echo "::warning::Invalid preview label '$REMOVED_LABEL', skipping cleanup: $REASON"
+            exit 0
+          fi
+
+          # Skip deletion when another OPEN PR still carries the same label.
+          # Ownership at upload time only considers open PRs (see "Resolve
+          # project alias ownership"), so the cleanup check mirrors that
+          # semantic: merged/closed PRs do not hold ownership. Sequential
+          # reuse (label used on PR #10, later reused on PR #20 after #10
+          # merged) correctly lets #20 delete the alias because #10 is no
+          # longer open.
+          if ! LIST_OUT=$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --label "preview:$SLUG" \
+            --json number \
+            --jq '.[].number' 2>&1); then
+            echo "::warning::Failed to query open PRs for 'preview:$SLUG': $LIST_OUT. Keeping alias for manual review."
+            echo "cleanup-status=manual-required" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Do NOT exclude self: if the label was re-added to this PR before
+          # the cleanup ran, gh pr list will return this PR number. That means
+          # the alias is still wanted and we must skip deletion.
+          ACTIVE_PRS=$(echo "$LIST_OUT" | awk 'NF')
+          if [ -n "$ACTIVE_PRS" ]; then
+            ACTIVE_PRS_CSV=$(echo "$ACTIVE_PRS" | paste -sd, -)
+            echo "cleanup-status=in-use" >> "$GITHUB_OUTPUT"
+            echo "cleanup-active-prs=$ACTIVE_PRS_CSV" >> "$GITHUB_OUTPUT"
+            echo "Alias 'preview:$SLUG' still in use by open PR(s): $ACTIVE_PRS_CSV. Skipping deletion."
+            exit 0
+          fi
+
+          # Re-check right before deletion to narrow the TOCTOU window.
+          # Between the first gh pr list (above) and this point, another PR may
+          # have acquired the same label, or the same PR may have re-added it.
+          if ! RECHECK_OUT=$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --label "preview:$SLUG" \
+            --json number \
+            --jq '.[].number' 2>&1); then
+            echo "::warning::Re-check query failed for 'preview:$SLUG': $RECHECK_OUT. Keeping alias for manual review."
+            echo "cleanup-status=manual-required" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          RECHECK_PRS=$(echo "$RECHECK_OUT" | awk 'NF')
+          if [ -n "$RECHECK_PRS" ]; then
+            RECHECK_CSV=$(echo "$RECHECK_PRS" | paste -sd, -)
+            echo "cleanup-status=in-use" >> "$GITHUB_OUTPUT"
+            echo "cleanup-active-prs=$RECHECK_CSV" >> "$GITHUB_OUTPUT"
+            echo "Re-check: alias 'preview:$SLUG' now in use by PR(s): $RECHECK_CSV. Aborting deletion."
+            exit 0
+          fi
+
+          # Cloudflare Workers has no public DELETE API for preview aliases.
+          # Instead, overwrite the alias with a tombstone worker that returns
+          # 410 Gone so the URL no longer serves stale preview content.
+          TOMBSTONE_DIR=$(mktemp -d)
+          cat > "$TOMBSTONE_DIR/index.js" << 'WORKER_EOF'
+          export default {
+            fetch() {
+              return new Response("This preview has been removed.", {
+                status: 410,
+                headers: { "Content-Type": "text/plain" },
+              });
+            },
+          };
+          WORKER_EOF
+          cat > "$TOMBSTONE_DIR/wrangler.json" << 'WRANGLER_EOF'
+          {
+            "name": "aegis-lab",
+            "compatibility_date": "2024-11-14",
+            "main": "index.js"
+          }
+          WRANGLER_EOF
+
+          if CLOUDFLARE_API_TOKEN="$CF_API_TOKEN" \
+             CLOUDFLARE_ACCOUNT_ID="$CF_ACCOUNT_ID" \
+             WRANGLER_SEND_METRICS=false \
+             pnpm exec wrangler versions upload \
+               --preview-alias "$SLUG" \
+               --config "$TOMBSTONE_DIR/wrangler.json" 2>&1; then
+            echo "cleanup-status=deleted" >> "$GITHUB_OUTPUT"
+          else
+            echo "cleanup-status=manual-required" >> "$GITHUB_OUTPUT"
+            echo "::warning::Failed to overwrite preview alias '$SLUG' with tombstone. The URL may still serve the previous snapshot."
+          fi
+          rm -rf "$TOMBSTONE_DIR"
+
+      - name: Comment PR with cleanup result
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          REMOVED_LABEL: ${{ github.event.label.name }}
+          REMOVED_SLUG: ${{ steps.cleanup.outputs.removed-slug }}
+          CLEANUP_STATUS: ${{ steps.cleanup.outputs.cleanup-status }}
+          CLEANUP_ACTIVE_PRS: ${{ steps.cleanup.outputs.cleanup-active-prs }}
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const removedLabel = (process.env.REMOVED_LABEL || "").trim();
+            const removedSlug = (process.env.REMOVED_SLUG || "").trim();
+            const cleanupStatus = (process.env.CLEANUP_STATUS || "").trim();
+            const activePrsCsv = (process.env.CLEANUP_ACTIVE_PRS || "").trim();
+            const activePrList = activePrsCsv
+              ? activePrsCsv.split(",").map((n) => `#${n.trim()}`).filter(Boolean).join(", ")
+              : "";
+            const displaySlug = removedSlug || removedLabel.replace(/^preview:/, "") || removedLabel;
+
+            const sections = {
+              deleted: `## 🧹 Preview Alias Cleanup\n\n- **${displaySlug}**: deleted — the project URL is no longer live.`,
+              "manual-required": `## ⚠️ Preview Alias Cleanup (Manual Action Required)\n\n- **${displaySlug}**: tombstone upload failed. The URL may still serve the previous snapshot — re-push or re-label \`preview:${displaySlug}\` to retry.`,
+              "in-use": `## ℹ️ Preview Alias Cleanup\n\n- **${displaySlug}**: ${activePrList} も同じラベルを使用中のため削除をスキップしました。該当 PR に push すると最新コンテンツに更新されます。`,
+              reserved: `## ℹ️ Preview Alias Cleanup\n\n- **${displaySlug}**: skipped — this slug is reserved and was never owned by this PR.`,
+              invalid: `## ⚠️ Preview Alias Cleanup\n\n- **${displaySlug || removedLabel}**: invalid slug format, no cleanup attempted.`,
+            };
+
+            const body = sections[cleanupStatus];
+            if (!body) {
+              console.log(`No cleanup status to report (status=${cleanupStatus}). Skipping comment.`);
+              return;
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            // 1) Post or update the dedicated cleanup comment
+            const cleanupMarker = "Preview Alias Cleanup";
+            const cleanupComment = comments.find(
+              (c) => c.user.type === "Bot" && c.body.includes(cleanupMarker),
+            );
+            if (cleanupComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: cleanupComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
+
+            // 2) Strip the deleted alias from the sticky Preview Deployment
+            //    comment so reviewers are not led to a dead URL.
+            //    Skip for reserved/invalid slugs — their URL pattern (e.g.
+            //    pr-42-aegis-lab.) would match the normal Alias URL line.
+            const skipUrlStrip = cleanupStatus === "reserved" || cleanupStatus === "invalid";
+            const previewComment = comments.find(
+              (c) => c.user.type === "Bot" && c.body.includes("Preview Deployment"),
+            );
+            if (previewComment && displaySlug && !skipUrlStrip) {
+              const slugUrlFull = `https://${displaySlug}-aegis-lab.`;
+              const lines = previewComment.body.split("\n");
+              const filtered = lines.filter(
+                (line) =>
+                  !line.includes(`**${displaySlug}**:`) &&
+                  !line.includes(slugUrlFull)
+              );
+              // If the Project URL header remains but has no items, drop
+              // the header and the snapshot note too.
+              const hasProjectUrls = filtered.some(
+                (line) => line.startsWith("- **") && line.includes("-aegis-lab.")
+              );
+              // Also check if any project-fixed page URLs remain
+              const hasProjectFixedUrls = filtered.some(
+                (line) =>
+                  (line.startsWith("**https://") || line.startsWith("- https://")) &&
+                  line.includes("-aegis-lab.")
+              );
+              const cleaned = filtered.filter((line) => {
+                if (!hasProjectUrls) {
+                  if (line.includes("Project URL") || line.includes("スナップショットのまま")) return false;
+                }
+                if (!hasProjectFixedUrls) {
+                  if (line.includes("Project-fixed Page URL(s)")) return false;
+                }
+                return true;
+              });
+              const newBody = cleaned.join("\n");
+              if (newBody !== previewComment.body) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: previewComment.id,
+                  body: newBody,
+                });
+              }
+            }
+
+  deploy:
+    name: Upload Worker Version
+    runs-on: ubuntu-latest
+    needs: [checks]
+    if: >-
+      github.event.pull_request.draft == false
+      && github.actor != 'dependabot[bot]'
+      && (github.event.action != 'labeled' && github.event.action != 'unlabeled'
+      || (github.event.action == 'labeled' && startsWith(github.event.label.name, 'preview:')))
+    environment:
+      name: preview
+      url: ${{ steps.get-url.outputs.deployment-url }}
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-pnpm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download build artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: dist
+          path: dist
+
+      - name: Configure preview D1 binding
+        env:
+          PREVIEW_COMMENTS_DB_ID: ${{ secrets.CLOUDFLARE_PREVIEW_COMMENTS_DB_ID }}
+        run: |
+          test -n "$PREVIEW_COMMENTS_DB_ID"
+          TMP_FILE="$(mktemp)"
+          jq --arg preview_db_id "$PREVIEW_COMMENTS_DB_ID" '
+            .d1_databases |= map(
+              if .binding == "COMMENTS_DB"
+              then .database_id = $preview_db_id
+              else .
+              end
+            )
+          ' dist/aegis_lab/wrangler.json > "$TMP_FILE"
+          mv "$TMP_FILE" dist/aegis_lab/wrangler.json
+
+      - name: Copy migrations next to config
+        run: cp -r migrations dist/aegis_lab/migrations
+
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply COMMENTS_DB --remote --config dist/aegis_lab/wrangler.json
+        env:
+          WRANGLER_SEND_METRICS: false
+
+      - name: Extract preview labels
+        id: labels
+        env:
+          LABELS_JSON: ${{ toJSON(github.event.pull_request.labels) }}
+        run: pnpm tsx scripts/extract-preview-labels.ts
+
+      - name: Check project alias conflicts
+        id: alias-conflicts
+        if: steps.labels.outputs.valid-aliases-csv != ''
+        env:
+          VALID_ALIASES: ${{ steps.labels.outputs.valid-aliases-csv }}
+          SELF_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          conflicts_json="[]"
+          IFS=',' read -ra ALIASES <<< "$VALID_ALIASES"
+          for alias in "${ALIASES[@]}"; do
+            OTHER_PRS=$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --label "preview:$alias" \
+              --json number 2>/dev/null \
+              | jq -c --argjson self "$SELF_PR_NUMBER" \
+                '[.[].number | select(. != $self)]' \
+              || echo "[]")
+            if [ "$OTHER_PRS" != "[]" ] && [ "$OTHER_PRS" != "" ]; then
+              conflicts_json=$(echo "$conflicts_json" | jq -c \
+                --arg alias "$alias" \
+                --argjson prs "$OTHER_PRS" \
+                '. + [{"alias": $alias, "prs": $prs}]')
+            fi
+          done
+          echo "conflicts-json=$conflicts_json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Worker version with preview alias
+        id: upload
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >
+            versions upload
+            --preview-alias pr-${{ github.event.pull_request.number }}
+            --config dist/aegis_lab/wrangler.json
+        env:
+          WRANGLER_SEND_METRICS: false
+
+      - name: Upload project aliases
+        id: upload-project-aliases
+        if: steps.labels.outputs.valid-aliases-csv != ''
+        continue-on-error: true
+        env:
+          VALID_ALIASES: ${{ steps.labels.outputs.valid-aliases-csv }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: false
+        run: |
+          failed=()
+          IFS=',' read -ra ALIASES <<< "$VALID_ALIASES"
+          for alias in "${ALIASES[@]}"; do
+            if ! pnpm exec wrangler versions upload \
+              --preview-alias "$alias" \
+              --config dist/aegis_lab/wrangler.json; then
+              failed+=("$alias")
+            fi
+          done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "failed-aliases-csv=$(IFS=, ; echo "${failed[*]}")" >> "$GITHUB_OUTPUT"
+            echo "::warning::Failed to upload project aliases: ${failed[*]}"
+          fi
+
+      - name: Compute successful project aliases
+        id: successful-aliases
+        env:
+          VALID_ALIASES_JSON: ${{ steps.labels.outputs.valid-aliases-json }}
+          PROJECT_ALIAS_URLS_JSON: ${{ steps.labels.outputs.project-alias-urls-json }}
+          FAILED_ALIASES_CSV: ${{ steps.upload-project-aliases.outputs.failed-aliases-csv }}
+        run: |
+          VALID_JSON="${VALID_ALIASES_JSON:-[]}"
+          URLS_JSON="${PROJECT_ALIAS_URLS_JSON:-[]}"
+          FAILED="${FAILED_ALIASES_CSV:-}"
+          SUCCESSFUL_ALIASES=$(jq -c -n \
+            --argjson aliases "$VALID_JSON" \
+            --arg failed "$FAILED" \
+            '
+              ($failed | if . == "" then [] else split(",") end) as $failedList
+              | [$aliases[] | select((. as $a | $failedList | index($a)) == null)]
+            ')
+          SUCCESSFUL_URLS=$(jq -c -n \
+            --argjson aliases "$VALID_JSON" \
+            --argjson urls "$URLS_JSON" \
+            --arg failed "$FAILED" \
+            '
+              ($failed | if . == "" then [] else split(",") end) as $failedList
+              | [range(0; $aliases | length) as $i
+                  | select(($failedList | index($aliases[$i])) == null)
+                  | $urls[$i]]
+            ')
+          echo "successful-aliases-json=$SUCCESSFUL_ALIASES" >> "$GITHUB_OUTPUT"
+          echo "successful-alias-urls-json=$SUCCESSFUL_URLS" >> "$GITHUB_OUTPUT"
+
+      - name: Extract preview URL
+        id: get-url
+        env:
+          WRANGLER_OUTPUT: ${{ steps.upload.outputs.command-output }}
+          DEPLOYMENT_URL_OUTPUT: ${{ steps.upload.outputs.deployment-url }}
+        run: |
+          # Try to get URL from action output first
+          if [ -n "$DEPLOYMENT_URL_OUTPUT" ]; then
+            URL="$DEPLOYMENT_URL_OUTPUT"
+          else
+            # Fallback to parsing command output
+            URL=$(echo "$WRANGLER_OUTPUT" | grep -i "Version Preview URL:" | sed 's/.*Version Preview URL: //' | tr -d '[:space:]')
+          fi
+          echo "deployment-url=$URL" >> $GITHUB_OUTPUT
+          echo "Preview URL: $URL"
+
+      - name: Fetch base ref
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: git fetch origin "$BASE_REF" --depth=1
+
+      - name: List changed files
+        id: list-changed-files
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const files = [];
+            let page = 1;
+            const perPage = 100;
+
+            while (true) {
+              const { data } = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                per_page: perPage,
+                page,
+              });
+
+              files.push(...data.map((file) => file.filename));
+
+              if (data.length < perPage) {
+                break;
+              }
+
+              page += 1;
+            }
+
+            core.setOutput("changed-files", JSON.stringify(files));
+
+      - name: Detect changed routes
+        id: changed-routes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_REF: origin/${{ github.event.pull_request.base.ref }}
+          CHANGED_FILES: ${{ steps.list-changed-files.outputs.changed-files }}
+          PREVIEW_URL: ${{ steps.get-url.outputs.deployment-url }}
+          ALIAS_URL: https://pr-${{ github.event.pull_request.number }}-aegis-lab.on-technologies-technical-dept.workers.dev
+          PROJECT_ALIAS_URLS: ${{ steps.successful-aliases.outputs.successful-alias-urls-json }}
+        run: pnpm tsx scripts/preview-changed-pages.ts
+
+      - name: Comment PR with preview URL
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          DEPLOYMENT_URL: ${{ steps.get-url.outputs.deployment-url }}
+          CHANGED_ROUTES_MD: ${{ steps.changed-routes.outputs.changed-routes-markdown }}
+          SUCCESSFUL_ALIASES_JSON: ${{ steps.successful-aliases.outputs.successful-aliases-json }}
+          SUCCESSFUL_ALIAS_URLS_JSON: ${{ steps.successful-aliases.outputs.successful-alias-urls-json }}
+          LABEL_WARNINGS_JSON: ${{ steps.labels.outputs.warnings-json }}
+          FAILED_PROJECT_ALIASES: ${{ steps.upload-project-aliases.outputs.failed-aliases-csv }}
+          ALIAS_CONFLICTS_JSON: ${{ steps.alias-conflicts.outputs.conflicts-json }}
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const deploymentUrl = process.env.DEPLOYMENT_URL;
+            const aliasUrl = `https://pr-${prNumber}-aegis-lab.on-technologies-technical-dept.workers.dev`;
+            const changedRoutesMarkdown = process.env.CHANGED_ROUTES_MD;
+
+            const parseJsonArray = (raw) => {
+              if (!raw) return [];
+              try {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+              } catch {
+                return [];
+              }
+            };
+
+            const successfulAliases = parseJsonArray(process.env.SUCCESSFUL_ALIASES_JSON);
+            const successfulAliasUrls = parseJsonArray(process.env.SUCCESSFUL_ALIAS_URLS_JSON);
+            const warnings = parseJsonArray(process.env.LABEL_WARNINGS_JSON);
+            const failedAliasesCsv = (process.env.FAILED_PROJECT_ALIASES || "").trim();
+            const failedAliases = failedAliasesCsv ? failedAliasesCsv.split(",").filter(Boolean) : [];
+
+            const projectSection = successfulAliases.length > 0
+              ? `### Project URL（固定・社内共有用）\n${successfulAliases
+                  .map((alias, index) => {
+                    const url = successfulAliasUrls[index] ?? "";
+                    return `- **${alias}**: ${url}`;
+                  })
+                  .join("\n")}\n\n> main マージ後は、新しい PR で同じラベルが付くまでこのスナップショットのままになります。\n\n`
+              : "";
+
+            const failedProjectSection = failedAliases.length > 0
+              ? `\n### ⚠️ Failed Project Alias Uploads\n${failedAliases
+                  .map((alias) => `- **${alias}**: upload failed — re-run the workflow to retry`)
+                  .join("\n")}\n`
+              : "";
+
+            const aliasConflicts = parseJsonArray(process.env.ALIAS_CONFLICTS_JSON);
+            const conflictSection = aliasConflicts.length > 0
+              ? `\n### ⚠️ Project URL Conflicts\n${aliasConflicts
+                  .map((c) => `- **${c.alias}**: ${c.prs.map((n) => `#${n}`).join(", ")} も同じラベルを使用中です。最後に push した PR の内容が反映されます。`)
+                  .join("\n")}\n`
+              : "";
+
+            const warningSection = warnings.length > 0
+              ? `\n### ⚠️ Label Warnings\n${warnings.map((w) => `- ${w}`).join("\n")}\n`
+              : "";
+
+            const comment = `## 🚀 Preview Deployment
+
+            ${projectSection}### PR 専用 URL（開発・変更検証用）
+            **Preview URL**: ${deploymentUrl}
+
+            **Alias URL**: ${aliasUrl}
+
+            **Commit**: ${context.sha.substring(0, 7)}${failedProjectSection}${conflictSection}${warningSection}${changedRoutesMarkdown ? `\n\n${changedRoutesMarkdown}` : ""}`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Preview Deployment')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }
+
+      - name: Notify Slack about preview deployment
+        if: success()
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_PREVIEW_WEBHOOK_URL }}
+          INPUT_PR_TITLE: ${{ github.event.pull_request.title }}
+          INPUT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          INPUT_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          INPUT_PR_URL: ${{ github.event.pull_request.html_url }}
+          INPUT_SHA: ${{ github.sha }}
+          CHANGED_ROUTES_MD: ${{ steps.changed-routes.outputs.changed-routes-markdown }}
+          PROJECT_ALIAS_URLS_JSON: ${{ steps.successful-aliases.outputs.successful-alias-urls-json }}
+        run: |
+          # Skip if webhook URL is not configured
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_PREVIEW_WEBHOOK_URL is not set. Skipping Slack notification."
+            exit 0
+          fi
+
+          PR_NUMBER="$INPUT_PR_NUMBER"
+          PR_AUTHOR="$INPUT_PR_AUTHOR"
+          PR_URL="$INPUT_PR_URL"
+          ALIAS_URL="https://pr-${PR_NUMBER}-aegis-lab.on-technologies-technical-dept.workers.dev"
+          SHORT_SHA="${INPUT_SHA:0:7}"
+
+          # Compose project URL lines from fixed aliases
+          PROJECT_URL_LINES=""
+          if [ -n "$PROJECT_ALIAS_URLS_JSON" ] && [ "$PROJECT_ALIAS_URLS_JSON" != "[]" ]; then
+            PROJECT_URL_LINES=$(echo "$PROJECT_ALIAS_URLS_JSON" | jq -r '.[] | "Project URL: \(.)"')
+          fi
+
+          # Extract page URLs from changed routes, fallback to alias URL
+          URL_LINES=""
+          if [ -n "$CHANGED_ROUTES_MD" ]; then
+            # Extract URLs only (strip markdown headers, PRD Status, and list markers)
+            PAGE_URLS=$(echo "$CHANGED_ROUTES_MD" \
+              | sed -n '/^http/p; s/^- //p' \
+              | grep '^http')
+            if [ -n "$PAGE_URLS" ]; then
+              URL_LINES=$(echo "$PAGE_URLS" | while read -r url; do echo "URL: $url"; done)
+            fi
+          fi
+          if [ -z "$URL_LINES" ]; then
+            URL_LINES="URL: ${ALIAS_URL}"
+          fi
+
+          # Compose message (project URL section only when present)
+          if [ -n "$PROJECT_URL_LINES" ]; then
+            MESSAGE=":miru-nya: *プレビューデプロイが完了しました*
+          PR: <${PR_URL}|#${PR_NUMBER} ${INPUT_PR_TITLE}>
+          ${PROJECT_URL_LINES}
+          ${URL_LINES}
+          User: ${PR_AUTHOR}"
+          else
+            MESSAGE=":miru-nya: *プレビューデプロイが完了しました*
+          PR: <${PR_URL}|#${PR_NUMBER} ${INPUT_PR_TITLE}>
+          ${URL_LINES}
+          User: ${PR_AUTHOR}"
+          fi
+
+          # Send to Slack (warn on failure, don't break the workflow)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H 'Content-type: application/json' \
+            --data "{\"text\": $(echo "$MESSAGE" | jq -Rs .)}" \
+            "$SLACK_WEBHOOK_URL")
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::warning::Slack notification failed with HTTP status ${HTTP_STATUS}"
+          else
+            echo "Slack notification sent successfully."
+          fi

@@ -1,0 +1,37 @@
+---
+description: Template layout reference and selection guide
+globs: src/pages/**/*.tsx
+alwaysApply: false
+---
+
+# Template Layout Reference (MANDATORY)
+
+## Critical Rule
+**ALWAYS reference template layouts before implementing any page.**
+Do NOT design layouts from scratch - use existing templates as starting points.
+
+## Layout Selection Guide
+
+| Need | Template | Path |
+|------|----------|------|
+| Table/list with tabs, search, filters | **list-layout** | `src/pages/template/list-layout/` |
+| Settings with sidebar navigation | **settings-layout** | `src/pages/template/settings-layout/` |
+| Document/item detail with metadata panels | **detail-layout** | `src/pages/template/detail-layout/` |
+| Full-width editor/viewer with side panel | **fill-layout** | `src/pages/template/fill-layout/` |
+| Authentication/sign-up form | **form-layout** | `src/pages/template/form-layout/` |
+| Basic PageLayout patterns | **pagelayout/** | `src/pages/template/pagelayout/` |
+
+## Before Implementing a Page
+
+1. **Identify the use case** from the table above
+2. **Read the corresponding template file** to understand the pattern
+3. **Copy and adapt** - do not reinvent the layout structure
+4. **Follow existing conventions** for spacing, component composition
+
+## Quick Decision Tree
+
+- Is it a list/table view? → **list-layout**
+- Does it have a settings sidebar? → **settings-layout**
+- Is it a detail/document view? → **detail-layout** or **fill-layout**
+- Is it an auth/form page? → **form-layout**
+- Otherwise → Use **pagelayout/** basic patterns

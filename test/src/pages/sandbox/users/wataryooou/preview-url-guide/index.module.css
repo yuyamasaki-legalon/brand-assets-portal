@@ -1,0 +1,113 @@
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-large);
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+}
+
+.stepCard {
+  display: flex;
+  gap: var(--aegis-space-medium);
+  align-items: flex-start;
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--aegis-size-xxLarge);
+  height: var(--aegis-size-xxLarge);
+  border-radius: var(--aegis-radius-full);
+  background: var(--aegis-color-background-information);
+  color: var(--aegis-color-text-information);
+  font-weight: 700;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xxSmall);
+  min-width: 0;
+}
+
+.urlBox {
+  padding: var(--aegis-space-small) var(--aegis-space-medium);
+  border-radius: var(--aegis-radius-medium);
+  background: var(--aegis-color-background-neutral-xSubtle);
+  font-family: monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.urlHighlight {
+  color: var(--aegis-color-text-information);
+  font-weight: 700;
+}
+
+.slugExamples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xSmall);
+}
+
+.slugRow {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-small);
+}
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--aegis-space-medium);
+}
+
+@media (max-width: 768px) {
+  .comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+.comparisonItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xSmall);
+}
+
+.noteList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-small);
+}
+
+.noteItem {
+  display: flex;
+  gap: var(--aegis-space-xSmall);
+  align-items: flex-start;
+}
+
+.screenshotGroup {
+  display: flex;
+  gap: var(--aegis-space-medium);
+  margin-top: var(--aegis-space-small);
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.screenshot {
+  max-width: 100%;
+  border-radius: var(--aegis-radius-large);
+  border: 1px solid var(--aegis-color-border-default);
+}
+
+.screenshotSmall {
+  max-width: var(--aegis-layout-width-x3Small);
+  border-radius: var(--aegis-radius-large);
+  border: 1px solid var(--aegis-color-border-default);
+}

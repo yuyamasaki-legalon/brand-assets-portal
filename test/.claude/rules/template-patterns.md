@@ -1,0 +1,38 @@
+---
+paths: src/pages/template/**
+---
+
+# Template Development Rules
+
+## Purpose
+Templates are production-quality reference implementations.
+- Used as patterns for sandbox pages
+- Must follow all coding standards strictly
+
+## Export Pattern
+Use default export with named function:
+```typescript
+export default function TemplateName() {
+  return <PageLayout>...</PageLayout>;
+}
+```
+
+## File Organization
+```
+src/pages/template/
+├── feature-name/
+│   ├── index.tsx          # Main component
+│   ├── SubComponent.tsx   # Additional components
+│   ├── mock/              # Mock data
+│   │   └── data.ts
+│   └── routes.tsx         # Route definitions
+```
+
+## Route Registration
+In `routes.tsx`, export both routes array and file map:
+```typescript
+export const routes: RouteConfig[] = [...];
+export const routeFileMap: RouteFileMap = {...};
+```
+
+Use lazy loading for all route components.

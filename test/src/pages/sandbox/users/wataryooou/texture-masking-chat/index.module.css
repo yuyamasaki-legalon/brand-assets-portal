@@ -1,0 +1,57 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-small);
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-small);
+}
+
+.messageRow {
+  display: flex;
+  gap: var(--aegis-space-small);
+}
+
+.messageRowUser {
+  display: flex;
+  gap: var(--aegis-space-small);
+  flex-direction: row-reverse;
+}
+
+.messageCard {
+  max-width: 70%;
+}
+
+.preWrap {
+  white-space: pre-wrap;
+}
+
+.masked {
+  background-color: navy;
+  mask-image: url("@legalforce/aegis-textures/blocks-outline.svg");
+  mask-position: center;
+  -webkit-mask-image: url("@legalforce/aegis-textures/blocks-outline.svg");
+  -webkit-mask-position: center;
+  border-radius: var(--aegis-radius-small);
+  padding: 0 var(--aegis-space-x3Small);
+  display: inline-block;
+}
+
+.inputArea {
+  display: flex;
+  gap: var(--aegis-space-small);
+  align-items: flex-end;
+}
+
+.textareaFlex {
+  flex: 1;
+}

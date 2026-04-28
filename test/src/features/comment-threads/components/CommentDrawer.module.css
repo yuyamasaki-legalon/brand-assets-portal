@@ -1,0 +1,103 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+}
+
+.loadingState {
+  display: grid;
+  place-items: center;
+  padding: var(--aegis-space-xLarge);
+}
+
+.errorState {
+  padding: var(--aegis-space-medium);
+  border-radius: var(--aegis-radius-medium);
+  background: var(--aegis-color-background-danger-xSubtle);
+}
+
+.emptyState {
+  padding: var(--aegis-space-xLarge);
+  border-radius: var(--aegis-radius-large);
+  border: 1px dashed var(--aegis-color-border-default);
+  background: var(--aegis-color-background-neutral-subtle);
+}
+
+.threadCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+  padding: var(--aegis-space-medium);
+  border-radius: var(--aegis-radius-large);
+  border: 1px solid var(--aegis-color-border-subtle);
+  border-left: 1px solid var(--aegis-color-border-subtle);
+  background: var(--aegis-color-background-default);
+  transition:
+    border-color var(--aegis-motion-duration-fast) var(--aegis-motion-easing-default),
+    background var(--aegis-motion-duration-fast) var(--aegis-motion-easing-default),
+    box-shadow var(--aegis-motion-duration-fast) var(--aegis-motion-easing-default);
+}
+
+.threadCardSelected {
+  border-color: var(--aegis-color-border-information-default);
+  border-left: 3px solid var(--aegis-color-border-brand);
+  background: var(--aegis-color-background-information-xSubtle);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--aegis-color-border-information-default) 24%, transparent);
+}
+
+.threadCardPending {
+  opacity: 0.76;
+}
+
+.threadHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--aegis-space-small);
+}
+
+.threadHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-x3Small);
+}
+
+.threadBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+}
+
+.threadMetaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+  margin-top: calc(-1 * var(--aegis-space-xSmall));
+  flex-wrap: wrap;
+}
+
+.threadPreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xxSmall);
+  padding: var(--aegis-space-small);
+  padding-left: var(--aegis-space-medium);
+  border-radius: var(--aegis-radius-medium);
+  background: var(--aegis-color-background-neutral-xSubtle);
+  border-left: 2px solid var(--aegis-color-border-subtle);
+}
+
+.threadPreviewHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--aegis-space-small);
+  flex-wrap: wrap;
+}
+
+.threadPreviewBody {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: pre-wrap;
+}

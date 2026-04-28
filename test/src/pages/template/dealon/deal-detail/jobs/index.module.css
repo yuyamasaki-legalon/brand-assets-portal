@@ -1,0 +1,10 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+}
+
+.actions {
+  display: flex;
+  gap: var(--aegis-space-xxSmall);
+}

@@ -1,0 +1,127 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.wrapperFill {
+  height: 100%;
+}
+
+.wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid transparent;
+  border-radius: var(--aegis-radius-medium);
+  pointer-events: none;
+  z-index: 69;
+  transition: border-color var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.wrapper:hover::before,
+.wrapper:focus-within::before {
+  border-color: var(--aegis-color-border-bold);
+}
+
+.overlay {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+  background-color: var(--aegis-color-background-default);
+  border: 1px solid var(--aegis-color-border-neutral-subtle);
+  border-radius: 4px;
+  padding: 2px;
+  box-shadow: var(--aegis-depth-medium);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default),
+    visibility var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.overlayAlignEnd {
+  left: auto;
+  right: 6px;
+  top: 21px;
+  transform: translateY(-50%);
+}
+
+.wrapper:hover .overlay,
+.wrapper:focus-within .overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.forceVisible::before {
+  border-color: var(--aegis-color-border-bold);
+}
+
+.forceVisible .overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* stickyToolbar モード: height-0 sticky コンテナでツールバーをスクロール追従させる */
+.stickyContainer {
+  height: 0;
+  position: sticky;
+  top: var(--editzone-sticky-top, 4px);
+  overflow: visible;
+  pointer-events: none;
+  z-index: 70;
+}
+
+.stickyContainer .overlay {
+  top: 0;
+}
+
+.stickyContainer .overlayAlignEnd {
+  top: 2px;
+  transform: none;
+}
+
+/* noWrapper モード: Portal 経由で position: fixed 描画するボーダーとツールバー */
+.borderFixed {
+  position: fixed;
+  border: 1px solid transparent;
+  border-radius: var(--aegis-radius-medium);
+  pointer-events: none;
+  z-index: 69;
+  transition: border-color var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.borderFixedVisible {
+  border-color: var(--aegis-color-border-bold);
+}
+
+.overlayFixed {
+  position: fixed;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+  background-color: var(--aegis-color-background-default);
+  border: 1px solid var(--aegis-color-border-neutral-subtle);
+  border-radius: 4px;
+  padding: 2px;
+  box-shadow: var(--aegis-depth-medium);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default),
+    visibility var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.overlayFixedVisible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}

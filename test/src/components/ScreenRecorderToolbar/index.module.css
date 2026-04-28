@@ -1,0 +1,283 @@
+/* ===== Trigger Button (above existing </> button at bottom-right) ===== */
+.triggerBtn {
+  position: fixed;
+  bottom: var(--aegis-space-x3Large);
+  right: var(--aegis-space-small);
+  z-index: 99999;
+  pointer-events: auto;
+}
+
+.triggerBtn :global(button) {
+  background: #2c2c2c;
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.triggerBtn :global(button:hover) {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.triggerBtnRecording :global(button) {
+  background: #5c1a1a;
+  animation: triggerPulse 2s ease-in-out infinite;
+}
+
+.triggerBtnRecording :global(button:hover) {
+  background: #7a2020;
+}
+
+@keyframes triggerPulse {
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      0 0 12px rgba(255, 77, 77, 0.4);
+  }
+}
+
+/* ===== Floating Toolbar ===== */
+.toolbar {
+  position: fixed;
+  bottom: var(--aegis-space-large);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xxSmall);
+  background: #2c2c2c;
+  padding: var(--aegis-space-xxSmall) var(--aegis-space-xSmall);
+  border-radius: var(--aegis-radius-large);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.toolGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-x3Small);
+}
+
+.separator {
+  width: var(--aegis-border-width-thinPlus);
+  height: var(--aegis-size-large);
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 var(--aegis-space-xxSmall);
+}
+
+/* Tool buttons — IconButton with dark-theme overrides */
+.toolBtn {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.toolBtn:hover:not(:disabled) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.toolBtn:disabled {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.toolBtnActive {
+  color: #fff;
+  background: #0d9b5c;
+}
+
+.toolBtnActive:hover {
+  background: #0b8a52;
+}
+
+/* Record button */
+.recordBtn {
+  color: #ff4d4d;
+}
+
+.recordBtn:hover {
+  color: #ff7070;
+  background: rgba(255, 77, 77, 0.15);
+}
+
+/* Stop button */
+.stopBtn {
+  color: #ff4d4d;
+}
+
+.stopBtn:hover {
+  color: #ff7070;
+  background: rgba(255, 77, 77, 0.15);
+}
+
+/* Timer */
+.timerGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xxSmall);
+  padding: 0 var(--aegis-space-xxSmall);
+}
+
+.recDot {
+  width: var(--aegis-size-x3Small);
+  height: var(--aegis-size-x3Small);
+  border-radius: var(--aegis-radius-full);
+  /* TODO: 同上。ダーク背景用のカラートークン対応後に --aegis-color-text-danger へ置換 */
+  background: #e74c3c;
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.timerText {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 40px;
+}
+
+.errorText {
+  /* TODO: ダーク背景上のためライトテーマ用 --aegis-color-text-danger が使えない。ダークテーマトークン対応後に置換 */
+  color: #e74c3c;
+  font-size: 12px;
+  padding: 0 var(--aegis-space-xxSmall);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.warningText {
+  /* TODO: 同上。--aegis-color-text-warning はライトテーマ用のためダーク背景でコントラスト不足 */
+  color: #f5a623;
+  font-size: 12px;
+  padding: 0 var(--aegis-space-xxSmall);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Recording Overlay ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Cursor Highlight */
+.cursorHighlight {
+  position: fixed;
+  width: var(--aegis-size-x4Large);
+  height: var(--aegis-size-x4Large);
+  border-radius: var(--aegis-radius-full);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 24px 12px rgba(59, 130, 246, 0.45);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
+  transition: opacity var(--aegis-motion-duration-xFast) ease-out;
+  will-change: left, top;
+}
+
+/* Subtitle Bar */
+.subtitleBar {
+  position: fixed;
+  bottom: var(--aegis-space-x5Large);
+  left: 0;
+  right: 0;
+  padding: var(--aegis-space-medium) var(--aegis-space-large);
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  text-align: center;
+  pointer-events: none;
+  font-size: 18px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--aegis-space-xxSmall);
+}
+
+.subtitleFinal {
+  opacity: 1;
+}
+
+.subtitleInterim {
+  opacity: 0.55;
+}
+
+/* Memo Layer */
+.memoLayer {
+  position: fixed;
+  inset: 0;
+}
+
+.memo {
+  position: fixed;
+  pointer-events: auto;
+  background: rgba(255, 248, 220, 0.92);
+  border: 1px solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-medium);
+  padding: var(--aegis-space-xSmall);
+  padding-top: var(--aegis-space-medium);
+  min-width: var(--aegis-layout-width-x6Small);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: grab;
+  user-select: none;
+}
+
+.memo:active {
+  cursor: grabbing;
+}
+
+.memoDragHandle {
+  position: absolute;
+  top: var(--aegis-space-x3Small);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--aegis-color-text-subtle);
+  cursor: grab;
+  user-select: none;
+  letter-spacing: 2px;
+}
+
+.memoClose {
+  position: absolute;
+  top: var(--aegis-space-x3Small);
+  right: var(--aegis-space-xxSmall);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--aegis-color-text-subtle);
+  line-height: 1;
+  padding: var(--aegis-space-x3Small) var(--aegis-space-xxSmall);
+}
+
+.memoClose:hover {
+  color: var(--aegis-color-text-danger);
+}
+
+.memoTextarea {
+  width: 100%;
+  min-height: var(--aegis-size-x4Large);
+  border: none;
+  background: transparent;
+  resize: both;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}

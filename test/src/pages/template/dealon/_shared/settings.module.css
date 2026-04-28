@@ -1,0 +1,20 @@
+.settingsLayout {
+  display: flex;
+  gap: var(--aegis-space-large);
+}
+
+.sidebar {
+  width: var(--aegis-layout-width-x5Small);
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+}

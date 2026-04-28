@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xLarge);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-large);
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--aegis-space-large);
+}
+
+.cardFullWidth {
+  grid-column: 1 / -1;
+}

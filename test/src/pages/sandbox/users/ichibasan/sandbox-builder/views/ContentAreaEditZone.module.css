@@ -1,0 +1,34 @@
+.wrapper {
+  padding: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-radius: var(--aegis-radius-medium);
+}
+
+.wrapper:hover .frame,
+.wrapper:focus-within .frame {
+  border-color: var(--aegis-color-border-brand-default);
+}
+
+.toolbar {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 30;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.wrapper:hover .toolbar,
+.wrapper:focus-within .toolbar {
+  visibility: visible;
+  pointer-events: auto;
+}

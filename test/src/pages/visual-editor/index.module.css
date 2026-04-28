@@ -1,0 +1,413 @@
+.layout {
+  min-width: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+}
+
+.controlGrid {
+  display: grid;
+  gap: var(--aegis-space-medium);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.previewSurface {
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--aegis-color-background-information-subtle) 65%, transparent),
+      transparent 32%
+    ),
+    linear-gradient(180deg, var(--aegis-color-background-default), var(--aegis-color-background-subtle));
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--aegis-space-medium);
+}
+
+.previewToolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-small);
+  justify-content: space-between;
+  margin-bottom: var(--aegis-space-medium);
+}
+
+.previewToolbarActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-small);
+}
+
+.previewViewport {
+  background: var(--aegis-color-background-default);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  box-shadow: 0 var(--aegis-space-small) var(--aegis-space-large)
+    color-mix(in srgb, var(--aegis-color-text-default) 10%, transparent);
+  min-height: min(72vh, 56rem);
+  overflow: hidden;
+  position: relative;
+}
+
+.iframe {
+  background: var(--aegis-color-background-default);
+  border: 0;
+  display: block;
+  height: 100%;
+  inline-size: 100%;
+  min-height: min(72vh, 56rem);
+}
+
+.overlayLayer {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.selectionFrame,
+.hoverFrame {
+  border-radius: var(--aegis-radius-medium);
+  position: absolute;
+}
+
+.selectionFrame {
+  border: var(--aegis-border-width-thick) solid var(--aegis-color-border-information);
+  box-shadow: 0 0 0 var(--aegis-border-width-thick)
+    color-mix(in srgb, var(--aegis-color-border-information) 20%, transparent);
+}
+
+.hoverFrame {
+  border: var(--aegis-border-width-thinPlus) dashed var(--aegis-color-border-accent);
+  box-shadow: 0 0 0 var(--aegis-border-width-thinPlus)
+    color-mix(in srgb, var(--aegis-color-border-accent) 18%, transparent);
+}
+
+.selectionBadge {
+  align-items: center;
+  background: color-mix(in srgb, var(--aegis-color-background-information) 92%, white);
+  border-radius: var(--aegis-radius-full);
+  color: white;
+  display: inline-flex;
+  font: inherit;
+  gap: var(--aegis-space-xxSmall);
+  inset-block-start: calc(var(--aegis-space-small) * -1);
+  inset-inline-start: 0;
+  padding: var(--aegis-space-xxSmall) var(--aegis-space-small);
+  position: absolute;
+}
+
+.metaGrid {
+  display: grid;
+  gap: var(--aegis-space-small);
+}
+
+.metaItem {
+  background: var(--aegis-color-background-subtle);
+  border-radius: var(--aegis-radius-medium);
+  padding: var(--aegis-space-small);
+}
+
+.paneContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+  min-height: 0;
+}
+
+.paneSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: var(--aegis-space-medium);
+  min-height: 0;
+}
+
+.utilityPane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+  min-height: 0;
+}
+
+.utilitySection {
+  background: var(--aegis-color-background-default);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+  padding: var(--aegis-space-medium);
+}
+
+.selectionSummary,
+.resultCard {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--aegis-color-background-subtle) 90%, white), transparent),
+    var(--aegis-color-background-subtle);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xSmall);
+  padding: var(--aegis-space-medium);
+}
+
+.chatFeed {
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  flex: 1 1 auto;
+  min-height: 12rem;
+  max-height: 26rem;
+  overflow: auto;
+  padding: var(--aegis-space-medium);
+  scroll-behavior: smooth;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-small);
+  margin-top: var(--aegis-space-xSmall);
+  padding-bottom: var(--aegis-space-small);
+}
+
+.phaseList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-xSmall);
+}
+
+.phasePill {
+  border-radius: var(--aegis-radius-full);
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0.35rem 0.55rem;
+}
+
+.phaseNeutral {
+  background: var(--aegis-color-background-neutral-xSubtle);
+  color: var(--aegis-color-text-subtle);
+}
+
+.phaseProgress {
+  background: color-mix(in srgb, var(--aegis-color-background-information-subtle) 86%, white);
+  color: var(--aegis-color-text-information);
+}
+
+.phaseSuccess {
+  background: color-mix(in srgb, var(--aegis-color-background-success-subtle) 86%, white);
+  color: var(--aegis-color-text-success);
+}
+
+.phaseDanger {
+  background: color-mix(in srgb, var(--aegis-color-background-danger-subtle) 86%, white);
+  color: var(--aegis-color-text-danger);
+}
+
+.errorCard {
+  background: color-mix(in srgb, var(--aegis-color-background-danger-subtle) 88%, white);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-danger);
+  border-radius: var(--aegis-radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xSmall);
+  padding: var(--aegis-space-medium);
+}
+
+.chatLog,
+.chatLogRich,
+.chatLogDanger {
+  background: var(--aegis-color-background-default);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-medium);
+  margin: 0;
+  padding: var(--aegis-space-small);
+}
+
+.chatLog,
+.chatLogDanger {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chatLogRich {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-small);
+}
+
+.chatLogDanger {
+  border-color: var(--aegis-color-border-danger);
+}
+
+.streamingLog {
+  background: color-mix(in srgb, var(--aegis-color-background-information-subtle) 72%, white);
+  border-color: var(--aegis-color-border-information);
+}
+
+.streamingLog::after {
+  animation: visual-editor-caret 1s steps(1) infinite;
+  color: var(--aegis-color-text-information);
+  content: "▋";
+  margin-left: 0.15em;
+}
+
+.streamTextBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.streamLine {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.streamSpacer {
+  block-size: var(--aegis-space-small);
+}
+
+.streamInlineCode,
+.streamLanguageChip {
+  font-size: 0.8125rem;
+}
+
+.streamFileLink {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: var(--aegis-radius-small);
+  color: var(--aegis-color-text-information);
+  cursor: pointer;
+  display: inline;
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.15em;
+}
+
+.streamFileLink:hover {
+  color: var(--aegis-color-text-information-hover);
+}
+
+.streamFileLink:focus-visible {
+  outline: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-information);
+  outline-offset: var(--aegis-space-xxSmall);
+}
+
+.streamCodeBlock {
+  background: color-mix(in srgb, var(--aegis-color-background-subtle) 88%, white);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xSmall);
+  overflow: hidden;
+  padding: var(--aegis-space-small);
+}
+
+.streamCodeHeader {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.streamOpenFenceHint {
+  color: var(--aegis-color-text-subtle);
+}
+
+.codeBlock {
+  background: var(--aegis-color-background-subtle);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-medium);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8125rem;
+  margin: 0;
+  max-height: 14rem;
+  overflow: auto;
+  padding: var(--aegis-space-small);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.inlineCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.inspectorTitle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xxSmall);
+}
+
+.emptyPanel {
+  align-items: center;
+  background: color-mix(in srgb, var(--aegis-color-background-subtle) 78%, transparent);
+  border: var(--aegis-border-width-thinPlus) dashed var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-medium);
+  display: flex;
+  justify-content: center;
+  min-height: 10rem;
+  padding: var(--aegis-space-large);
+  text-align: center;
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-small);
+}
+
+.composerCard {
+  background: var(--aegis-color-background-default);
+  border: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  border-radius: var(--aegis-radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-medium);
+  padding: var(--aegis-space-medium);
+}
+
+.helperList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-xSmall);
+}
+
+.subtleText {
+  color: var(--aegis-color-text-subtle);
+}
+
+@keyframes visual-editor-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 64rem) {
+  .controlGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .previewViewport,
+  .iframe {
+    min-height: 60vh;
+  }
+}

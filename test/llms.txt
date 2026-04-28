@@ -1,0 +1,182 @@
+# aegis-lab
+
+> **For AI agents:** This repository is for **rapid prototyping** using the Aegis design system. Prioritize speed and Aegis component adherence over complex architecture.
+>
+> **Code quality reference:** Use `src/pages/template/` and `docs/` as authoritative code references. **NEVER** reference `src/pages/sandbox/` — it contains experimental prototypes of varying quality.
+>
+> **This file vs llms-full.txt:** This file (`llms.txt`) is a navigation map — use it to find the right docs for your task. [llms-full.txt](/llms-full.txt) is a self-contained reference with all rules, patterns, and examples inlined.
+
+## Task-Oriented Navigation
+
+Use these reading paths based on what you're trying to do:
+
+### Building a new UI page
+1. [Template Catalog](/src/pages/template/CATALOG.md) — search by keyword to find the closest template
+2. Read the matched template source code in `src/pages/template/`
+3. [Layout Composition](/docs/rules/ui/09_layout_composition.md) — PageLayout frame → internal layout → variant/spacing
+4. [Sandbox Guide](/docs/sandbox-guide.md) — `pnpm sandbox:create` to scaffold
+
+### Using an Aegis component
+1. MCP tools: `mcp__aegis__get_component_detail("ComponentName")` for props and examples
+2. [Component Rules](/docs/rules/component/) — 112 component-specific guidelines (e.g., `Button.md`, `Dialog.md`, `Table.md`)
+3. [Aegis Recipes](/docs/aegis-recipes/) — 16 practical composition patterns
+4. [Anti-Pattern Catalog](/docs/anti-patterns/) — 56 documented mistakes to avoid
+
+### Working on a service-specific page (LOC, DealOn, WorkOn)
+1. Read the service CONCEPT: `src/pages/template/{service}/CONCEPT.md` ([loc](/src/pages/template/loc/CONCEPT.md), [dealon](/src/pages/template/dealon/CONCEPT.md), [workon](/src/pages/template/workon/CONCEPT.md))
+2. Read the feature CONCEPT if it exists: `src/pages/template/{service}/{feature}/CONCEPT.md`
+3. [Concept Hierarchy Rules](/.claude/rules/concept-hierarchy.md) — how domain knowledge is organized
+
+### Fixing a UI issue
+1. [Anti-Pattern Catalog](/docs/anti-patterns/) — check if the issue matches a known anti-pattern
+2. [Component Rules](/docs/rules/component/) — verify correct component usage
+3. [Aegis Integration Guide](/docs/aegis-integration-guide.md) — tokens, patterns, and common pitfalls
+
+### Setting up the project
+1. [Onboarding Guide](/docs/onboarding-guide.md) — step-by-step setup (GitHub auth, pnpm, dev server)
+2. [Mac Setup Guide](/docs/mac-setup-guide.md) — macOS-specific instructions for non-engineers
+3. [Commands Reference](/docs/commands.md) — all available pnpm commands
+4. [Troubleshooting](/docs/troubleshooting.md) — common issues and solutions
+
+## Project Overview
+
+- [About aegis-lab](/docs/about.md) — Project philosophy and purpose
+- [Project Structure](/docs/directory-structure.md) — Directory organization and key files
+- [Technology Stack](/docs/tech-stack.md) — React 19, TypeScript 5.9, Vite 7, Aegis design system (`@legalforce/aegis-react` ^2.48.2)
+
+## Building UI
+
+### Template Catalog
+
+- [CATALOG.md](/src/pages/template/CATALOG.md) — Searchable inventory of all templates, organized by keyword. **Start here when building any new page.**
+
+### Template Layouts
+
+| Layout | Path | Use for |
+|--------|------|---------|
+| PageLayout | `src/pages/template/pagelayout/` | Base layout frame |
+| List | `src/pages/template/list-layout/` | Table/list views |
+| Detail | `src/pages/template/detail-layout/` | Object detail views |
+| Settings | `src/pages/template/settings-layout/` | Settings/preferences |
+| Form | `src/pages/template/form-layout/` | Data entry forms |
+| Chat | `src/pages/template/chat-layout/` | Conversational UI |
+| Dashboard | `src/pages/template/dashboard-layout/` | Analytics/overview |
+| Fill | `src/pages/template/fill-layout/` | Full-width content |
+| Dialog | `src/pages/template/dialog/` | Modal dialogs |
+| States | `src/pages/template/states/` | Loading, error, empty states |
+
+### Service Templates
+
+| Service | Path | Templates | CONCEPT |
+|---------|------|-----------|---------|
+| LegalOn (loc) | `src/pages/template/loc/` | 20+ pages | Per-feature CONCEPTs |
+| DealOn | `src/pages/template/dealon/` | 4+ pages | [CONCEPT.md](/src/pages/template/dealon/CONCEPT.md) |
+| WorkOn | `src/pages/template/workon/` | 4+ pages | [CONCEPT.md](/src/pages/template/workon/CONCEPT.md) |
+
+### Concept Hierarchy
+
+Domain knowledge is organized in a 3-tier hierarchy co-located with template code:
+
+```
+Service Concept   → src/pages/template/{service}/CONCEPT.md
+  └─ Feature Concept → src/pages/template/{service}/{feature}/CONCEPT.md
+      └─ Prototype Docs → auto-generated-prd.md / auto-generated-handoff.md
+```
+
+- [Concept Hierarchy Rules](/.claude/rules/concept-hierarchy.md) — Loading rules and keyword matching
+
+### Sandbox
+
+- [Sandbox Guide](/docs/sandbox-guide.md) — Creating and managing prototype pages
+- [Tutorial: First Page](/docs/tutorial-first-page.md) — Hands-on page creation walkthrough
+- Commands: `pnpm sandbox:create`, `pnpm sandbox:create-user`
+
+## Aegis Design System
+
+- [Aegis Integration Guide](/docs/aegis-integration-guide.md) — Components, design tokens, and usage patterns
+- [Component Usage Workflow](/docs/aegis-integration-guide.md#component-usage-workflow) — Step-by-step process for correct component use
+
+### MCP Tools
+
+Available for AI agents with MCP support (configured in `.mcp.json`):
+
+- `mcp__aegis__list_components` — List all available components
+- `mcp__aegis__get_component_detail("ComponentName")` — Props, examples, and documentation
+- `mcp__aegis__list_icons` — Browse icon library
+- `mcp__aegis__list_tokens` — Color, spacing, typography tokens
+- `mcp__aegis__list_illustrations` — Illustration assets
+- `mcp__aegis__list_component_examples` — Component usage examples
+
+### Component Rules (112 files)
+
+- [Component Rules Directory](/docs/rules/component/) — One file per Aegis component
+- Coverage includes: Accordion, ActionList, Avatar, Badge, Banner, Button, Card, Checkbox, Combobox, DataTable, Dialog, Drawer, FormControl, Heading, IconButton, Link, Menu, PageLayout, Pagination, Popover, Select, Snackbar, Table, Tabs, TextField, Tooltip, and more
+
+### Recipes (16 patterns)
+
+Practical composition patterns using only Aegis components:
+
+- [Action Menu](/docs/aegis-recipes/action-menu.md)
+- [Data Table + Pagination](/docs/aegis-recipes/data-table-pagination.md)
+- [Detail Header](/docs/aegis-recipes/detail-header.md)
+- [Disabled Action + Popover](/docs/aegis-recipes/disabled-action-popover.md)
+- [Empty State](/docs/aegis-recipes/empty-state.md)
+- [Filter Drawer](/docs/aegis-recipes/filter-drawer.md)
+- [FormControl + Help + TagPicker](/docs/aegis-recipes/form-control-help-tagpicker.md)
+- [Form + Banner](/docs/aegis-recipes/form-with-banner.md)
+- [List Toolbar + Search](/docs/aegis-recipes/list-toolbar-and-search.md)
+- [Maintenance Empty State](/docs/aegis-recipes/maintenance-empty-state.md)
+- [Overflow Tooltip](/docs/aegis-recipes/overflow-tooltip.md)
+- [Sidebar Layout](/docs/aegis-recipes/sidebar-layout.md)
+- [Status + Tags](/docs/aegis-recipes/status-and-tags.md)
+- [Table Action Cell Menu](/docs/aegis-recipes/table-action-cell-menu.md)
+- [Table Container Basic](/docs/aegis-recipes/table-container-basic.md)
+- [TagPicker Custom Options](/docs/aegis-recipes/tagpicker-custom-options.md)
+
+### Anti-Patterns (56 entries)
+
+- [Anti-Pattern Catalog](/docs/anti-patterns/) — Documented Aegis component misuse patterns
+- [Searchable Index](/docs/anti-patterns/index.json) — Machine-readable index
+- `pnpm scan:anti-patterns` — Scan codebase for known anti-patterns
+- Categories: Button (6), Dialog (4), FormControl (4), Token (4), Drawer (2), IconButton (2), Img (2), Link (2), Banner (2), Table (3), and 25 more
+
+### Design Tokens
+
+- [Token Reference](/docs/aegis-integration-guide.md#design-tokens) — Color, spacing, typography, radius
+- Usage: `var(--spacing-4)`, `var(--color-background-primary)`, `var(--font-size-body-m)`
+
+## UI Guidelines
+
+- [Introduction](/docs/rules/ui/00_intro.md) — Overview of Aegis UI guidelines
+- [Design Principles](/docs/rules/ui/01_principles.md) — Clear, sequential, predictive, object-oriented
+- [Foundations](/docs/rules/ui/02_foundations.md) — Colors, typography, spacing
+- [Layouts](/docs/rules/ui/03_layouts.md) — Standard page layouts
+- [Components](/docs/rules/ui/04_components.md) — Component-level UI rules
+- [Interactions](/docs/rules/ui/05_interactions.md) — Interaction design patterns
+- [Writing](/docs/rules/ui/06_writing.md) — Microcopy and UI text guidelines
+- [Accessibility](/docs/rules/ui/07_accessibility.md) — WCAG AA compliance
+- [Process & Assets](/docs/rules/ui/08_process_and_assets.md) — Design process
+- [Layout Composition](/docs/rules/ui/09_layout_composition.md) — Advanced composition for sandbox pages
+
+## Development Workflow
+
+- [Development Workflow](/docs/workflow-guide.md) — Branching, PRs, code review
+- [Development Rules](/docs/development-rules.md) — Code patterns, constraints, best practices
+- [TypeScript Guide](/docs/typescript-guide.md) — Strict mode, type safety, common patterns
+- [Sub-agent Workflow](/docs/workflow-subagent.md) — Available sub-agents and usage
+- [Commands Reference](/docs/commands.md) — All pnpm commands (dev, build, lint, test, deploy)
+
+### Pre-commit Checklist
+
+```
+pnpm format          # Lint + format (required before commit)
+pnpm fix:style       # CSS lint fix
+pnpm build           # Type-check + build (required before PR)
+```
+
+## Reference
+
+- [Full Documentation (llms-full.txt)](/llms-full.txt) — Complete self-contained reference
+- [AI Agent Guidelines (CLAUDE.md)](/CLAUDE.md) — Constraints and rules for AI-assisted development
+- [Security Constraints](/docs/development-rules.md#security-constraints) — Secret management, authentication, data protection
+- [Troubleshooting](/docs/troubleshooting.md) — Common issues and solutions

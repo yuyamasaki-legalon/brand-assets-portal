@@ -1,0 +1,78 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-large);
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-large);
+}
+
+.toolbarRow {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-medium);
+  flex-wrap: wrap;
+}
+
+.tableContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-large);
+}
+
+.signers {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+  flex-wrap: wrap;
+  min-width: max-content;
+}
+
+.creator {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xSmall);
+  min-width: max-content;
+}
+
+.drawerContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aegis-space-large);
+}
+
+.inlineFilters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--aegis-layout-width-x5Small), 1fr));
+  gap: var(--aegis-space-medium);
+}
+
+.filterFooter {
+  border-top: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-neutral-subtle);
+}
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-small);
+}
+
+.usageContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--aegis-space-xxSmall);
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: var(--aegis-space-xxSmall);
+}
+
+.filterButtonAnchor {
+  position: absolute;
+}

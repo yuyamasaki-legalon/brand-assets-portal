@@ -1,0 +1,8 @@
+.tabListWrapper {
+  overflow: hidden;
+}
+
+.tableContainer {
+  display: grid;
+  gap: var(--aegis-space-medium);
+}

@@ -1,0 +1,32 @@
+---
+description: Security rules and constraints
+globs:
+alwaysApply: true
+---
+
+# Security Rules
+
+## Never Commit
+- `.env` files
+- API keys
+- Access tokens
+- Passwords
+- Private keys
+- Credentials of any kind
+
+## Never Expose
+- User data in logs
+- Internal configurations
+- Authentication tokens in client code
+- Sensitive error details to users
+
+## Never Bypass
+- Authentication checks on protected routes
+- Authorization validation on API endpoints
+- Input validation
+
+## Prevent Vulnerabilities
+- Sanitize user input (XSS prevention)
+- Use parameterized queries (SQL injection prevention)
+- Validate and sanitize file uploads
+- Follow OWASP Top 10 guidelines

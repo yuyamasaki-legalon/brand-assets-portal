@@ -1,0 +1,200 @@
+name: Conflict Check
+
+on:
+  # pull_request_target runs on the base branch context, so it fires
+  # even when the PR has merge conflicts (unlike pull_request).
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-pr-conflict:
+    name: Check PR Conflict
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Check mergeable status and comment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const marker = 'マージコンフリクトが検出されました';
+
+            // Wait for GitHub to invalidate the cached mergeable status after push
+            await new Promise((r) => setTimeout(r, 5000));
+
+            // Poll mergeable status (GitHub computes it asynchronously)
+            let mergeable = null;
+            for (let i = 0; i < 5; i++) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              });
+              // mergeable is null while GitHub is computing, wait for a definitive answer
+              // Also treat 'unknown' mergeable_state as pending computation
+              if (pr.mergeable !== null && pr.mergeable_state !== 'unknown') {
+                mergeable = pr.mergeable;
+                break;
+              }
+              await new Promise((r) => setTimeout(r, 3000));
+            }
+
+            // Find existing bot comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(
+              (comment) => comment.user.type === 'Bot' && comment.body.includes(marker)
+            );
+
+            if (mergeable === false) {
+              const body = `## ⛔ ${marker}
+
+            この PR には \`main\` ブランチとのマージコンフリクトがあります。
+            コンフリクトが解消されるまで、**Preview URL** および **Alias URL** は生成されません。
+
+            ---
+
+            **AI に依頼する場合（推奨）：**
+
+            Claude Code に以下をコピーして依頼してください：
+
+            > マージコンフリクトを解消してください。\`main\` ブランチの変更を取り込んで、コンフリクトを解決してから push してください。
+
+            **手動で修正する場合：**
+
+            \`\`\`bash
+            git fetch origin main
+            git merge origin/main
+            # コンフリクトを解消して commit & push
+            \`\`\`
+
+            > **Note**: コンフリクト解消後、自動的に Preview URL が生成されます。`;
+
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            } else if (botComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+              });
+            }
+
+  check-all-prs:
+    name: Check All Open PRs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Check all open PRs for conflicts
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const marker = 'マージコンフリクトが検出されました';
+
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+
+            for (const pr of pullRequests) {
+              // Poll mergeable status (wait for GitHub to recompute after main push)
+              let mergeable = null;
+              for (let i = 0; i < 5; i++) {
+                const { data: freshPr } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                });
+                if (freshPr.mergeable !== null && freshPr.mergeable_state !== 'unknown') {
+                  mergeable = freshPr.mergeable;
+                  break;
+                }
+                await new Promise((r) => setTimeout(r, 3000));
+              }
+
+              // Find existing bot comment
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+              });
+
+              const botComment = comments.find(
+                (comment) => comment.user.type === 'Bot' && comment.body.includes(marker)
+              );
+
+              if (mergeable === false) {
+                const body = `## ⛔ ${marker}
+
+            この PR には \`main\` ブランチとのマージコンフリクトがあります。
+            コンフリクトが解消されるまで、**Preview URL** および **Alias URL** は生成されません。
+
+            ---
+
+            **AI に依頼する場合（推奨）：**
+
+            Claude Code に以下をコピーして依頼してください：
+
+            > マージコンフリクトを解消してください。\`main\` ブランチの変更を取り込んで、コンフリクトを解決してから push してください。
+
+            **手動で修正する場合：**
+
+            \`\`\`bash
+            git fetch origin main
+            git merge origin/main
+            # コンフリクトを解消して commit & push
+            \`\`\`
+
+            > **Note**: コンフリクト解消後、自動的に Preview URL が生成されます。`;
+
+                if (botComment) {
+                  await github.rest.issues.updateComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    comment_id: botComment.id,
+                    body,
+                  });
+                } else {
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pr.number,
+                    body,
+                  });
+                }
+              } else if (botComment) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                });
+              }
+            }

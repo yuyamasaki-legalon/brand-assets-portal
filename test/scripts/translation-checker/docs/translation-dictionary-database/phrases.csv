@@ -1,0 +1,62 @@
+﻿Japanese,English,@Lisa Please check for reviewed rows   1,Miscellaneous Note (備考),"In the UI, it displayed as  ",備考,引用元,term or phrase,TDD登録
+{x1}、{x2}、{x3}で検索,"Search by {x1}, {x2}, or {x3}",Yes,,,,,phrase,No
+{x1}、{x2}で検索,Search by {x1} or {x2},Yes,,,,,phrase,No
+ユーザー名、メールアドレスで検索,Search by user name or email address,Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+ファイル名、タイトル、当事者名で検索,"Search by file name, contract title, or party name",Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+キーワードで検索,Enter keywords or phrases,Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+案件名、本文、コメントで検索,"Search by matter name, main clause, or comments",Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+取引先を検索,Search by counterparty,Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+部分的に一致する語句を入力,Enter a partially matching phrase,No,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+コメントを入力,Enter a comment,Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+メンション先を選択,Tag a collaborator,Yes,,Placeholder,,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+例: 甲、委託者、当社,"Example: party A, consignor, our company ",Yes,Located outside a textbox as help text.,Placeholder,ヘルプテキストとしてtextbox外に記載。,"Placeholder (https://www.notion.so/Placeholder-12a713d40d57461ca919827af7ce9f49?pvs=21) ",phrase,Yes
+権限がないためアクセスできません,You are not authorized to view this page,Yes,,Error,"
+","エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+この契約書を閲覧できないユーザーです,You are not authorized to view this contract,Yes,,Error,,,phrase,Yes
+{xxxx}の入力は必須です,Please enter a(an) {xxxx},Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+{xxxx}は{最小値}以上にしてください,Minimum {xxx} (length) is {minLength} (items if necessary ie. “characters”),Yes,"Character length, file size, number of people, etc.",Error,文字数、ファイルサイズ、人数など,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+{xxxx}は{最大値}以下にしてください,Maximum {xxx} (length) is {maximum value} (additional info if necessary eg. “characters”),Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+{xxxx}は{最小値}以上、{最大値}以下にしてください,Please set {xxxx} to at least {minimum value} and no more than {maximum value},Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+{xxxx}の形式が正しくありません,Invalid format,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+パスワードはn文字以上にしてください,Password must contain at least n characters,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+大文字、小文字、数字を含んでください,"Please include both lower and upper case letters, and at least one number",Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+パスワードはn文字以下にしてください,Maximum password length is n characters,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+パスワードが一致しません,Incorrect password,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+{xxxx}の{比較対象B}は、{比較対象A}よりも大きくしてください,Please set {Target B} of {xxxx} to be greater than {Target A},Yes,Ex: Please set the maximum limit of the transaction amount to be greater than the minimum limit.,Error,例：取引金額の上限は、下限よりも大きくしてください,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+{比較対象B}は、{比較対象A}よりも{xxxx}を指定してください,Please specify {xxxx} for {Target B} to be greater than {Target A},Yes,Ex: Please specify a date for the end date that is greater than the start date.,Error,例：終了日は、開始日よりも未来の日付を指定してください,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+{xxxx}はすでに登録されています,{xxxx} is already registered,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+"{xxxx}は存在しません ","{xxxx} does not exist
+{xxxx} not found
+Not found",Yes,Ex: The page you are looking for does not exist,Error,例：お探しのページは存在しません,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+契約書グループ内にある契約書の担当者は、共有から外すことができません,Cannot remove user’s access to shared contract,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+"以下の文字は使用できません。
+<>:""/\|?","Do not use the following characters: 
+<>:""/\|?",Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+エラーが発生しました,An error has occurred,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+時間をおいて再度お試しください,Please try again later,Yes,,Error,,,phrase,Yes
+お客様のユーザーアカウントは停止中です,Your account is currently suspended,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+指定した検索条件が削除されている、もしくは存在しません,Search conditions do not exist,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+LegalForceキャビネはただいまメンテナンス中です,LegalForce Cabinet is currently under maintenance,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,No
+時間をおいて再度お試しください。,Please try again later,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+管理者に問い合わせるか、ヘルプ記事をご参照ください。,Please contact an administrator or refer to Help Center articles,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+"入力された検索条件では検索できませんでした。 
+ 検索条件を変更して再度お試し下さい。",No matches for your search criteria. Please try again,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+ご不便をおかけしますが、サービス再開までもうしばらくお待ちください。,Please wait while the service restarts. We apologize for the inconvenience,Yes,,Error,,"エラー (https://www.notion.so/8647f382cd9e4dc88c21cbf930b57bdd?pvs=21) ",phrase,Yes
+未入力,"Empty
+No input
+- or leave blank",Yes,Occurs when a value has not been set,Filter Default Value,値が設定されていない場合,"検索・選択デフォルト値 (https://www.notion.so/deddd40fdd634e0bb398cf69b112df21?pvs=21) ",phrase,No
+すべて,All,Yes,,Filter Default Value,,"検索・選択デフォルト値 (https://www.notion.so/deddd40fdd634e0bb398cf69b112df21?pvs=21) ",phrase,No
+{xxxx}を作成しました,{xxxx} created,Yes,Ex. Contract group created,Snackbar,"例：
+契約グループを作成しました","Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+編集内容を保存しました,Edits saved,Yes,,Snackbar,,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+{xxxx}を追加しました,{xxxx} added,Yes,Ex. User added,Snackbar,例：ユーザーを追加しました,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+{xxxx}を削除しました,{xxxx} deleted,Yes,Ex. Folder deleted / Contract deleted,Snackbar,例：スペースを削除しました ／契約書を削除しました,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+{xxxx}に失敗しました,"{xxxx} failed
+Failed to {xxxx}",Yes,"Ex. Contract list export failed
+-or- 
+Failed to export contract list",Snackbar,例：契約書一覧のエクスポートに失敗しました,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+{xxxx}を更新中です 完了まで時間がかかる場合があります,Updating {xxxx}. This may take a while,Yes,Ex. Updating contract group.,Snackbar,例：契約書グループを更新中です　,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+{xxxx}を削除中です 完了まで時間がかかる場合があります,Deleting {xxxx}. This may take a while,Yes,Ex. Deleting contract group.,Snackbar,例：契約書グループを削除中です,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+リソースがありません,No resource,No,,Snackbar,,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+{xxxx}に設定しました,Set {xxxx},Yes,Ex. Set all to medium importance,Snackbar,例：すべて「中」に設定しました,"Snackbar (https://www.notion.so/Snackbar-63ece5c0d7574e0c8dd82c53c1358bf4?pvs=21) ",phrase,No
+以下の文字は使用できません,"Do not use the following characters ",No,,,,,phrase,Yes

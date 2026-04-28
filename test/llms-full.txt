@@ -1,0 +1,1201 @@
+# aegis-lab - Full Documentation
+
+> Complete reference for the Aegis prototyping repository
+
+This is the full documentation for aegis-lab. For a quick overview, see [llms.txt](/llms.txt).
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [Directory Structure](#directory-structure)
+- [Setup Guide](#setup-guide)
+- [Development Commands](#development-commands)
+- [Development Guidelines](#development-guidelines)
+- [Aegis Design System](#aegis-design-system)
+- [Sandbox System](#sandbox-system)
+- [TypeScript Configuration](#typescript-configuration)
+- [Deployment](#deployment)
+- [Testing](#testing)
+- [Tauri Desktop App](#tauri-desktop-app)
+- [Aegis Recipes](#aegis-recipes)
+- [Anti-Patterns](#anti-patterns)
+- [Troubleshooting](#troubleshooting)
+
+---
+
+## Project Overview
+
+**Name**: aegis-lab
+**Version**: 0.0.0
+**Description**: Aegis を使ったプロトタイプを量産するリポジトリ
+**Package Manager**: pnpm 10.28.0
+
+### Purpose
+
+このプロジェクトは、Aegis デザインシステムを使用したプロトタイプを素早く作成・検証するためのリポジトリです。Sandbox システムにより、新しいページを簡単に作成し、アイデアを視覚化できます。
+
+### Key Features
+
+- **Aegis Design System 統合**: 公式コンポーネントライブラリを使用
+- **Sandbox System**: コマンド一つでプロトタイプページ作成
+- **MCP Tools**: Claude Code で Aegis コンポーネント情報にアクセス
+- **TypeScript 厳格モード**: 型安全性を最大限に確保
+- **高速開発環境**: Vite による HMR と高速ビルド
+- **Cloudflare Workers デプロイ**: SPA を簡単にデプロイ
+
+---
+
+## Technology Stack
+
+### Frontend
+
+- **React**: 19.2.4 - UI ライブラリ
+- **TypeScript**: 5.9.3 - 型安全な開発
+- **Vite**: 7.3.1 - 高速ビルドツール
+- **React Router DOM**: 7.13.1 - クライアントサイドルーティング
+- **react-markdown**: 10.1.0 - Markdown レンダリング
+
+### Design System
+
+- **@legalforce/aegis-react**: 2.48.2 - コンポーネントライブラリ
+- **@legalforce/aegis-icons**: 2.11.2 - アイコンセット
+- **@legalforce/aegis-illustrations**: 2.1.5 - イラストセット
+- **@legalforce/aegis-logos**: 2.3.0 - ロゴセット
+- **@legalforce/aegis-tokens**: 2.13.2 - デザイントークン
+- **@legalforce/aegis-textures**: 0.0.1 - テクスチャセット
+
+### Development Tools
+
+- **Biome**: 2.4.6 - リンター・フォーマッター（Prettier/ESLint 代替）
+- **Stylelint**: 16.26.1 - CSS リンター
+- **TypeScript**: 厳格な型チェック有効（tsgo による高速ビルド）
+- **Vitest**: 4.0.18 - ユニットテストランナー
+- **Playwright**: 1.58.2 - E2E テストフレームワーク
+- **simple-git-hooks**: 2.13.1 - Git フック管理
+
+### Data Visualization
+
+- **Recharts**: 3.7.0 - React チャートライブラリ
+- **@xyflow/react**: 12.10.1 - フローダイアグラムライブラリ（FlowMap 用）
+
+### Desktop App
+
+- **Tauri**: 2.10.1 - ネイティブデスクトップアプリフレームワーク
+
+### Deployment
+
+- **Cloudflare Workers**: サーバーレス実行環境
+- **Wrangler**: 4.72.0 - Cloudflare Workers CLI
+- **@cloudflare/vite-plugin**: 1.27.0 - Vite 統合
+
+### AI/LLM Tools
+
+- **@legalforce/aegis-mcp-server**: 0.5.2 - MCP (Model Context Protocol) サーバー
+
+---
+
+## Directory Structure
+
+```
+aegis-lab/
+├── src/                          # ソースコード
+│   ├── main.tsx                  # アプリケーションエントリーポイント
+│   ├── App.tsx                   # ルート設定とプロバイダー
+│   ├── pages/                    # ページコンポーネント
+│   │   ├── Home.tsx              # ホームページ
+│   │   ├── routes.tsx            # ページルート定義
+│   │   ├── sandbox/              # 実験用sandboxページ
+│   │   │   ├── SandboxHome.tsx   # Sandbox一覧
+│   │   │   ├── routes.tsx        # Sandboxルート
+│   │   │   └── [page-name]/      # 個別sandboxページ
+│   │   └── template/             # テンプレートページ
+│   │       ├── TemplateHome.tsx  # テンプレート一覧
+│   │       ├── routes.tsx        # テンプレートルート
+│   │       ├── chat-layout/      # チャットレイアウト
+│   │       ├── dashboard-layout/ # ダッシュボードレイアウト
+│   │       ├── detail-layout/    # 詳細レイアウト
+│   │       ├── dialog/           # ダイアログテンプレート
+│   │       ├── fill-layout/      # フィルレイアウト
+│   │       ├── form-layout/      # フォームレイアウト
+│   │       ├── list-layout/      # リストレイアウト
+│   │       ├── pagelayout/       # PageLayoutテンプレート
+│   │       ├── settings-layout/  # 設定レイアウト
+│   │       ├── states/           # 状態表示テンプレート
+│   │       ├── loc/              # LOCサービス（20+テンプレート）
+│   │       ├── dealon/           # DealOnサービス
+│   │       └── workon/           # WorkOnサービス
+│   ├── components/               # 再利用可能なコンポーネント
+│   └── types/                    # TypeScript型定義
+│
+├── docs/                         # ドキュメント
+│   ├── about.md                  # プロジェクト概要
+│   ├── onboarding-guide.md       # セットアップ手順
+│   ├── mac-setup-guide.md        # macOSセットアップガイド
+│   ├── sandbox-guide.md          # sandboxページ作成ガイド
+│   ├── tutorial-first-page.md    # 初回ページ作成チュートリアル
+│   ├── tauri-guide.md            # Tauriデスクトップアプリガイド
+│   ├── workflow-subagent.md      # サブエージェントワークフロー
+│   ├── aegis-recipes/            # Aegisコンポーネント合成レシピ（16ファイル）
+│   ├── anti-patterns/            # アンチパターンカタログ（54ファイル）
+│   └── rules/                    # デザインルール
+│       ├── ui/                   # UIガイドライン（00〜09の10ファイル）
+│       │   ├── 00_intro.md       # イントロダクション
+│       │   ├── 01_principles.md  # デザイン原則
+│       │   ├── 02_foundations.md  # 基盤（色、タイポグラフィ、スペーシング）
+│       │   ├── 03_layouts.md     # レイアウトパターン
+│       │   ├── 04_components.md  # コンポーネントガイドライン
+│       │   ├── 05_interactions.md # インタラクションパターン
+│       │   ├── 06_writing.md     # ライティングガイドライン
+│       │   ├── 07_accessibility.md # アクセシビリティ（WCAG AA）
+│       │   ├── 08_process_and_assets.md # デザインプロセス
+│       │   └── 09_layout_composition.md # レイアウト合成
+│       └── component/            # コンポーネント別ルール（112ファイル）
+│
+├── scripts/                      # 開発スクリプト
+│   ├── create-sandbox-page.ts    # sandboxページ作成
+│   ├── create-user-sandbox-page.ts # ユーザーsandboxページ作成
+│   ├── generate-activity-data.ts # モックアクティビティデータ生成
+│   ├── generate-anti-pattern-index.ts # アンチパターンインデックス生成
+│   ├── scan-anti-patterns.ts     # アンチパターンスキャン
+│   ├── sync-storybook-catalog.ts # Storybookカタログ同期
+│   ├── preview-changed-pages.ts  # 変更ページプレビュー
+│   ├── cf-deploy-graph.sh        # Cloudflareデプロイグラフ
+│   ├── skill-eval/               # スキル評価フレームワーク
+│   ├── text-linter/              # テキストリンター
+│   ├── translation-checker/      # 翻訳チェッカー
+│   └── utils/                    # 共通ユーティリティ
+│
+├── public/                       # 静的アセット
+├── dist/                         # ビルド出力（自動生成、編集禁止）
+├── node_modules/                 # 依存関係（pnpm管理、編集禁止）
+│
+├── CLAUDE.md                     # AI Agent向けガイドライン（詳細版）
+├── llms.txt                      # LLM向けドキュメント（簡潔版）
+├── llms-full.txt                 # LLM向けドキュメント（完全版、このファイル）
+├── package.json                  # 依存関係とスクリプト
+├── pnpm-lock.yaml                # pnpm lockfile（自動生成）
+├── tsconfig.json                 # TypeScript設定
+├── tsconfig.app.json             # アプリ用TypeScript設定
+├── tsconfig.e2e.json             # E2Eテスト用TypeScript設定
+├── vite.config.ts                # Vite設定
+├── vitest.config.ts              # Vitest設定
+├── playwright.config.ts          # Playwright E2E設定
+├── wrangler.jsonc                # Cloudflare Workers設定
+├── biome.json                    # Biome設定
+├── eslint.config.js              # ESLint設定（カスタムルール）
+├── .stylelintrc.cjs              # Stylelint設定
+└── .mcp.json                     # MCP設定
+```
+
+### 重要なディレクトリ
+
+- **`src/pages/sandbox/`**: プロトタイプページを作成する場所。`pnpm sandbox:create` で自動生成
+- **`src/pages/template/`**: 再利用可能なテンプレートページ（レイアウト別・サービス別）
+- **`docs/rules/`**: デザイン・コンポーネントのルール集
+- **`docs/aegis-recipes/`**: Aegis コンポーネントの実践的な合成パターン
+- **`docs/anti-patterns/`**: 避けるべきアンチパターンのカタログ
+- **`scripts/`**: 開発を効率化するスクリプト
+
+### 編集禁止ディレクトリ
+
+- **`dist/`**: Vite が自動生成。手動変更は上書きされる
+- **`node_modules/`**: pnpm が管理。手動変更は失われる
+
+---
+
+## Setup Guide
+
+### Prerequisites
+
+- **Node.js**: 25.3.0 以降
+- **pnpm**: Corepack 経由で自動インストール
+- **GitHub Personal Access Token**: `read:packages` 権限が必要（Aegis パッケージアクセス用）
+
+### Step 1: GitHub Authentication
+
+Aegis パッケージは GitHub Packages でホストされているため、認証が必要です。
+
+```bash
+echo "//npm.pkg.github.com/:_authToken=YOUR_TOKEN" >> ~/.npmrc
+```
+
+**Token の取得方法**:
+1. GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. "Generate new token (classic)" をクリック
+3. `read:packages` をチェック
+4. トークンを生成してコピー
+
+### Step 2: Clone Repository
+
+```bash
+git clone https://github.com/legalforce/aegis-lab.git
+cd aegis-lab
+```
+
+### Step 3: Enable Corepack
+
+pnpm を Corepack 経由で有効化します。
+
+```bash
+corepack enable
+```
+
+これにより、`package.json` で指定された pnpm バージョンが自動的に使用されます。
+
+### Step 4: Install Dependencies
+
+```bash
+pnpm install
+```
+
+### Step 5: Start Development Server
+
+```bash
+pnpm dev
+```
+
+開発サーバーが http://localhost:5173 で起動します。
+
+### Optional: Claude Code MCP Setup
+
+Claude Code を使用する場合、`.mcp.json` で Aegis MCP サーバーが設定済みです。Claude Code でプロジェクトを開くと、以下のツールが自動的に利用可能になります：
+
+- `mcp__aegis__list_components` - コンポーネント一覧
+- `mcp__aegis__get_component_detail` - コンポーネント詳細
+- `mcp__aegis__list_icons` - アイコン一覧
+- `mcp__aegis__list_tokens` - デザイントークン
+- その他
+
+詳細は `docs/onboarding-guide.md` を参照してください。
+
+---
+
+## Development Commands
+
+### Core Commands
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm dev` | 開発サーバー起動 | 開発時 |
+| `pnpm build` | tsgo型チェック + 本番ビルド | **PR前に必須** |
+| `pnpm preview` | ビルド結果をローカル確認 | デプロイ前確認 |
+
+### Code Quality
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm lint` | Biomeでコードチェック（書き込みなし） | コミット前 |
+| `pnpm format` | lint + format（自動修正付き） | **推奨：コミット前** |
+| `pnpm lint:style` | Stylelintでスタイルチェック | CSS変更時 |
+| `pnpm lint:text` | UIテキストリンター | UIコピー変更時 |
+| `pnpm lint:translation` | 翻訳一貫性チェック | i18n変更時 |
+| `pnpm lint:eslint-custom` | カスタムESLintルール | 特定パターン検証時 |
+| `pnpm scan:anti-patterns` | アンチパターンスキャン | コードレビュー時 |
+
+### Testing
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm test` | Vitestユニットテスト実行 | テスト時 |
+| `pnpm test:watch` | Vitestウォッチモード | 開発時 |
+| `pnpm test:e2e` | Playwright E2Eテスト | 統合テスト時 |
+| `pnpm test:e2e:ui` | Playwright UIモード | E2Eデバッグ時 |
+
+### Sandbox System
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm sandbox:create` | 新しいsandboxページ作成 | プロトタイプ作成時 |
+| `pnpm sandbox:create-user` | ユーザースコープsandboxページ作成 | 個人プロトタイプ時 |
+| `pnpm sandbox:activity` | モックアクティビティデータ生成 | ダッシュボード開発時 |
+
+### Documentation
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm docs:sync-catalog` | StorybookカタログをDocsに同期 | Aegisアップデート後 |
+| `pnpm docs:generate-ap-index` | アンチパターンインデックス生成 | AP追加後 |
+
+### Deployment
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm deploy` | ビルド + Cloudflareデプロイ | **承認必要** |
+| `pnpm cf:deploy` | Cloudflare Workers にデプロイ | **承認必要** |
+
+### Tauri Desktop App
+
+| コマンド | 説明 | 使用タイミング |
+|---------|------|-------------|
+| `pnpm tauri:dev` | Tauriデスクトップアプリ開発モード | デスクトップ開発時 |
+| `pnpm tauri:build` | Tauriデスクトップアプリビルド | デスクトップリリース時 |
+
+---
+
+## Development Guidelines
+
+### Security Constraints
+
+#### NEVER Commit Secrets
+
+- `.env` ファイル
+- API キー、トークン
+- パスワード、認証情報
+- その他の機密情報
+
+これらを誤ってコミットした場合は、即座にトークンを無効化し、履歴から削除してください。
+
+#### NEVER Expose Sensitive Data
+
+- `console.log()` で機密情報を出力しない
+- エラーメッセージに機密情報を含めない
+- ログファイルに機密情報を記録しない
+
+#### NEVER Bypass Authentication
+
+- 保護されたルートは適切に認証チェックを実装
+- API エンドポイントは認可を検証
+- セキュリティを「後で」実装しない
+
+### File & Directory Constraints
+
+#### NEVER Modify `dist/`
+
+Vite が自動生成するディレクトリです。手動変更は次回ビルド時に上書きされます。
+
+#### NEVER Modify `node_modules/`
+
+pnpm が管理するディレクトリです。手動変更は `pnpm install` 時に失われます。
+
+#### NEVER Commit Lock Files Manually
+
+`pnpm-lock.yaml` は pnpm が自動管理します。手動編集は依存関係の不整合を引き起こします。
+
+### Code Pattern Constraints
+
+#### NEVER Create Custom UI Components
+
+Aegis デザインシステムコンポーネントを使用してください。カスタムコンポーネントは以下の問題を引き起こします：
+
+- デザインの不一貫性
+- アクセシビリティ問題
+- メンテナンスコストの増加
+
+**Good**:
+```tsx
+import { Button } from '@legalforce/aegis-react';
+
+<Button variant="solid" color="primary">Submit</Button>
+```
+
+**Bad**:
+```tsx
+// カスタムボタンコンポーネントを作らない
+const CustomButton = ({ children }) => <button>{children}</button>;
+```
+
+#### NEVER Use Inline Styles
+
+Aegis デザイントークンと CSS モジュールを使用してください。
+
+**Good**:
+```tsx
+import styles from './MyComponent.module.css';
+
+<div className={styles.container}>...</div>
+```
+
+**Bad**:
+```tsx
+<div style={{ padding: '16px', color: '#333' }}>...</div>
+```
+
+#### NEVER Ignore TypeScript Errors
+
+`@ts-ignore` や `any` の安易な使用は禁止です。型エラーは根本的に修正してください。
+
+**Acceptable** (明確な理由がある場合):
+```tsx
+// 外部ライブラリの型定義が不完全な場合
+// @ts-ignore - recharts の型定義に issue がある
+import { CustomShape } from 'recharts';
+```
+
+**Bad**:
+```tsx
+// 型エラーを隠すための使用
+// @ts-ignore
+const data: any = fetchData();
+```
+
+#### ALWAYS Verify Aegis Component APIs
+
+Aegis コンポーネント使用前に、MCP ツールまたは既存コードで正しい prop 名と型を確認してください。
+
+```bash
+# Claude Code で実行
+mcp__aegis__get_component_detail("Button")
+```
+
+#### ALWAYS Fix All Build Errors
+
+`pnpm build` がエラーなく完了するまで、作業完了としないでください。これには以下が含まれます：
+
+- 新規コードのエラー
+- 既存ファイルで発生したエラー
+- 型エラー、構文エラー
+
+### UI Design Constraints
+
+#### NEVER Modify PageLayout Styles
+
+PageLayout コンポーネントにスタイルオーバーライドを適用しないでください。変更が必要な場合は、デザインシステムチーム（AG）に相談してください。
+
+#### NEVER Use Multiple Solid Buttons
+
+1画面に最大1つの Solid スタイルボタンを使用してください。Solid ボタンは最重要アクション専用です。
+
+**Good**:
+```tsx
+<Button variant="solid" color="primary">保存</Button>
+<Button variant="outlined" color="primary">キャンセル</Button>
+```
+
+**Bad**:
+```tsx
+<Button variant="solid" color="primary">保存</Button>
+<Button variant="solid" color="danger">削除</Button>  {/* 2つ目のSolid */}
+```
+
+#### NEVER Place Buttons in Table Cells
+
+テーブルセルに直接ボタンを配置しないでください。TableActionCell を使用してください。これにより、横スクロール時もアクションボタンが見えるようになります。
+
+#### NEVER Use TextField Standalone
+
+TextField は必ず FormControl でラップし、適切なラベルを付与してください。
+
+**Good**:
+```tsx
+<FormControl>
+  <FormControlLabel>メールアドレス</FormControlLabel>
+  <TextField />
+</FormControl>
+```
+
+**Bad**:
+```tsx
+<TextField placeholder="メールアドレス" />  {/* ラベルなし */}
+```
+
+#### NEVER Deviate from Aegis Patterns
+
+標準 UI パターンは、客観的データと WCAG AA 準拠で改善が証明されない限り変更しないでください。
+
+#### ALWAYS Check Component Rules
+
+コンポーネント使用前に `docs/rules/component/{ComponentName}.md` を確認してください。
+
+#### ALWAYS Use PageLayout
+
+全画面で PageLayout コンポーネントをベースに構築してください。
+
+#### ALWAYS Follow Object-Oriented UI
+
+オブジェクト（名詞）を先に表示し、その後アクション（動詞）を提供してください。
+
+**Good**: 契約一覧 → 編集ボタン
+**Bad**: 編集ボタン → 契約一覧
+
+#### ALWAYS Use Danger Color for Deletion
+
+削除アクションは必ず `danger` カラーを使用してください。
+
+```tsx
+<Button variant="outlined" color="danger">削除</Button>
+```
+
+#### ALWAYS Keep Required Labels Visible
+
+アクセシビリティのため、「必須」テキストを表示してください。"*" のみの表示は禁止です。
+
+**Good**:
+```tsx
+<FormControlLabel>
+  メールアドレス<RequiredBadge />
+</FormControlLabel>
+```
+
+**Bad**:
+```tsx
+<FormControlLabel>メールアドレス *</FormControlLabel>
+```
+
+### Design Principles
+
+Aegis のデザイン原則（詳細は `docs/rules/ui/01_principles.md`）：
+
+#### 1. 明快（Clear）
+
+- **1画面1主目的**: 余分な情報を削ぎ落とす
+- **平易な言葉**: 専門用語を避け、誰にでも伝わる表現
+- **UI自体で完結**: ヘルプやマニュアル不要の設計
+
+#### 2. 連続的（Sequential）
+
+- **Aegis パターンとの一貫性**: 共通の表現で連続性を保つ
+- **サービス間の統一感**: 信頼されるデザイン
+
+#### 3. 予測的（Predictive）
+
+- **ステップ最小化**: ユーザーの操作を減らす
+- **スマートなデフォルト**: 適切な初期値を設定
+- **プログレッシブ・ディスクロージャー**: 必要な情報を段階的に表示
+
+#### 4. オブジェクト指向（Object-Oriented）
+
+- **オブジェクト（名詞）→ アクション（動詞）**: 何に対して何をするかを明確に
+- **コンテキストの提供**: ユーザーが現在どこにいるかを常に示す
+
+### Development Workflow Constraints
+
+#### NEVER Skip Linting
+
+コミット前に必ず `pnpm lint` を実行してください。
+
+```bash
+pnpm format  # lint + format を一度に実行（推奨）
+```
+
+#### NEVER Skip Type Checking
+
+PR 前に必ず `pnpm build` の成功を確認してください。
+
+```bash
+pnpm build  # TypeScript型チェック + ビルド
+```
+
+#### NEVER Push Directly to main/master
+
+必ず feature ブランチを作成し、PR を経由してください。
+
+```bash
+git checkout main
+git pull
+git checkout -b feature/your-feature-name
+# ... 作業 ...
+git push -u origin feature/your-feature-name
+# GitHub で PR 作成
+```
+
+#### ALWAYS Branch from main
+
+新規作業時は必ず main ブランチから分岐してください。
+
+```bash
+git checkout main && git pull && git checkout -b feature/new-feature
+```
+
+#### NEVER Force Push to main/master
+
+main/master ブランチへの force push は禁止です。必要な場合はチーム承認を得てください。
+
+### Deployment Constraints
+
+#### NEVER Deploy Without Approval
+
+`pnpm deploy` や `pnpm cf:deploy` の実行前に、チームの承認を得てください。
+
+#### NEVER Deploy from Local Machine
+
+可能な限り CI/CD パイプライン経由でデプロイしてください。ローカルからのデプロイは緊急時のみ、チーム承認を得て実施してください。
+
+### Additional Constraints
+
+#### NEVER Install Unlisted Dependencies
+
+新規依存関係の追加前に、チームと議論してください。以下を考慮：
+
+- 本当に必要か？
+- ライセンスは適切か？
+- メンテナンスされているか？
+- バンドルサイズへの影響は？
+
+#### NEVER Modify Deployment Configs
+
+`wrangler.jsonc` の変更は、セキュリティとインフラへの影響があるため、チームレビューが必須です。
+
+---
+
+## Aegis Design System
+
+### Overview
+
+このプロジェクトは、Aegis デザインシステム（`@legalforce/aegis-react`）を使用しています。Aegis は、LegalForce グループのプロダクト全体で使用される統一デザインシステムです。
+
+### Using Aegis Components
+
+#### Import Components
+
+```tsx
+import { Button, FormControl, FormControlLabel, TextField } from '@legalforce/aegis-react';
+import { IconSearch } from '@legalforce/aegis-icons';
+```
+
+#### Component Usage Workflow
+
+1. **レイアウトパターン確認**: `docs/rules/ui/03_layouts.md` でページ構造ガイダンスを確認
+2. **コンポーネントルール確認**: `docs/rules/component/{ComponentName}.md` を読む
+3. **MCP ツールで検証**: props と使用例を MCP ツールで確認
+4. **警告に注意**: ⚠️ 警告や "RULE"/"指針" マークに従う
+
+#### Example: Using Button Component
+
+```tsx
+import { Button } from '@legalforce/aegis-react';
+
+function MyComponent() {
+  return (
+    <div>
+      {/* Primary action - Solid variant */}
+      <Button variant="solid" color="primary" onClick={handleSubmit}>
+        保存
+      </Button>
+
+      {/* Secondary action - Outlined variant */}
+      <Button variant="outlined" color="primary" onClick={handleCancel}>
+        キャンセル
+      </Button>
+
+      {/* Destructive action - Danger color */}
+      <Button variant="outlined" color="danger" onClick={handleDelete}>
+        削除
+      </Button>
+    </div>
+  );
+}
+```
+
+### Design Tokens
+
+Aegis デザイントークンを使用してスタイリングを行ってください。
+
+```css
+/* CSS Modules で使用 */
+.container {
+  padding: var(--spacing-4);  /* Aegis spacing token */
+  background-color: var(--color-background-primary);  /* Aegis color token */
+  font-size: var(--font-size-body-m);  /* Aegis typography token */
+}
+```
+
+### Available MCP Tools
+
+Claude Code で以下のツールが利用可能です：
+
+#### List Components
+
+```
+mcp__aegis__list_components
+```
+
+利用可能な Aegis コンポーネントの一覧を取得します。
+
+#### Get Component Detail
+
+```
+mcp__aegis__get_component_detail("Button")
+```
+
+特定のコンポーネントの詳細情報（props、使用例）を取得します。
+
+#### List Icons
+
+```
+mcp__aegis__list_icons
+```
+
+利用可能なアイコンの一覧を取得します。
+
+#### List Tokens
+
+```
+mcp__aegis__list_tokens
+```
+
+デザイントークン（色、スペーシング、タイポグラフィ）の一覧を取得します。
+
+#### List Illustrations
+
+```
+mcp__aegis__list_illustrations
+```
+
+利用可能なイラストの一覧を取得します。
+
+#### List Component Examples
+
+```
+mcp__aegis__list_component_examples
+```
+
+コンポーネントの使用例を取得します。
+
+### MCP Server Configuration
+
+MCP サーバーは `.mcp.json` で設定済みです。Claude Code でプロジェクトを開くと自動的に利用可能になります。
+
+```json
+{
+  "mcpServers": {
+    "aegis": {
+      "command": "npx",
+      "args": ["-y", "@legalforce/aegis-mcp-server@latest"]
+    }
+  }
+}
+```
+
+---
+
+## Sandbox System
+
+Sandbox システムは、プロトタイプページを素早く作成するための機能です。
+
+### Creating a New Sandbox Page
+
+```bash
+pnpm sandbox:create
+```
+
+対話形式で以下を入力します：
+
+1. **ページ名**: 例）`analytics-dashboard`
+2. **レイアウトテンプレート**: 選択肢から選ぶ
+   - Basic Layout
+   - Form Layout
+   - Table Layout
+   - Dashboard Layout
+   - など
+
+### Using Existing Templates
+
+既存テンプレートは `src/pages/template/CATALOG.md` から探し、source code を読んで実装に反映します。sandbox ページの作成と登録は `pnpm sandbox:create` に任せます。
+
+```bash
+pnpm sandbox:create --name "My Page" --template blank
+```
+
+### Sandbox Page Structure
+
+作成された sandbox ページは以下の構造になります：
+
+```
+src/pages/sandbox/
+└── [page-name]/
+    ├── index.tsx          # ページコンポーネント
+    └── [page-name].module.css  # スタイル（オプション）
+```
+
+### Accessing Sandbox Pages
+
+開発サーバー起動後、以下の URL でアクセスできます：
+
+```
+http://localhost:5173/sandbox
+http://localhost:5173/sandbox/[page-name]
+```
+
+### Detailed Guide
+
+詳細は `docs/sandbox-guide.md` を参照してください。
+
+---
+
+## Template System
+
+テンプレートは `src/pages/template/` に配置され、レイアウト別とサービス別に分類されています。
+
+### Generic Layouts
+
+| テンプレート | 説明 |
+|------------|------|
+| `chat-layout/` | チャット形式の UI レイアウト |
+| `dashboard-layout/` | ダッシュボード・分析画面 |
+| `detail-layout/` | オブジェクト詳細表示 |
+| `dialog/` | ダイアログ・モーダル |
+| `fill-layout/` | フル幅コンテンツ |
+| `form-layout/` | フォーム入力画面 |
+| `list-layout/` | リスト・テーブル一覧 |
+| `pagelayout/` | PageLayout 基本テンプレート |
+| `settings-layout/` | 設定画面 |
+| `states/` | 状態表示（Empty、Loading、Error 等） |
+
+### Service Templates
+
+| サービス | 説明 | CONCEPT.md |
+|---------|------|------------|
+| `loc/` | LOC サービス（20+ テンプレート：管理コンソール、案件、レビュー、設定等） | サブディレクトリ毎に存在 |
+| `dealon/` | DealOn サービス | あり |
+| `workon/` | WorkOn サービス | あり |
+
+各サービスの `CONCEPT.md` にはドメイン用語と業務知識が定義されています。実装前に必ず確認してください。
+
+---
+
+## Testing
+
+### ユニットテスト（Vitest）
+
+```bash
+pnpm test          # テスト実行
+pnpm test:watch    # ウォッチモード
+```
+
+Vitest 4.0.18 を使用。設定は `vitest.config.ts` を参照。
+
+### E2E テスト（Playwright）
+
+```bash
+pnpm test:e2e      # E2E テスト実行
+pnpm test:e2e:ui   # UI モードで実行（デバッグ向け）
+```
+
+Playwright 1.58.2 を使用。設定は `playwright.config.ts` を参照。
+
+---
+
+## Tauri Desktop App
+
+aegis-lab は Tauri を使用してネイティブデスクトップアプリとしてもビルドできます。
+
+```bash
+pnpm tauri:dev     # 開発モード
+pnpm tauri:build   # プロダクションビルド
+```
+
+詳細は `docs/tauri-guide.md` を参照してください。
+
+---
+
+## Aegis Recipes
+
+`docs/aegis-recipes/` には、Aegis コンポーネントのみを使った実践的な UI 合成パターンが 16 件用意されています。
+
+- `action-menu.md` - アクションメニュー
+- `data-table-pagination.md` - データテーブル + ページネーション
+- `detail-header.md` - 詳細画面ヘッダー
+- `disabled-action-popover.md` - 非活性アクション + Popover 説明
+- `empty-state.md` - 空状態表示
+- `filter-drawer.md` - フィルター Drawer
+- `form-control-help-tagpicker.md` - FormControl + ヘルプ + TagPicker
+- `form-with-banner.md` - フォーム + バナー
+- `list-toolbar-and-search.md` - リストツールバー + 検索
+- `maintenance-empty-state.md` - メンテナンス空状態
+- `overflow-tooltip.md` - オーバーフロー Tooltip
+- `sidebar-layout.md` - サイドバーレイアウト
+- `status-and-tags.md` - ステータス + タグ表示
+- `table-action-cell-menu.md` - TableActionCell メニュー
+- `table-container-basic.md` - 基本テーブルコンテナ
+- `tagpicker-custom-options.md` - TagPicker カスタムオプション
+
+---
+
+## Anti-Patterns
+
+`docs/anti-patterns/` には、Aegis コンポーネントの誤用パターンが 56 件カタログ化されています。カテゴリ別の内訳：
+
+| カテゴリ | 件数 | 内容例 |
+|---------|------|--------|
+| Button / IconButton | 8 | 複数 Solid ボタン、アイコンボタンの誤用 |
+| Dialog / Drawer | 6 | ダイアログ内レイアウト違反 |
+| FormControl | 4 | ラベル不足、バリデーション誤り |
+| Table | 3 | TableActionCell 不使用 |
+| Token / Color | 5 | デザイントークン不使用、カラー誤用 |
+| Typography / Heading | 2 | 見出し階層違反 |
+| ARIA / Accessibility | 2 | ARIA 属性の誤用 |
+| その他 | 24 | Banner、Card、Link、Select、Tabs 等 |
+
+`pnpm scan:anti-patterns` でコードベースを自動スキャンできます。
+
+---
+
+## TypeScript Configuration
+
+このプロジェクトは厳格な TypeScript 設定を使用しています。ビルド時は Go ベースの TypeScript コンパイラ `tsgo` を使用し、高速な型チェックを実現しています（`tsgo -b && vite build`）。
+
+### Strict Mode Settings
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
+  }
+}
+```
+
+### Common Type Patterns
+
+#### Defining Props
+
+```tsx
+interface MyComponentProps {
+  title: string;
+  count?: number;  // Optional
+  onSubmit: (value: string) => void;
+}
+
+function MyComponent({ title, count = 0, onSubmit }: MyComponentProps) {
+  // ...
+}
+```
+
+#### Type Guards
+
+```tsx
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+if (isString(data)) {
+  // data is string here
+  console.log(data.toUpperCase());
+}
+```
+
+#### Handling External Data
+
+```tsx
+// Use Zod or similar for runtime validation
+import { z } from 'zod';
+
+const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+type User = z.infer<typeof UserSchema>;
+
+const user = UserSchema.parse(responseData);  // Runtime validation
+```
+
+---
+
+## Deployment
+
+### Cloudflare Workers
+
+このプロジェクトは Cloudflare Workers にデプロイできます。
+
+### Deployment Command
+
+```bash
+pnpm deploy  # Build + Deploy
+```
+
+または
+
+```bash
+pnpm build      # まずビルド
+pnpm cf:deploy  # デプロイのみ
+```
+
+### Wrangler Configuration
+
+`wrangler.jsonc` でデプロイ設定を管理しています。
+
+```jsonc
+{
+  "name": "aegis-lab",
+  "compatibility_date": "2024-01-01",
+  "pages_build_output_dir": "./dist"
+}
+```
+
+### Important Notes
+
+- **承認必要**: デプロイ前にチームの承認を得てください
+- **CI/CD 推奨**: 可能な限り CI/CD パイプライン経由でデプロイ
+- **環境変数**: 本番環境の環境変数は Cloudflare Dashboard で設定
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. GitHub Authentication Error
+
+**症状**:
+```
+npm ERR! 401 Unauthorized - GET https://npm.pkg.github.com/@legalforce/aegis-react
+```
+
+**解決策**:
+```bash
+# ~/.npmrc を確認
+rg "npm.pkg.github.com" ~/.npmrc
+
+# rg が使えない場合は grep を使う
+grep "npm.pkg.github.com" ~/.npmrc
+
+# トークンを再設定
+echo "//npm.pkg.github.com/:_authToken=YOUR_NEW_TOKEN" >> ~/.npmrc
+```
+
+#### 2. pnpm Version Mismatch
+
+**症状**:
+```
+Error: This project requires pnpm version 10.28.0
+```
+
+**解決策**:
+```bash
+# Corepack を有効化（自動的に正しいバージョンを使用）
+corepack enable
+
+# または手動でバージョン指定
+corepack prepare pnpm@10.28.0 --activate
+```
+
+#### 3. TypeScript Build Errors
+
+**症状**:
+```
+error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+```
+
+**解決策**:
+- 型ガードを使用
+- Optional chaining (`?.`) を活用
+- Nullish coalescing (`??`) を活用
+
+```tsx
+// Bad
+const name: string = user.name;  // Error if name is optional
+
+// Good
+const name: string = user.name ?? 'Unknown';
+```
+
+#### 4. Aegis Component Not Found
+
+**症状**:
+```
+Module not found: Can't resolve '@legalforce/aegis-react'
+```
+
+**解決策**:
+```bash
+# 依存関係を再インストール
+pnpm install
+
+# キャッシュをクリア
+rm -rf node_modules
+pnpm install
+```
+
+#### 5. MCP Tools Not Working
+
+**症状**:
+Claude Code で MCP ツールが表示されない
+
+**解決策**:
+1. `.mcp.json` が存在するか確認
+2. Claude Code を再起動
+3. `@legalforce/aegis-mcp-server` が最新か確認
+
+```bash
+npx @legalforce/aegis-mcp-server@latest --version
+```
+
+#### 6. Hot Module Replacement Not Working
+
+**症状**:
+ファイル変更が反映されない
+
+**解決策**:
+```bash
+# 開発サーバーを再起動
+# Ctrl+C で停止して再度実行
+pnpm dev
+```
+
+#### 7. Deployment Fails
+
+**症状**:
+```
+Error: Build failed or deployment unsuccessful
+```
+
+**解決策**:
+```bash
+# ローカルでビルドを確認
+pnpm build
+
+# エラーがあれば修正
+# ビルド成功後に再度デプロイ
+pnpm cf:deploy
+```
+
+### Getting Help
+
+- **ドキュメント**: `docs/` ディレクトリを確認
+- **コードレビュー**: チームメンバーに相談
+- **Aegis 関連**: デザインシステムチーム（AG）に問い合わせ
+
+---
+
+## Additional Resources
+
+### Documentation Files
+
+- `docs/about.md` - プロジェクト概要
+- `docs/onboarding-guide.md` - セットアップガイド
+- `docs/mac-setup-guide.md` - macOS セットアップガイド
+- `docs/sandbox-guide.md` - Sandbox ページ作成ガイド
+- `docs/tutorial-first-page.md` - 初回ページ作成チュートリアル
+- `docs/tauri-guide.md` - Tauri デスクトップアプリガイド
+- `docs/workflow-subagent.md` - サブエージェントワークフロー
+- `docs/aegis-recipes/` - Aegis コンポーネント合成レシピ（16 件）
+- `docs/anti-patterns/` - アンチパターンカタログ（56 件）
+- `docs/rules/ui/` - UI ガイドライン（00〜09 の 10 ファイル）
+- `docs/rules/component/` - 各コンポーネントのルール（112 ファイル）
+- `CLAUDE.md` - AI Agent 向けガイドライン（詳細版）
+- `llms.txt` - LLM 向けドキュメント（簡潔版）
+
+### External Resources
+
+- [Aegis Design System](https://aegis.legalforce.co.jp/) - 公式サイト（社内限定）
+- [React Documentation](https://react.dev/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+- [Vite Guide](https://vite.dev/guide/)
+- [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
+
+---
+
+## Version History
+
+- **0.0.0** - 初期バージョン（現在）
+
+---
+
+## License
+
+Internal use only - LegalForce, Inc.
+
+---
+
+**Last Updated**: 2026-03-30
+
+For quick reference, see [llms.txt](/llms.txt)

@@ -1,0 +1,505 @@
+{
+  "version": 1,
+  "locAppRepo": "lib/loc-app",
+  "entries": {
+    "case/index.tsx": {
+      "locService": "legal-management-f",
+      "locPagePath": "pages/index",
+      "locPartsGlobs": ["parts/index/**/*.{tsx,css,csv}", "parts/shared/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/case",
+      "referenceScreenshot": null
+    },
+    "case/detail/index.tsx": {
+      "locService": "legal-management-f",
+      "locPagePath": "pages/show",
+      "locPartsGlobs": ["parts/show/**/*.{tsx,css,csv}", "parts/shared/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/case/detail",
+      "referenceScreenshot": null
+    },
+    "application-console/index.tsx": {
+      "locService": "application-console-f",
+      "locPagePath": "pages/legalManagement/caseStatus",
+      "locPartsGlobs": ["parts/legalManagement/CaseStatus/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/application-console",
+      "referenceScreenshot": null
+    },
+    "application-console/case-reception-form/index.tsx": {
+      "locService": "application-console-f",
+      "locPagePath": "pages/legalManagement/caseReceptionForm",
+      "locPartsGlobs": [
+        "parts/legalManagement/CaseReceptionForm/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/application-console/case-reception-form",
+      "referenceScreenshot": null
+    },
+    "application-console/case-reception-form/edit/index.tsx": {
+      "locService": "application-console-f",
+      "locPagePath": "pages/legalManagement/caseReceptionForm/edit",
+      "locPartsGlobs": [
+        "parts/legalManagement/CaseReceptionForm/edit/**/*.{tsx,css,csv}",
+        "parts/legalManagement/CaseReceptionForm/shared/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/application-console/case-reception-form/edit",
+      "referenceScreenshot": null
+    },
+    "case-reception-form/index.tsx": {
+      "locService": "case-reception-form-f",
+      "locPagePath": "pages/index",
+      "locPartsGlobs": ["parts/index/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/case-reception-form",
+      "referenceScreenshot": null
+    },
+    "dashboard/index.tsx": {
+      "locService": "dashboard-f",
+      "locPagePath": "pages/Dashboard",
+      "locPartsGlobs": ["parts/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/dashboard",
+      "referenceScreenshot": null
+    },
+    "dashboard/contract-review/index.tsx": {
+      "locService": "dashboard-f",
+      "locPagePath": "pages/ContractReview",
+      "locPartsGlobs": ["parts/FileUploader/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/dashboard/contract-review",
+      "referenceScreenshot": null
+    },
+    "esign/index.tsx": {
+      "locService": "esign-f",
+      "locPagePath": "pages/envelope",
+      "locPartsGlobs": ["parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/esign",
+      "referenceScreenshot": null
+    },
+    "esign/envelope-list.tsx": {
+      "locService": "esign-f",
+      "locPagePath": "pages/envelope",
+      "locPartsGlobs": ["parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/esign/envelope-list",
+      "referenceScreenshot": null
+    },
+    "file-management/index.tsx": {
+      "locService": "document-management-f",
+      "locPagePath": "router",
+      "locPartsGlobs": ["parts/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/file-management",
+      "referenceScreenshot": ".reference-screenshots/file-management/index.tsx.a11y-snapshot.txt"
+    },
+    "file-management/detail/index.tsx": {
+      "locService": "document-management-f",
+      "locPagePath": "router",
+      "locPartsGlobs": ["parts/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/file-management/detail/sample-001",
+      "referenceScreenshot": ".reference-screenshots/file-management-detail-index.a11y-snapshot.txt"
+    },
+    "loa/index.tsx": {
+      "locService": "document-management-f",
+      "locPagePath": "parts/common/LegalonAssistant",
+      "locPartsGlobs": ["parts/common/LegalonAssistant/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/loa",
+      "referenceScreenshot": null
+    },
+    "loa/history/index.tsx": {
+      "locService": "agent-f",
+      "locPagePath": "pages/history",
+      "locPartsGlobs": [
+        "pages/history/**/*.{tsx,css,csv}",
+        "parts/ConversationHistoryList/**/*.{tsx,css,csv}",
+        "parts/ConversationActionMenu/**/*.{tsx,css,csv}",
+        "parts/Dialog/DeleteConversation/**/*.{tsx,css,csv}",
+        "parts/Dialog/EditConversationTitle/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "0f9d6d9bbe51abf5248e50ab7f51c80ccacf0136",
+      "lastSyncedDate": "2026-03-16T00:00:00Z",
+      "templateRoute": "/template/loc/loa/history",
+      "referenceScreenshot": null
+    },
+    "loa/playbook/index.tsx": {
+      "locService": "agent-f",
+      "locPagePath": "pages/playbook",
+      "locPartsGlobs": [
+        "pages/playbook/**/*.{tsx,css,csv}",
+        "parts/ThirdPartyPlaybookCanvas/**/*.{tsx,css,csv}",
+        "parts/PlaybookConversationTurnList/**/*.{tsx,css,csv}",
+        "parts/PlaybookFileUploadWidget/**/*.{tsx,css,csv}",
+        "parts/PlaybookActionPlanWidget/**/*.{tsx,css,csv}",
+        "parts/RichTextInput/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/loa/playbook",
+      "referenceScreenshot": null
+    },
+    "legalon-template/index.tsx": {
+      "locService": "legalon-template-f",
+      "locPagePath": "pages/LegalonTemplateIndex",
+      "locPartsGlobs": ["parts/Index/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/legalon-template",
+      "referenceScreenshot": null
+    },
+    "legalon-template/category.tsx": {
+      "locService": "legalon-template-f",
+      "locPagePath": "pages/LegalonTemplateCategory",
+      "locPartsGlobs": ["parts/Category/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/legalon-template/category",
+      "referenceScreenshot": null
+    },
+    "legalon-template/detail.tsx": {
+      "locService": "legalon-template-f",
+      "locPagePath": "pages/LegalonTemplateShow",
+      "locPartsGlobs": ["parts/Show/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/legalon-template/tmpl1",
+      "referenceScreenshot": null
+    },
+    "management-console/index.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/license",
+      "locPartsGlobs": [
+        "parts/license/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console",
+      "referenceScreenshot": null
+    },
+    "management-console/mfa.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/mfa",
+      "locPartsGlobs": [
+        "parts/mfa/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/mfa",
+      "referenceScreenshot": null
+    },
+    "management-console/slack.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/slack",
+      "locPartsGlobs": [
+        "parts/slack/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/slack",
+      "referenceScreenshot": null
+    },
+    "management-console/teams.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/teams",
+      "locPartsGlobs": [
+        "parts/teams/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/teams",
+      "referenceScreenshot": null
+    },
+    "management-console/sso.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/sso",
+      "locPartsGlobs": [
+        "parts/sso/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/sso",
+      "referenceScreenshot": null
+    },
+    "management-console/company-info.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/companyInfo",
+      "locPartsGlobs": [
+        "parts/companyInfo/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/company-info",
+      "referenceScreenshot": null
+    },
+    "management-console/departments.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/departments",
+      "locPartsGlobs": [
+        "parts/departments/**/*.{tsx,css,csv}",
+        "pages/departments/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/departments",
+      "referenceScreenshot": null
+    },
+    "management-console/users.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/users",
+      "locPartsGlobs": [
+        "parts/users/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/users",
+      "referenceScreenshot": null
+    },
+    "management-console/user-groups.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/userGroups",
+      "locPartsGlobs": [
+        "parts/userGroups/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/user-groups",
+      "referenceScreenshot": null
+    },
+    "management-console/spaces.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/spaces",
+      "locPartsGlobs": [
+        "parts/spaces/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/management-console/spaces",
+      "referenceScreenshot": null
+    },
+    "personal-setting/index.tsx": {
+      "locService": "personal-settings-f",
+      "locPagePath": "pages/profile",
+      "locPartsGlobs": [
+        "parts/profile/**/*.{tsx,css,csv}",
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/personal-setting",
+      "referenceScreenshot": null
+    },
+    "personal-setting/profile.tsx": {
+      "locService": "personal-settings-f",
+      "locPagePath": "pages/profile",
+      "locPartsGlobs": ["parts/profile/**/*.{tsx,css,csv}", "parts/layout/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/personal-setting/profile",
+      "referenceScreenshot": null
+    },
+    "personal-setting/contract-notification.tsx": {
+      "locService": "personal-settings-f",
+      "locPagePath": "pages/contractManagement",
+      "locPartsGlobs": ["parts/contractManagement/**/*.{tsx,css,csv}", "parts/layout/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/personal-setting/contract-notification",
+      "referenceScreenshot": null
+    },
+    "personal-setting/legal-notification.tsx": {
+      "locService": "personal-settings-f",
+      "locPagePath": "pages/legalManagement",
+      "locPartsGlobs": ["parts/legalManagement/**/*.{tsx,css,csv}", "parts/layout/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/personal-setting/legal-notification",
+      "referenceScreenshot": null
+    },
+    "personal-setting/legalscape.tsx": {
+      "locService": "personal-settings-f",
+      "locPagePath": "pages/apiIntegration",
+      "locPartsGlobs": ["parts/apiIntegration/**/*.{tsx,css,csv}", "parts/layout/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/personal-setting/legalscape",
+      "referenceScreenshot": null
+    },
+    "review/index.tsx": {
+      "locService": "review-console-f",
+      "locPagePath": "pages/ReviewConsole",
+      "locPartsGlobs": ["parts/ReviewConsole/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "32452335771b303f7315f6e4fe0f6b66fce024ba",
+      "lastSyncedDate": "2026-03-06T00:00:00Z",
+      "templateRoute": "/template/loc/review",
+      "referenceScreenshot": null
+    },
+    "review-console/index.tsx": {
+      "locService": "review-console-f",
+      "locPagePath": "pages/subs",
+      "locPartsGlobs": ["pages/subs/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/review-console",
+      "referenceScreenshot": null
+    },
+    "review-console/my-playbook/index.tsx": {
+      "locService": "review-console-f",
+      "locPagePath": "pages/MyPlaybook",
+      "locPartsGlobs": [
+        "parts/FirstPartyPlaybook*/**/*.{tsx,css,csv}",
+        "parts/ThirdPartyPlaybook*/**/*.{tsx,css,csv}",
+        "parts/MyPlaybook*/**/*.{tsx,css,csv}",
+        "pages/subs/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/review-console/my-playbook",
+      "referenceScreenshot": null
+    },
+    "review-console/rules/index.tsx": {
+      "locService": "review-console-f",
+      "locPagePath": "pages/Rules",
+      "locPartsGlobs": [
+        "parts/RuleGroupList/**/*.{tsx,css,csv}",
+        "parts/RulesCondition/**/*.{tsx,css,csv}",
+        "parts/RulesConditionLabel/**/*.{tsx,css,csv}",
+        "parts/RulesFilter/**/*.{tsx,css,csv}",
+        "pages/subs/RuleDetailPane/**/*.{tsx,css,csv}",
+        "pages/subs/RulesHeader/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/review-console/rules",
+      "referenceScreenshot": null
+    },
+    "root/index.tsx": {
+      "locService": "root-f",
+      "locPagePath": "pages/Root",
+      "locPartsGlobs": [],
+      "lastSyncedCommit": "32452335771b303f7315f6e4fe0f6b66fce024ba",
+      "lastSyncedDate": "2026-03-06T00:00:00Z",
+      "templateRoute": "/template/root",
+      "referenceScreenshot": null
+    },
+    "root/Maintenance.tsx": {
+      "locService": "root-f",
+      "locPagePath": "pages/Maintenance",
+      "locPartsGlobs": [],
+      "lastSyncedCommit": "32452335771b303f7315f6e4fe0f6b66fce024ba",
+      "lastSyncedDate": "2026-03-06T00:00:00Z",
+      "templateRoute": "/template/root/maintenance",
+      "referenceScreenshot": null
+    },
+    "root/NotFound.tsx": {
+      "locService": "root-f",
+      "locPagePath": "pages/NotFound",
+      "locPartsGlobs": [],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/root/not-found",
+      "referenceScreenshot": null
+    },
+    "root/ServerError.tsx": {
+      "locService": "root-f",
+      "locPagePath": "pages/ServerError",
+      "locPartsGlobs": [],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/root/server-error",
+      "referenceScreenshot": null
+    },
+    "setting-page/index.tsx": {
+      "locService": "management-console-f",
+      "locPagePath": "pages/users",
+      "locPartsGlobs": [
+        "parts/layout/**/*.{tsx,css,csv}",
+        "parts/users/**/*.{tsx,css,csv}",
+        "parts/common/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/setting-page",
+      "referenceScreenshot": null
+    },
+    "word-addin/index.tsx": {
+      "locService": "word-addin-f",
+      "locPagePath": "pages/main",
+      "locPartsGlobs": [
+        "parts/**/*.{tsx,css,csv}",
+        "pages/ArticleSearch/**/*.{tsx,css,csv}",
+        "pages/subs/**/*.{tsx,css,csv}"
+      ],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/word-addin",
+      "referenceScreenshot": null
+    },
+    "word-addin-standalone/index.tsx": {
+      "locService": "word-addin-f",
+      "locPagePath": "pages/LinkDocument",
+      "locPartsGlobs": ["parts/LinkDocument/**/*.{tsx,css,csv}", "parts/Widgets/LinkDocument/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/word-addin-standalone",
+      "referenceScreenshot": null
+    },
+    "manual-correction/index.tsx": {
+      "locService": "manual-correction-f",
+      "locPagePath": "pages/contracts",
+      "locPartsGlobs": ["parts/contracts/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/manual-correction",
+      "referenceScreenshot": null
+    },
+    "manual-correction/detail/index.tsx": {
+      "locService": "manual-correction-f",
+      "locPagePath": "pages/task",
+      "locPartsGlobs": ["parts/task/**/*.{tsx,css,csv}", "parts/common/**/*.{tsx,css,csv}"],
+      "lastSyncedCommit": "7b24f5bc73f71ce85e16dce19f299a5f802cfac9",
+      "lastSyncedDate": "2026-04-24T05:35:45.037Z",
+      "templateRoute": "/template/loc/manual-correction/detail",
+      "referenceScreenshot": null
+    }
+  }
+}

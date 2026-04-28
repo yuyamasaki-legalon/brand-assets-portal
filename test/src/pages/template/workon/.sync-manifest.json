@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "hueronAppRepo": "lib/hueron-app",
+  "entries": {
+    "employee-registration/index.tsx": {
+      "pagePath": "wizard/employee/",
+      "relatedGlobs": ["wizard/employee/_components/**/*.{tsx,ts,css}", "wizard/employee/_hooks/**/*.{tsx,ts}"],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/employee-registration",
+      "referenceScreenshot": null
+    },
+    "procedure/index.tsx": {
+      "pagePath": "procedure/",
+      "relatedGlobs": ["procedure/_components/**/*.{tsx,ts,css}", "procedure/_hooks/**/*.{tsx,ts}"],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/procedure",
+      "referenceScreenshot": null
+    },
+    "profile/index.tsx": {
+      "pagePath": "profile/",
+      "relatedGlobs": ["profile/_components/**/*.{tsx,ts,css}", "profile/_hooks/**/*.{tsx,ts}"],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile",
+      "referenceScreenshot": null
+    },
+    "profile/employee/index.tsx": {
+      "pagePath": "profile/(with-navi)/employee/",
+      "relatedGlobs": [
+        "profile/(with-navi)/employee/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/employee/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/employee",
+      "referenceScreenshot": null
+    },
+    "profile/personal-info/index.tsx": {
+      "pagePath": "profile/(with-navi)/personal-info/",
+      "relatedGlobs": [
+        "profile/(with-navi)/personal-info/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/personal-info/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/personal-info",
+      "referenceScreenshot": null
+    },
+    "profile/additional-info/index.tsx": {
+      "pagePath": "profile/(with-navi)/additional-info/",
+      "relatedGlobs": [
+        "profile/(with-navi)/additional-info/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/additional-info/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/additional-info",
+      "referenceScreenshot": null
+    },
+    "profile/tax-insurance/index.tsx": {
+      "pagePath": "profile/(with-navi)/tax-insurance/",
+      "relatedGlobs": [
+        "profile/(with-navi)/tax-insurance/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/tax-insurance/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/tax-insurance",
+      "referenceScreenshot": null
+    },
+    "profile/family-info/index.tsx": {
+      "pagePath": "profile/(with-navi)/family-info/",
+      "relatedGlobs": [
+        "profile/(with-navi)/family-info/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/family-info/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/family-info",
+      "referenceScreenshot": null
+    },
+    "profile/payment-deduction/index.tsx": {
+      "pagePath": "profile/(with-navi)/payment-deduction/",
+      "relatedGlobs": [
+        "profile/(with-navi)/payment-deduction/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/payment-deduction/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/payment-deduction",
+      "referenceScreenshot": null
+    },
+    "profile/salary-bonus-detail/index.tsx": {
+      "pagePath": "profile/(with-navi)/salary-bonus-detail/",
+      "relatedGlobs": [
+        "profile/(with-navi)/salary-bonus-detail/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/salary-bonus-detail/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/salary-bonus-detail",
+      "referenceScreenshot": null
+    },
+    "profile/leave-of-absence/index.tsx": {
+      "pagePath": "profile/(with-navi)/leave-of-absence/",
+      "relatedGlobs": [
+        "profile/(with-navi)/leave-of-absence/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/leave-of-absence/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/leave-of-absence",
+      "referenceScreenshot": null
+    },
+    "profile/department-assignment/index.tsx": {
+      "pagePath": "profile/(with-navi)/department-assignment/",
+      "relatedGlobs": [
+        "profile/(with-navi)/department-assignment/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/department-assignment/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/department-assignment",
+      "referenceScreenshot": null
+    },
+    "profile/custom/index.tsx": {
+      "pagePath": "profile/(with-navi)/custom/",
+      "relatedGlobs": [
+        "profile/(with-navi)/custom/_components/**/*.{tsx,ts,css}",
+        "profile/(with-navi)/custom/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/profile/custom",
+      "referenceScreenshot": null
+    },
+    "setting/index.tsx": {
+      "pagePath": "setting/",
+      "relatedGlobs": ["setting/_components/**/*.{tsx,ts,css}", "setting/_hooks/**/*.{tsx,ts}"],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/setting",
+      "referenceScreenshot": null
+    },
+    "setting/account/index.tsx": {
+      "pagePath": "setting/account/",
+      "relatedGlobs": ["setting/account/_components/**/*.{tsx,ts,css}", "setting/account/_hooks/**/*.{tsx,ts}"],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/setting/account",
+      "referenceScreenshot": null
+    },
+    "setting/invite/index.tsx": {
+      "pagePath": "setting/invite-admin/",
+      "relatedGlobs": [
+        "setting/invite-admin/_components/**/*.{tsx,ts,css}",
+        "setting/invite-admin/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/setting/invite",
+      "referenceScreenshot": null
+    },
+    "setting/permission-management/index.tsx": {
+      "pagePath": "setting/permission-management/",
+      "relatedGlobs": [
+        "setting/permission-management/_components/**/*.{tsx,ts,css}",
+        "setting/permission-management/_hooks/**/*.{tsx,ts}"
+      ],
+      "lastSyncedCommit": "ad0c398d10d66c379503a9381fe876879ac811fb",
+      "lastSyncedDate": "2026-03-12T00:00:00Z",
+      "templateRoute": "/template/workon/setting/permission-management",
+      "referenceScreenshot": null
+    }
+  }
+}

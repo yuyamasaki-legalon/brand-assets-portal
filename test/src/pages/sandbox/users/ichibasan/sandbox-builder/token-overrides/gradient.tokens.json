@@ -1,0 +1,7 @@
+{
+  "gradient": {
+    "information": "linear-gradient(90deg, #1f71b300 0%, #1f71b3 50%, #1f71b300 100%)",
+    "disabled": "linear-gradient(90deg, #cdcdcd00 0%, #cdcdcd 50%, #cdcdcd00 100%)",
+    "skeleton": "linear-gradient(90deg, #e1e1e100 0%, #e1e1e1 50%, #e1e1e100 100%)"
+  }
+}

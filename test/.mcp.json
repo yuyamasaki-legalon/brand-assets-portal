@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "aegis": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@legalforce/aegis-mcp-server"
+      ],
+      "env": {}
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp"
+      ],
+      "env": {}
+    }
+  }
+}

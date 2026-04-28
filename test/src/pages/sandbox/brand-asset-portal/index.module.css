@@ -1,0 +1,430 @@
+.pageBody {
+  display: grid;
+  gap: var(--aegis-space-large);
+  padding-bottom: var(--aegis-space-2xLarge);
+}
+
+.heroCard {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aegis-color-background-primary) 76%, transparent), transparent 52%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--aegis-color-background-information-subtle) 58%, transparent),
+      transparent
+    ),
+    var(--aegis-color-background-primary);
+  border: 1px solid var(--aegis-color-border-subtle);
+}
+
+.heroStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--aegis-space-medium);
+  margin-top: var(--aegis-space-large);
+}
+
+.heroStat {
+  display: grid;
+  gap: var(--aegis-space-2xSmall);
+  padding: var(--aegis-space-medium);
+  border-radius: var(--aegis-radius-medium);
+  background: color-mix(
+    in srgb,
+    var(--aegis-color-background-primary) 92%,
+    var(--aegis-color-background-information-subtle)
+  );
+  border: 1px solid var(--aegis-color-border-subtle);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-small);
+  margin-top: var(--aegis-space-large);
+}
+
+.searchPanel {
+  display: grid;
+  gap: var(--aegis-space-medium);
+}
+
+.searchRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--aegis-space-small);
+  align-items: center;
+}
+
+.chipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-xSmall);
+}
+
+.chipButton {
+  appearance: none;
+  border: 1px solid var(--aegis-color-border-subtle);
+  background: var(--aegis-color-background-primary);
+  color: var(--aegis-color-text-default);
+  border-radius: 999px;
+  padding: 0.375rem 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.chipButton:hover {
+  background: var(--aegis-color-background-subtle);
+}
+
+.chipButtonActive {
+  background: var(--aegis-color-background-information-subtle);
+  border-color: var(--aegis-color-border-information);
+  color: var(--aegis-color-text-information);
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--aegis-space-small);
+  align-items: center;
+}
+
+.activeChip {
+  display: inline-flex;
+  gap: var(--aegis-space-2xSmall);
+  align-items: center;
+  padding: 0.375rem 0.625rem;
+  border-radius: 999px;
+  background: var(--aegis-color-background-subtle);
+  border: 1px solid var(--aegis-color-border-subtle);
+  font-size: 0.8125rem;
+}
+
+.activeChip button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--aegis-color-text-subtle);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.sectionBlock {
+  display: grid;
+  gap: var(--aegis-space-medium);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--aegis-space-medium);
+  align-items: end;
+}
+
+.assetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--aegis-space-medium);
+}
+
+.assetCard {
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--aegis-color-border-subtle);
+  background: var(--aegis-color-background-primary);
+  border-radius: var(--aegis-radius-large);
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+  overflow: hidden;
+}
+
+.assetCard:hover {
+  background: color-mix(in srgb, var(--aegis-color-background-subtle) 66%, var(--aegis-color-background-primary));
+  border-color: var(--aegis-color-border-default);
+}
+
+.thumb {
+  display: grid;
+  gap: var(--aegis-space-small);
+  padding: var(--aegis-space-medium);
+  min-height: 13rem;
+  border-bottom: 1px solid var(--aegis-color-border-subtle);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--brand-color) 15%, transparent), transparent 46%),
+    linear-gradient(180deg, color-mix(in srgb, var(--aegis-color-background-subtle) 80%, transparent), transparent),
+    var(--aegis-color-background-subtle);
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-2xSmall);
+}
+
+.thumbVisual {
+  flex: 1;
+  min-height: 7.5rem;
+  border-radius: var(--aegis-radius-medium);
+  border: 1px solid color-mix(in srgb, var(--brand-color) 24%, var(--aegis-color-border-subtle));
+  background: var(--aegis-color-background-primary);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.thumbImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbFallback,
+.thumbMulti {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: var(--aegis-space-medium);
+}
+
+.thumbFallbackInner,
+.thumbMultiInner {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--aegis-radius-medium);
+  display: grid;
+  align-content: space-between;
+  gap: var(--aegis-space-small);
+  padding: var(--aegis-space-medium);
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--brand-color) 8%, transparent), transparent 56%),
+    var(--aegis-color-background-subtle);
+}
+
+.thumbMarkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-2xSmall);
+}
+
+.formatMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.thumbKind {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--aegis-color-text-subtle);
+  text-transform: uppercase;
+}
+
+.thumbBrand {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--aegis-color-text-default);
+}
+
+.thumbCaption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--aegis-space-small);
+  font-size: 0.75rem;
+  color: var(--aegis-color-text-subtle);
+}
+
+.cardBody {
+  display: grid;
+  gap: var(--aegis-space-small);
+  padding: var(--aegis-space-large);
+}
+
+.assetCardCompact .cardBody {
+  padding: var(--aegis-space-medium);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--aegis-space-small);
+  align-items: start;
+}
+
+.titleWrap {
+  display: grid;
+  gap: var(--aegis-space-2xSmall);
+}
+
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-2xSmall);
+  color: var(--aegis-color-text-subtle);
+  font-size: 0.75rem;
+}
+
+.detailList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--aegis-space-small);
+}
+
+.detailItem {
+  display: grid;
+  gap: 0.125rem;
+  padding: var(--aegis-space-small);
+  border-radius: var(--aegis-radius-small);
+  background: var(--aegis-color-background-subtle);
+}
+
+.metaFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--aegis-space-small);
+  align-items: center;
+}
+
+.pillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-2xSmall);
+}
+
+.paneBody {
+  display: grid;
+  gap: var(--aegis-space-large);
+}
+
+.filterGroup {
+  display: grid;
+  gap: var(--aegis-space-small);
+}
+
+.paneStatList {
+  display: grid;
+  gap: var(--aegis-space-small);
+}
+
+.paneStat {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--aegis-space-medium);
+  padding: var(--aegis-space-small) 0;
+  border-bottom: 1px solid var(--aegis-color-border-subtle);
+}
+
+.brandQuickList {
+  display: grid;
+  gap: var(--aegis-space-xSmall);
+}
+
+.brandQuickButton {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dialogLayout {
+  display: grid;
+  gap: var(--aegis-space-large);
+}
+
+.previewCard {
+  display: grid;
+  grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+  border: 1px solid var(--aegis-color-border-subtle);
+  border-radius: var(--aegis-radius-large);
+  overflow: hidden;
+}
+
+.previewVisual {
+  min-height: 16rem;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--brand-color) 16%, transparent), transparent 44%),
+    var(--aegis-color-background-subtle);
+  border-right: 1px solid var(--aegis-color-border-subtle);
+}
+
+.previewBody {
+  display: grid;
+  gap: var(--aegis-space-medium);
+  padding: var(--aegis-space-large);
+}
+
+.previewMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--aegis-space-small);
+}
+
+.metaCard {
+  display: grid;
+  gap: 0.125rem;
+  padding: var(--aegis-space-small);
+  border-radius: var(--aegis-radius-small);
+  background: var(--aegis-color-background-subtle);
+}
+
+.variantGrid {
+  display: grid;
+  gap: var(--aegis-space-small);
+}
+
+.variantButton {
+  appearance: none;
+  border: 1px solid var(--aegis-color-border-subtle);
+  background: var(--aegis-color-background-primary);
+  border-radius: var(--aegis-radius-medium);
+  padding: var(--aegis-space-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.variantButtonActive {
+  border-color: var(--aegis-color-border-information);
+  background: var(--aegis-color-background-information-subtle);
+}
+
+.bannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--aegis-space-small);
+}
+
+.emptyPanel {
+  padding: var(--aegis-space-2xLarge) var(--aegis-space-large);
+}
+
+@media (max-width: 960px) {
+  .heroStats,
+  .detailList,
+  .previewMetaGrid,
+  .previewCard {
+    grid-template-columns: 1fr;
+  }
+
+  .searchRow {
+    grid-template-columns: 1fr;
+  }
+}

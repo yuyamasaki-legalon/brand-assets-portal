@@ -1,0 +1,111 @@
+.slider {
+  position: relative;
+  block-size: var(--aegis-size-medium);
+  inline-size: 100%;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.sliderTrack {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline: 0;
+  block-size: 2px;
+  transform: translateY(-50%);
+  background: var(--aegis-color-background-neutral);
+}
+
+.sliderProgress {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0;
+  block-size: 2px;
+  transform: translateY(-50%);
+  background: var(--aegis-color-background-neutral-bold);
+}
+
+.sliderThumb {
+  position: absolute;
+  inset-block-start: 50%;
+  inline-size: 24px;
+  block-size: 24px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--aegis-radius-full);
+  padding: 4px;
+  background: transparent;
+}
+
+.sliderThumb::before {
+  content: "";
+  display: block;
+  inline-size: 16px;
+  block-size: 16px;
+  border: 2px solid var(--aegis-color-border-selected);
+  border-radius: var(--aegis-radius-full);
+  background: var(--aegis-color-background-default);
+  box-sizing: border-box;
+}
+
+.toneSliderGrid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: var(--aegis-space-x4Small);
+  align-items: end;
+  padding-top: 8px;
+  padding-inline: var(--aegis-space-x3Small);
+}
+
+.toneSliderItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--aegis-space-x4Small);
+}
+
+.verticalSlider {
+  position: relative;
+  inline-size: var(--aegis-size-medium);
+  block-size: 128px;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.verticalSliderTrack {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  inline-size: 2px;
+  transform: translateX(-50%);
+  background: var(--aegis-color-background-neutral);
+}
+
+.verticalSliderProgress {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-end: 0;
+  inline-size: 2px;
+  transform: translateX(-50%);
+  background: var(--aegis-color-background-neutral-bold);
+}
+
+.verticalSliderThumb {
+  position: absolute;
+  inset-inline-start: 50%;
+  inline-size: 24px;
+  block-size: 24px;
+  transform: translate(-50%, 50%);
+  border-radius: var(--aegis-radius-full);
+  padding: 4px;
+  background: transparent;
+}
+
+.verticalSliderThumb::before {
+  content: "";
+  display: block;
+  inline-size: 16px;
+  block-size: 16px;
+  border: 2px solid var(--aegis-color-border-selected);
+  border-radius: var(--aegis-radius-full);
+  background: var(--aegis-color-background-default);
+  box-sizing: border-box;
+}

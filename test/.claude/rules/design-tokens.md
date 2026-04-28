@@ -1,0 +1,213 @@
+---
+paths: src/**/*.tsx, src/**/*.css
+---
+
+# Aegis Design Tokens
+
+## Basic Rules
+- NEVER use raw values (px, rem) - ALWAYS use tokens
+- Reference as CSS custom properties: `var(--aegis-*)`
+- Check `mcp__aegis__list_tokens` for the complete list
+
+## Token Category Decision Tree
+
+| Purpose | Correct Token | Wrong Token |
+|---------|---------------|-------------|
+| gap, padding, margin | `--aegis-space-*` | `--aegis-size-*` |
+| Icon/button dimensions | `--aegis-size-*` | `--aegis-space-*` |
+| Container max-width | `--aegis-layout-width-*` | `--aegis-size-*` |
+| Border radius | `--aegis-radius-*` | raw px |
+| Layer stacking | `--aegis-zIndex-*` | raw numbers |
+
+## Spacing Tokens (for margins, padding, gap)
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `--aegis-space-x3Small` | 2px | Minimal spacing |
+| `--aegis-space-xxSmall` | 4px | Icon gaps, tight spacing |
+| `--aegis-space-xSmall` | 8px | Between closely related elements |
+| `--aegis-space-small` | 12px | Between small elements |
+| `--aegis-space-medium` | 16px | Standard spacing (recommended default) |
+| `--aegis-space-large` | 24px | Between sections |
+| `--aegis-space-xLarge` | 32px | Large separations |
+| `--aegis-space-xxLarge` | 40px | Page-level spacing |
+| `--aegis-space-x3Large` | 56px | Major sections |
+| `--aegis-space-x4Large` | 64px | Extra large sections |
+| `--aegis-space-x5Large` | 80px | Maximum spacing |
+
+## Size Tokens (for element dimensions)
+
+Use for: icon size, button height, avatar dimensions, fixed element sizes
+
+| Token | Value |
+|-------|-------|
+| `--aegis-size-x4Small` | 6px |
+| `--aegis-size-x3Small` | 8px |
+| `--aegis-size-xxSmall` | 12px |
+| `--aegis-size-xSmall` | 16px |
+| `--aegis-size-small` | 18px |
+| `--aegis-size-medium` | 20px |
+| `--aegis-size-large` | 24px |
+| `--aegis-size-xLarge` | 28px |
+| `--aegis-size-xxLarge` | 32px |
+| `--aegis-size-x3Large` | 40px |
+| `--aegis-size-x4Large` | 48px |
+| `--aegis-size-x5Large` | 56px |
+| `--aegis-size-x6Large` | 64px |
+| `--aegis-size-x7Large` | 72px |
+| `--aegis-size-x8Large` | 80px |
+| `--aegis-size-x9Large` | 88px |
+| `--aegis-size-x10Large` | 96px |
+| `--aegis-size-x11Large` | 104px |
+| `--aegis-size-x12Large` | 112px |
+| `--aegis-size-x13Large` | 120px |
+
+## Layout Width Tokens (for container widths)
+
+Use for: max-width, grid column widths, content containers
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `--aegis-layout-width-x7Small` | 80px | Narrow sidebar |
+| `--aegis-layout-width-x6Small` | 160px | Small widget |
+| `--aegis-layout-width-x5Small` | 240px | Compact sidebar |
+| `--aegis-layout-width-x4Small` | 320px | Mobile width |
+| `--aegis-layout-width-x3Small` | 400px | Small card |
+| `--aegis-layout-width-xxSmall` | 480px | Dialog width |
+| `--aegis-layout-width-xSmall` | 560px | Medium dialog |
+| `--aegis-layout-width-small` | 640px | Content column |
+| `--aegis-layout-width-medium` | 720px | Standard content |
+| `--aegis-layout-width-large` | 800px | Wide content |
+| `--aegis-layout-width-xLarge` | 880px | Large content |
+| `--aegis-layout-width-xxLarge` | 960px | Desktop content |
+| `--aegis-layout-width-x3Large` | 1040px | Wide desktop |
+| `--aegis-layout-width-x4Large` | 1120px | Full content |
+| `--aegis-layout-width-x5Large` | 1200px | Large desktop |
+| `--aegis-layout-width-x6Large` | 1440px | Wide monitor |
+| `--aegis-layout-width-x7Large` | 1680px | Ultra-wide |
+| `--aegis-layout-width-x8Large` | 1920px | Full HD |
+
+## Color Tokens
+
+Format: `--aegis-color-{category}-{variant}`
+
+Categories:
+- `background-*` - Background colors
+- `border-*` - Border colors
+- `text-*` - Text colors
+- `surface-*` - Surface colors
+
+Common patterns:
+- `*-default` - Standard state
+- `*-subtle` / `*-xSubtle` - Muted variants
+- `*-information` / `*-success` / `*-warning` / `*-danger` - Semantic colors
+- `*-neutral` - Neutral/gray variants
+
+## Other Tokens
+
+### Border Radius
+| Token | Value |
+|-------|-------|
+| `--aegis-radius-small` | 2px |
+| `--aegis-radius-medium` | 4px |
+| `--aegis-radius-large` | 8px |
+| `--aegis-radius-full` | 1000vh |
+
+### Border Width
+| Token | Value |
+|-------|-------|
+| `--aegis-border-width-thinPlus` | 1px |
+| `--aegis-border-width-thin` | 2px |
+| `--aegis-border-width-thick` | 4px |
+| `--aegis-border-width-thickPlus` | 8px |
+
+### Z-Index (layer stacking)
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `--aegis-zIndex-docked` | 10 | Docked elements |
+| `--aegis-zIndex-pane` | 20 | Side panes |
+| `--aegis-zIndex-sidebar` | 30 | Sidebar |
+| `--aegis-zIndex-sidebar-open` | 41 | Open sidebar |
+| `--aegis-zIndex-bottomSheet` | 40 | Bottom sheet |
+| `--aegis-zIndex-header` | 50 | Header |
+| `--aegis-zIndex-drawer` | 100 | Drawer |
+| `--aegis-zIndex-dialog` | 200 | Dialog/Modal |
+| `--aegis-zIndex-dropdown` | 1000 | Dropdown menu |
+| `--aegis-zIndex-snackbar` | 10000 | Snackbar |
+| `--aegis-zIndex-tooltip` | 10100 | Tooltip |
+| `--aegis-zIndex-progressOverlay` | 11000 | Progress overlay |
+
+### Motion (animation)
+
+#### Duration
+| Token | Value |
+|-------|-------|
+| `--aegis-motion-duration-x2Fast` | 160ms |
+| `--aegis-motion-duration-xFast` | 240ms |
+| `--aegis-motion-duration-fast` | 320ms |
+| `--aegis-motion-duration-normal` | 400ms |
+| `--aegis-motion-duration-slow` | 480ms |
+| `--aegis-motion-duration-xSlow` | 560ms |
+| `--aegis-motion-duration-x2Slow` | 640ms |
+| `--aegis-motion-duration-x3Slow` | 720ms |
+| `--aegis-motion-duration-x4Slow` | 800ms |
+| `--aegis-motion-duration-x5Slow` | 880ms |
+| `--aegis-motion-duration-x6Slow` | 960ms |
+
+#### Delay
+| Token | Value |
+|-------|-------|
+| `--aegis-motion-delay-xShort` | 250ms |
+| `--aegis-motion-delay-short` | 500ms |
+| `--aegis-motion-delay-medium` | 750ms |
+| `--aegis-motion-delay-long` | 1s |
+
+#### Easing
+| Token | Value |
+|-------|-------|
+| `--aegis-motion-easing-default` | cubic-bezier(0.64, 0, 0, 1) |
+
+## Common Mistakes
+
+### Wrong: Using Size tokens for spacing
+```css
+/* BAD */
+gap: var(--aegis-size-medium);
+
+/* GOOD */
+gap: var(--aegis-space-medium);
+```
+
+### Wrong: Using raw pixel values
+```css
+/* BAD */
+padding: 16px;
+border-radius: 8px;
+
+/* GOOD */
+padding: var(--aegis-space-medium);
+border-radius: var(--aegis-radius-large);
+```
+
+### Wrong: Using deprecated naming
+```css
+/* BAD - old naming convention */
+margin: var(--spacing-4);
+color: var(--color-background-primary);
+
+/* GOOD - current Aegis naming */
+margin: var(--aegis-space-medium);
+color: var(--aegis-color-background-default);
+```
+
+### Wrong: Using Size for container width
+```css
+/* BAD */
+max-width: var(--aegis-size-x8Large);
+
+/* GOOD */
+max-width: var(--aegis-layout-width-medium);
+```
+
+## スキル参照
+使用すべきトークンが不明な場合 → `/design-token-resolver` スキルを使用。

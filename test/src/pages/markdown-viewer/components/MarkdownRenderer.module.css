@@ -1,0 +1,95 @@
+/* MarkdownRenderer — CSS Modules */
+
+.article {
+  max-width: var(--aegis-layout-width-large);
+  margin: 0 auto;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  padding: 0 var(--aegis-space-medium);
+}
+
+/* ---- Heading groups ---- */
+
+.headingGroup {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--aegis-space-xSmall);
+  scroll-margin-top: var(--aegis-space-large);
+  margin-bottom: var(--aegis-space-small);
+}
+
+.headingGroupH1 {
+  margin-top: var(--aegis-space-xLarge);
+  border-bottom: var(--aegis-border-width-thin) solid var(--aegis-color-border-default);
+  padding-bottom: var(--aegis-space-xSmall);
+}
+
+.headingGroupH2 {
+  margin-top: var(--aegis-space-large);
+  border-bottom: var(--aegis-border-width-thinPlus) solid var(--aegis-color-border-default);
+  padding-bottom: var(--aegis-space-xSmall);
+}
+
+.headingGroupH3 {
+  margin-top: var(--aegis-space-large);
+}
+
+.headingGroupSmall {
+  margin-top: var(--aegis-space-medium);
+}
+
+/* ---- Anchor link (replaces injected <style> tag) ---- */
+
+.anchorLink {
+  color: var(--aegis-color-text-subtle);
+  text-decoration: none;
+  font-size: 0.75em;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.headingGroup:hover .anchorLink {
+  opacity: 1;
+}
+
+/* ---- Code block ---- */
+
+.codeBlockWrapper {
+  position: relative;
+  margin-bottom: var(--aegis-space-medium);
+}
+
+.codeBlockOverlayLeft {
+  position: absolute;
+  top: var(--aegis-space-xSmall);
+  left: var(--aegis-space-small);
+  z-index: 1;
+}
+
+.codeBlockOverlayRight {
+  position: absolute;
+  top: var(--aegis-space-xSmall);
+  right: var(--aegis-space-xSmall);
+  z-index: 1;
+}
+
+/* ---- Figure / Image ---- */
+
+.figure {
+  margin: var(--aegis-space-medium) 0;
+}
+
+.figcaption {
+  margin-top: var(--aegis-space-xSmall);
+  text-align: center;
+}
+
+/* ---- Horizontal rule ---- */
+
+.hr {
+  border: none;
+  border-top: 1px solid var(--aegis-color-border-default);
+  margin: var(--aegis-space-large) 0;
+}

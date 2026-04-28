@@ -1,0 +1,129 @@
+.wrapper {
+  position: relative;
+}
+
+.wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid transparent;
+  border-radius: var(--aegis-radius-large);
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 11;
+  transition: border-color var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.wrapper:hover::before,
+.highlighted::before {
+  border-color: var(--aegis-color-border-default);
+}
+
+.toolbar {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  background-color: var(--aegis-color-background-default);
+  border: 1px solid var(--aegis-color-border-neutral-subtle);
+  border-radius: 4px;
+  padding: 2px;
+  box-shadow: var(--aegis-depth-medium);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default),
+    visibility var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.wrapper:hover .toolbar,
+.wrapper:focus-within .toolbar,
+.settingsOpen .toolbar {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.wrapper:focus-visible::before {
+  border-color: var(--aegis-color-border-bold);
+}
+
+.toolbarBelow .toolbar {
+  top: calc(100% + 4px);
+  bottom: auto;
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toolbarAbove .toolbar {
+  top: auto;
+  bottom: calc(100% + 4px);
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toolbarStart .toolbar {
+  right: 4px;
+  left: auto;
+}
+
+/* Divider は 1px しかないのでホバーエリアを上下 11px ずつ拡張する */
+.dividerWrapper::after {
+  content: "";
+  position: absolute;
+  inset: -11px 0;
+}
+
+/* CSS :hover が効かないコンポーネント用の透明ホバーキャプチャーレイヤー */
+.hoverBlocker {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.hoverActive .toolbar {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Portal-rendered toolbar — position: fixed escapes the EditZone stacking context (z-index: 69),
+   so z-index: 110 here is relative to the root stacking context and sits above the
+   EditZone outline. padding-top/bottom creates the 4px visual gap between the
+   item and the toolbar without breaking mouse hover continuity. */
+.portalToolbarOuter {
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 110;
+  padding-top: 2px;
+}
+
+.portalToolbar {
+  display: flex;
+  align-items: center;
+  background-color: var(--aegis-color-background-default);
+  border: 1px solid var(--aegis-color-border-neutral-subtle);
+  border-radius: 4px;
+  padding: 2px;
+  box-shadow: var(--aegis-depth-medium);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default),
+    visibility var(--aegis-motion-duration-xFast) var(--aegis-motion-easing-default);
+}
+
+.portalToolbarVisible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
