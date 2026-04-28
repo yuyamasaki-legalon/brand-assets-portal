@@ -52,7 +52,7 @@ export function useAssets() {
     } catch {
       console.warn("API unavailable, falling back to assets-index.json");
       try {
-        const fallbackResponse = await fetch("/assets-index.json", { cache: "no-store" });
+        const fallbackResponse = await fetch(`${import.meta.env.BASE_URL}assets-index.json`, { cache: "no-store" });
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
           if (Array.isArray(fallbackData)) {
