@@ -1,7 +1,0 @@
-.brickList {
-  margin-block: calc(-1 * var(--aegis-space-small));
-}
-
-.brickList > ol > li {
-  padding-block: var(--aegis-space-small);
-}

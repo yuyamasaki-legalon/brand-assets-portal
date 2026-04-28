@@ -1,8 +1,0 @@
-.navList {
-  display: flex;
-  flex-direction: column;
-}
-
-.separator {
-  margin: var(--aegis-space-small) 0;
-}

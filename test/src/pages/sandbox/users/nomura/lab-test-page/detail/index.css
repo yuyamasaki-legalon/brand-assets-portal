@@ -1,9 +1,0 @@
-/* PageLayoutBody 内部の ScrollArea viewport に flex: 1 1 auto を適用 */
-.case-detail-page [class*="PageLayoutBody"] [class*="YceSBa_viewport"] {
-  flex: 1 1 auto;
-}
-
-/* data-position="top" の要素に flex: 1 1 auto を適用 */
-.case-detail-page [class*="V2JwWG_component"]:where([data-position="top"]) {
-  flex: 1 1 auto;
-}
