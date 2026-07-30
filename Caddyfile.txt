@@ -29,17 +29,17 @@
 
         root * .
 
+        file_server {
+                hide .git
+                hide .env*
+        }
+
         encode {
                 gzip
                 zstd
         }
 
         try_files {path} {path}.html {path}/index.html /index.html
-
-        file_server {
-                hide .git
-                hide .env*
-        }
 
         handle_errors {
                 rewrite * /{err.status_code}.html
