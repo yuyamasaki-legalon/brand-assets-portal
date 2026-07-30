@@ -1,0 +1,1 @@
+import{is as e,ts as t}from"./dist-BI4q01Zl.js";var n=e(t(),1),r=(0,n.createContext)(null),i=()=>{let e=(0,n.useContext)(r);if(!e)throw Error(`useLocale must be used within LocaleContext.Provider`);return e},a=e=>{let{locale:t}=i();return{t:(0,n.useCallback)(n=>e[t]?.[n]??n,[e,t]),locale:t}};export{i as n,r,a as t};

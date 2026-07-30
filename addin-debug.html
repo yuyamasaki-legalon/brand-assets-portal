@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+  Office Add-in デバッグハーネス
+  Word タスクペインの実環境を模したレイアウトでアプリを表示する。
+
+  実装の参考: lib/loc-app/services/word-addin-f/
+  - index.html: font-size 90%, overflow hidden, scrollbar hidden
+  - src/styles/utils.css: min-inline-size 300px (Aegis 960px を上書き)
+  - src/parts/GlobalHeader: sticky header, height 40px
+  - Microsoft Docs: Word taskpane 標準幅 329px (1366x768), 初期幅 320px
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Office Add-in Debug Harness</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: "Segoe UI", "Yu Gothic UI", sans-serif; }
+
+    /* ── Word 風レイアウト ─────────────────────── */
+
+    .harness {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Word リボン風ツールバー */
+    .ribbon {
+      height: 44px;
+      background: #f3f2f1;
+      border-bottom: 1px solid #d2d0ce;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 16px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .ribbon-logo {
+      width: 20px;
+      height: 20px;
+      background: #185abd;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .ribbon-tabs {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #323130;
+    }
+    .ribbon-tab { padding: 4px 0; cursor: default; }
+    .ribbon-tab.active { border-bottom: 2px solid #185abd; color: #185abd; }
+
+    /* ドキュメント + タスクペイン横並び */
+    .body {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Word ドキュメント領域 */
+    .doc-area {
+      flex: 1;
+      background: #e8e6e4;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 24px;
+      overflow-y: auto;
+    }
+    .doc-page {
+      width: 680px;
+      max-width: 100%;
+      min-height: 880px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.18);
+      padding: 64px 72px;
+      color: #323130;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .doc-page h1 { font-size: 18px; margin-bottom: 16px; }
+    .doc-page p { margin-bottom: 12px; color: #605e5c; }
+
+    /* ── タスクペイン ─────────────────────────── */
+
+    /*
+     * 実際の Word タスクペイン仕様:
+     *   初期幅 320px / 最小幅 300px (utils.css)
+     *   標準表示 329×445px @1366×768
+     *
+     * resize: horizontal で左端ドラッグによるリサイズを有効化。
+     * direction:rtl trick でリサイズハンドルを左側に配置。
+     */
+    .taskpane {
+      width: 320px;
+      min-width: 300px;
+      max-width: 600px;
+      border-left: 1px solid #c8c6c4;
+      display: flex;
+      flex-direction: column;
+      resize: horizontal;
+      overflow: hidden;
+      direction: rtl;
+    }
+    .taskpane > * { direction: ltr; }
+
+    /* デバッグ用ヘッダーバー */
+    .taskpane-bar {
+      height: 32px;
+      background: #f3f2f1;
+      border-bottom: 1px solid #edebe9;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      color: #605e5c;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .taskpane-bar strong { color: #323130; font-size: 11px; }
+
+    .width-badge {
+      margin-left: auto;
+      background: #e1dfdd;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-variant-numeric: tabular-nums;
+      font-size: 10px;
+    }
+
+    /* プリセット幅ボタン */
+    .preset-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .preset-btn {
+      background: #fff;
+      border: 1px solid #c8c6c4;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 10px;
+      color: #323130;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .preset-btn:hover { background: #edebe9; }
+    .preset-btn.active { background: #deecf9; border-color: #185abd; color: #185abd; }
+
+    /*
+     * iframe: Word Add-in 実環境と同様に font-size 90% を適用。
+     * lib/loc-app/services/word-addin-f/index.html 参照:
+     *   <html lang="ja" style="height: 100%; font-size: 90%;">
+     */
+    .taskpane iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="harness">
+    <!-- Word リボン -->
+    <div class="ribbon">
+      <div class="ribbon-logo">W</div>
+      <div class="ribbon-tabs">
+        <span class="ribbon-tab active">Home</span>
+        <span class="ribbon-tab">Insert</span>
+        <span class="ribbon-tab">Design</span>
+        <span class="ribbon-tab">Layout</span>
+        <span class="ribbon-tab">References</span>
+        <span class="ribbon-tab">Review</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <!-- Word ドキュメント領域 -->
+      <div class="doc-area">
+        <div class="doc-page">
+          <h1>Sample Document</h1>
+          <p>This area simulates the Word document editing surface. The task pane on the right loads the aegis-lab app inside an iframe, replicating the Office Add-in environment.</p>
+          <p>The iframe triggers <code>window.self !== window.top</code> detection, so HashRouter is automatically selected — the same behavior as in a real Office Add-in.</p>
+          <p style="margin-top: 24px; padding: 12px; background: #f3f2f1; border-radius: 4px; font-size: 12px;">
+            Task pane is resizable: drag the left edge of the panel.<br>
+            Use the preset buttons (300 / 320 / 480) in the task pane header bar.
+          </p>
+        </div>
+      </div>
+
+      <!-- タスクペイン -->
+      <div class="taskpane" id="taskpane">
+        <div class="taskpane-bar">
+          <strong>Task Pane</strong>
+          <span style="color:#c8c6c4;">|</span>
+          <div class="preset-buttons">
+            <button class="preset-btn" data-width="300">300</button>
+            <button class="preset-btn active" data-width="320">320</button>
+            <button class="preset-btn" data-width="480">480</button>
+          </div>
+          <span class="width-badge" id="widthBadge">320px</span>
+        </div>
+        <iframe id="addinFrame" src="/#/template/loc/word-addin-standalone"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const taskpane = document.getElementById("taskpane");
+    const badge = document.getElementById("widthBadge");
+    const presetBtns = document.querySelectorAll(".preset-btn");
+
+    // プリセット幅ボタン
+    presetBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const w = Number(btn.dataset.width);
+        taskpane.style.width = w + "px";
+        updatePresetHighlight(w);
+      });
+    });
+
+    function updatePresetHighlight(currentWidth) {
+      presetBtns.forEach((btn) => {
+        btn.classList.toggle("active", Number(btn.dataset.width) === currentWidth);
+      });
+    }
+
+    // ResizeObserver で現在幅を表示 & プリセットハイライト更新
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = Math.round(entry.contentRect.width);
+        badge.textContent = w + "px";
+        updatePresetHighlight(w);
+      }
+    });
+    ro.observe(taskpane);
+  </script>
+</body>
+</html>
