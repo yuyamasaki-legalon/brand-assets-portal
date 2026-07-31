@@ -27,22 +27,13 @@
                 -Server
         }
 
-        root * .
+        root * /app
+        encode gzip zstd
+
+        try_files {path} /index.html
 
         file_server {
                 hide .git
                 hide .env*
-        }
-
-        encode {
-                gzip
-                zstd
-        }
-
-        try_files {path} {path}.html {path}/index.html /index.html
-
-        handle_errors {
-                rewrite * /{err.status_code}.html
-                file_server
         }
 }
