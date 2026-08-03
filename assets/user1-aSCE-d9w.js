@@ -1,1 +1,0 @@
-import{$o as e,ct as t,nt as n,or as r,ot as i,st as a,vn as o}from"./dist-BI4q01Zl.js";var s=e();function c(){return(0,s.jsx)(n,{children:(0,s.jsxs)(a,{children:[(0,s.jsx)(i,{children:(0,s.jsx)(o,{children:(0,s.jsx)(o.Title,{children:`WorkOn - user1`})})}),(0,s.jsx)(t,{children:(0,s.jsx)(r,{children:`user1 の WorkOn 実験用ページです。`})})]})})}export{c as WorkOnUser1};
