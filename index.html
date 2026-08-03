@@ -5,6 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/aegis.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aegis lab</title>
+    <script type="module" crossorigin src="/assets/index-BCYGSiln.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/dist-BI4q01Zl.js">
     <link rel="modulepreload" crossorigin href="/assets/chunk-LFPYN7LY-CnVMmHHU.js">
     <link rel="modulepreload" crossorigin href="/assets/themes-BLuSRFjM.js">
@@ -32,28 +33,5 @@
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      (function () {
-        function renderBootError(message) {
-          var root = document.getElementById("root");
-          if (!root) return;
-          root.innerHTML =
-            '<div style="padding:24px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;color:#b42318;background:#fef3f2;">' +
-            "Boot failed:\n" +
-            String(message) +
-            "</div>";
-        }
-
-        window.addEventListener("error", function (event) {
-          renderBootError(event.error && event.error.stack ? event.error.stack : event.message);
-        });
-
-        window.addEventListener("unhandledrejection", function (event) {
-          var reason = event.reason;
-          renderBootError(reason && reason.stack ? reason.stack : reason);
-        });
-      })();
-    </script>
-    <script type="module" crossorigin src="/assets/index-h2z0Tkm2.js"></script>
   </body>
 </html>
