@@ -15,42 +15,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Resolve symlinks for static assets
-        working-directory: client/public
-        run: |
-          for link in assets assets-index.json fonts; do
-            if [ -L "$link" ]; then
-              target=$(readlink "$link")
-              rm "$link"
-              cp -r "../../${target#../../}" "$link"
-            fi
-          done
-
-      - name: Install dependencies
-        working-directory: client
-        run: npm ci
-
-      - name: Build
-        working-directory: client
-        run: npm run build
 
       - uses: actions/configure-pages@v4
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: client/dist
+          path: .
 
-  deploy:
-    needs: build
+  publish:
+    needs: deploy
     runs-on: ubuntu-latest
     environment:
       name: github-pages
