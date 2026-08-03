@@ -1,0 +1,1 @@
+import{$o as e}from"./dist-BI4q01Zl.js";import{o as t,s as n}from"./chunk-LFPYN7LY-CnVMmHHU.js";import{n as r,r as i,t as a}from"./Layout-C-SebTYA.js";var o=e();function s(){return(0,o.jsx)(i,{children:(0,o.jsx)(n,{children:(0,o.jsx)(t,{path:`/`,element:(0,o.jsx)(a,{}),children:(0,o.jsx)(t,{index:!0,element:(0,o.jsx)(r,{})})})})})}export{s as default};
