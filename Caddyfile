@@ -19,6 +19,8 @@
 
         respond /health 200
 
+        # Temporary recovery: keep the custom domain pointed at the working
+        # Railway host until we verify direct serving is stable again.
         @custom_domain host brand-portal-assets.ontechnologies.tech
         redir @custom_domain https://brand-assets-portal-production.up.railway.app{uri} 308
 
@@ -29,6 +31,13 @@
                 Content-Security-Policy "default-src 'self'; img-src 'self' data: https: *; style-src 'self' 'unsafe-inline' https: *; script-src 'self' 'unsafe-inline' https: *; font-src 'self' data: https: *; connect-src 'self' https: *; media-src 'self' https: *; object-src 'none'; frame-src 'self' https: *;"
                 -Server
         }
+
+        # When we remove the redirect above, force the SPA shell to revalidate
+        # so the HTML entrypoint cannot lag behind newly deployed asset chunks.
+        @spa_shell path / /index.html /sandbox*
+        header @spa_shell Cache-Control "no-cache, no-store, must-revalidate"
+        header @spa_shell Pragma "no-cache"
+        header @spa_shell Expires "0"
 
         root * /app
         encode gzip zstd
