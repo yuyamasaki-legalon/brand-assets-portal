@@ -10,10 +10,6 @@ export const routes: RouteConfig[] = [
     element: <UserYuYamasakiSandbox />,
   },
   {
-    path: "/",
-    element: <BrandAssetPortal />,
-  },
-  {
     path: "/sandbox/yu.yamasaki/brand-asset-portal",
     element: <BrandAssetPortal />,
   },
@@ -21,7 +17,6 @@ export const routes: RouteConfig[] = [
 
 export const routeFileMap: RouteFileMap = {
   "/sandbox/yu.yamasaki": "src/pages/sandbox/users/yu-yamasaki/index.tsx",
-  "/": "src/pages/sandbox/brand-asset-portal/index.tsx",
   "/sandbox/yu.yamasaki/brand-asset-portal": "src/pages/sandbox/brand-asset-portal/index.tsx",
 };
 `;export{e as default};
