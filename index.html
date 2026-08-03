@@ -32,17 +32,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module">
-      import("/assets/index-h2z0Tkm2.js").catch((error) => {
-        const root = document.getElementById("root");
-        if (!root) return;
-        root.innerHTML = `
-          <div style="padding:24px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;color:#b42318;background:#fef3f2;">
-            Boot failed:
-            ${String(error?.stack || error?.message || error)}
-          </div>
-        `;
-      });
-    </script>
+    <script type="module" crossorigin src="/assets/index-h2z0Tkm2.js"></script>
   </body>
 </html>
