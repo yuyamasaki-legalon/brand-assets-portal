@@ -1,2 +1,0 @@
-import{$o as e,kt as t,nt as n,or as r,st as i}from"./dist-BI4q01Zl.js";import{t as a}from"./error-cat-3-Dv8okm0Z.js";import{t as o}from"./RootSidebarLayout-B5SksvHL.js";var s=e(),c={main:{display:`grid`,placeItems:`center`,inlineSize:`100%`}},l=()=>(0,s.jsx)(o,{children:(0,s.jsx)(n,{children:(0,s.jsx)(i,{style:c.main,children:(0,s.jsx)(t,{size:`large`,visual:(0,s.jsx)(a,{}),title:(0,s.jsx)(r,{whiteSpace:`pre-wrap`,children:`お探しのページは存在しないか
-権限がないためアクセスできません`})})})})});export{l as default};
