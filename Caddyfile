@@ -19,10 +19,6 @@
 
         respond /health 200
 
-        # Temporary recovery: keep the custom domain pointed at the working
-        # Railway host until we verify direct serving is stable again.
-        @custom_domain host brand-portal-assets.ontechnologies.tech
-        redir @custom_domain https://brand-assets-portal-production.up.railway.app{uri} 308
 
         header {
                 X-XSS-Protection "1; mode=block"
