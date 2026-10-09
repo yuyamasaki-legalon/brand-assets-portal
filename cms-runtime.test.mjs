@@ -121,6 +121,23 @@ test("committed saves survive history-listing failure; pre-commit failure preser
     assert.equal((await load()).products[0].label, "Edited product");
     listing.mock.restore();
     assert.equal((await save(committed)).status, 200);
+    const beforeDelete = await load();
+    const target = beforeDelete.assets[0];
+    const deletion = { ...beforeDelete, assets: beforeDelete.assets.slice(1), deletedAssetIds: [target.id] };
+    assert.equal((await save({ ...deletion, deletedAssetIds: [] })).status, 400);
+    const noCsrf = await fetch(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(deletion),
+      headers: { Cookie: cookie, Origin: config.origin, "Content-Type": "application/json" },
+    });
+    assert.equal(noCsrf.status, 403);
+    assert.equal((await save(deletion)).status, 200);
+    assert.equal(
+      (await load()).assets.some((a) => a.id === target.id),
+      false,
+    );
+    assert.equal((await load()).lastChange.actorId, "test-employee");
+    assert.equal((await save(deletion)).status, 409);
     const beforeFailure = await fs.readFile(path.join(dataDir, "catalog.json"), "utf8");
     const current = await load();
     current.products[0].label = "Uncommitted product";
