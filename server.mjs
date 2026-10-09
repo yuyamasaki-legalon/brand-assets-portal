@@ -13,6 +13,7 @@ var defaultProducts = [
 	"DealOn",
 	"LearningOn",
 	"DocumentOn",
+	"TrustOn",
 	"On Technologies",
 	"Shared"
 ].map((id, order) => ({
@@ -45,15 +46,68 @@ function createCatalogMiddleware(root, options = {}) {
 	const dir = options.dataDir || path.join(root, ".brand-asset-cms");
 	const file = path.join(dir, "catalog.json");
 	let queue = Promise.resolve();
+	let initialization;
+	const seedUpdate = "truston-drive-2026-10-09";
+	async function readSeed() {
+		return JSON.parse(await promises.readFile(options.seedPath || path.join(root, "src/pages/sandbox/brand-asset-portal/assets-index.json"), "utf8"));
+	}
+	async function importTrustOn() {
+		let current;
+		try {
+			current = JSON.parse(await promises.readFile(file, "utf8"));
+		} catch (error) {
+			if (error.code === "ENOENT") return;
+			throw error;
+		}
+		if (current.appliedSeedUpdates?.includes(seedUpdate)) return;
+		const incoming = (await readSeed()).filter((asset) => asset.brand === "TrustOn");
+		if (!incoming.length) return;
+		const ids = new Set(current.assets.map((asset) => asset.id));
+		const driveIds = new Set(current.assets.map((asset) => asset.driveId).filter(Boolean));
+		const product = defaultProducts.find((item) => item.id === "TrustOn");
+		if (!product) throw new Error("TrustOn product is missing");
+		const next = {
+			...current,
+			revision: current.revision + 1,
+			products: current.products.some((item) => item.id === product.id) ? current.products : [...current.products, {
+				...product,
+				order: Math.max(-1, ...current.products.map((p) => p.order)) + 1
+			}],
+			assets: [...current.assets, ...incoming.filter((asset) => !ids.has(asset.id) && !driveIds.has(asset.driveId))],
+			appliedSeedUpdates: [...current.appliedSeedUpdates || [], seedUpdate],
+			lastChange: {
+				actorId: "system:truston-seed-import",
+				at: (/* @__PURE__ */ new Date()).toISOString()
+			}
+		};
+		if (next.products.length > 100 || next.assets.length > 1e4 || new Set(next.products.map((p) => p.label.trim().toLowerCase())).size !== next.products.length) return false;
+		validate(next);
+		await promises.mkdir(path.join(dir, "history"), {
+			recursive: true,
+			mode: 448
+		});
+		await promises.writeFile(path.join(dir, "history", `${current.revision}-${randomUUID()}.json`), JSON.stringify(current), { mode: 384 });
+		const temp = `${file}.${randomUUID()}.tmp`;
+		await promises.writeFile(temp, JSON.stringify(next), { mode: 384 });
+		await promises.rename(temp, file);
+	}
 	async function load() {
+		initialization ||= importTrustOn().then((result) => {
+			if (result === false) initialization = void 0;
+		}).catch(() => {
+			initialization = void 0;
+		});
+		await initialization;
 		try {
 			return JSON.parse(await promises.readFile(file, "utf8"));
 		} catch (error) {
 			if (error.code !== "ENOENT") throw error;
+			const assets = await readSeed();
 			return {
 				revision: 0,
 				products: defaultProducts,
-				assets: JSON.parse(await promises.readFile(options.seedPath || path.join(root, "src/pages/sandbox/brand-asset-portal/assets-index.json"), "utf8"))
+				assets,
+				appliedSeedUpdates: assets.some((a) => a.brand === "TrustOn") ? [seedUpdate] : []
 			};
 		}
 	}
@@ -161,6 +215,7 @@ function createCatalogMiddleware(root, options = {}) {
 				if (!Array.isArray(deletedAssetIds) || deletedAssetIds.some((id) => typeof id !== "string") || new Set(deletedAssetIds).size !== deletedAssetIds.length) throw new Error("削除対象が正しくありません。");
 				validate(data);
 				const current = await load();
+				data.appliedSeedUpdates = current.appliedSeedUpdates;
 				if (current.revision !== data.revision) return reply(res, 409, { error: "他の利用者が更新しました。再読み込みしてから保存してください。" });
 				if (current.products.some((p) => !data.products.some((n) => n.id === p.id))) throw new Error("プロダクトは削除せず終了状態に変更してください。");
 				const removedIds = current.assets.filter((a) => !data.assets.some((n) => n.id === a.id)).map((a) => a.id);
