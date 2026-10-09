@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!package.json
+!package-lock.json
+!server.mjs
+!cms-seed.json
+!public/
+!public/**
+**/.env*
+**/.git/**
+**/.brand-asset-cms/**

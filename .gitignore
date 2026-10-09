@@ -1,4 +1,7 @@
 .codex/
 .DS_Store
 node_modules/
+.brand-asset-cms/
+.env.local
+.env.production
 client/dist/

@@ -1,0 +1,12 @@
+{
+  "name": "brand-asset-cms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test cms-runtime.test.mjs"
+  },
+  "dependencies": {
+    "google-auth-library": "11.2.0"
+  }
+}
