@@ -156,11 +156,15 @@ function createCatalogMiddleware(root, options = {}) {
 		queue = queue.then(async () => {
 			try {
 				const data = await read(req);
+				const deletedAssetIds = data.deletedAssetIds ?? [];
+				delete data.deletedAssetIds;
+				if (!Array.isArray(deletedAssetIds) || deletedAssetIds.some((id) => typeof id !== "string") || new Set(deletedAssetIds).size !== deletedAssetIds.length) throw new Error("削除対象が正しくありません。");
 				validate(data);
 				const current = await load();
 				if (current.revision !== data.revision) return reply(res, 409, { error: "他の利用者が更新しました。再読み込みしてから保存してください。" });
 				if (current.products.some((p) => !data.products.some((n) => n.id === p.id))) throw new Error("プロダクトは削除せず終了状態に変更してください。");
-				if (current.assets.some((a) => !data.assets.some((n) => n.id === a.id))) throw new Error("素材は削除せずアーカイブしてください。");
+				const removedIds = current.assets.filter((a) => !data.assets.some((n) => n.id === a.id)).map((a) => a.id);
+				if (removedIds.length !== deletedAssetIds.length || removedIds.some((id) => !deletedAssetIds.includes(id))) throw new Error("削除対象を明示してください。再読み込みしてから削除してください。");
 				const existingAssets = new Map(current.assets.map((a) => [a.id, a]));
 				for (const asset of data.assets) {
 					if (isDeepStrictEqual(existingAssets.get(asset.id), asset)) continue;
