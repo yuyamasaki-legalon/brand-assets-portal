@@ -1,0 +1,28 @@
+name: CMS runtime checks
+on:
+  pull_request:
+    paths:
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'server.mjs'
+      - 'cms-*.json'
+      - 'cms-runtime.test.mjs'
+      - 'package*.json'
+      - 'public/**'
+      - '.github/workflows/cms-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --check server.mjs
+      - run: npm test
+      - run: docker build --tag brand-asset-cms:test .
