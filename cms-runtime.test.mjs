@@ -28,9 +28,15 @@ test("release runtime serves health and packaged assets but protects catalogue a
     assert.ok(bundle);
     assert.equal((await fetch(new URL(bundle[1], `${base}/brand-asset-portal/index.html`))).status, 200);
     assert.equal((await fetch(`${base}/api/brand-assets/catalog`)).status, 401);
-    assert.equal((await fetch(`${base}/api/brand-assets/catalog`, {
-      method: "PUT", headers: { Origin: config.origin },
-    })).status, 401);
+    assert.equal(
+      (
+        await fetch(`${base}/api/brand-assets/catalog`, {
+          method: "PUT",
+          headers: { Origin: config.origin },
+        })
+      ).status,
+      401,
+    );
     for (const route of ["/.env", "/server.mjs", "/cms-seed.json", "/package.json", "/api/unknown"])
       assert.equal((await fetch(`${base}${route}`)).status, 404);
     const session = await (await fetch(`${base}/api/auth/session`)).json();
@@ -40,6 +46,91 @@ test("release runtime serves health and packaged assets but protects catalogue a
     assert.equal(new URL(start.headers.get("location")).hostname, "accounts.google.com");
     assert.match(start.headers.get("set-cookie"), /HttpOnly; Secure; SameSite=Lax/);
   } finally {
+    if (server.listening) await new Promise((resolve) => server.close(resolve));
+    await fs.rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test("committed saves survive history-listing failure; pre-commit failure preserves data", async (t) => {
+  const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "cms-release-save-test-"));
+  const config = {
+    origin: "https://portal.example.test",
+    clientId: "test-client",
+    clientSecret: "not-a-real-credential",
+    domains: ["example.test"],
+    dataDir,
+  };
+  let nonce;
+  // Trusted test fixture only: production always verifies tokens using Google's library.
+  const provider = {
+    authorizationUrl(state, nextNonce) {
+      nonce = nextNonce;
+      return `https://accounts.google.com/test?state=${state}`;
+    },
+    async exchangeAndVerify() {
+      return {
+        iss: "https://accounts.google.com",
+        aud: config.clientId,
+        sub: "test-employee",
+        email: "staff@example.test",
+        email_verified: true,
+        hd: "example.test",
+        nonce,
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      };
+    },
+  };
+  const server = createProductionServer(config, path.resolve("public"), path.resolve("cms-seed.json"), provider);
+  try {
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const start = await fetch(`${base}/api/auth/google/start`, { redirect: "manual" });
+    const state = new URL(start.headers.get("location")).searchParams.get("state");
+    const loggedIn = await fetch(`${base}/api/auth/google/callback?code=test-code&state=${state}`, {
+      redirect: "manual",
+      headers: { Cookie: start.headers.getSetCookie()[0].split(";")[0] },
+    });
+    assert.equal(loggedIn.status, 302);
+    const cookie = loggedIn.headers
+      .getSetCookie()
+      .find((value) => value.startsWith("__Host-brand_cms_session="))
+      .split(";")[0];
+    const auth = await (await fetch(`${base}/api/auth/session`, { headers: { Cookie: cookie } })).json();
+    const endpoint = `${base}/api/brand-assets/catalog`;
+    const load = async () => (await fetch(endpoint, { headers: { Cookie: cookie } })).json();
+    const save = (data) =>
+      fetch(endpoint, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          Cookie: cookie,
+          Origin: config.origin,
+          "X-CSRF-Token": auth.csrfToken,
+          "Content-Type": "application/json",
+        },
+      });
+    const initial = await load();
+    initial.products[0].label = "Edited product";
+    const listing = t.mock.method(fs, "readdir", async () => {
+      throw new Error("History unavailable");
+    });
+    const saved = await save(initial);
+    assert.equal(saved.status, 200);
+    const committed = await saved.json();
+    assert.equal(committed.revision, 1);
+    assert.equal((await load()).products[0].label, "Edited product");
+    listing.mock.restore();
+    assert.equal((await save(committed)).status, 200);
+    const beforeFailure = await fs.readFile(path.join(dataDir, "catalog.json"), "utf8");
+    const current = await load();
+    current.products[0].label = "Uncommitted product";
+    t.mock.method(fs, "rename", async () => {
+      throw new Error("Rename unavailable");
+    });
+    assert.equal((await save(current)).status, 400);
+    assert.equal(await fs.readFile(path.join(dataDir, "catalog.json"), "utf8"), beforeFailure);
+  } finally {
+    t.mock.restoreAll();
     if (server.listening) await new Promise((resolve) => server.close(resolve));
     await fs.rm(dataDir, { recursive: true, force: true });
   }

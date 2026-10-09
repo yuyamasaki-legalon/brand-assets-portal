@@ -184,9 +184,11 @@ function createCatalogMiddleware(root, options = {}) {
 				const temp = `${file}.${randomUUID()}.tmp`;
 				await promises.writeFile(temp, JSON.stringify(data), { mode: 384 });
 				await promises.rename(temp, file);
-				const historyDir = path.join(dir, "history");
-				const histories = (await promises.readdir(historyDir)).filter((name) => /^\d+-[\da-f-]+\.json$/.test(name)).sort((a, b) => Number.parseInt(b, 10) - Number.parseInt(a, 10));
-				await Promise.all(histories.slice(20).map((name) => promises.unlink(path.join(historyDir, name)))).catch(() => void 0);
+				try {
+					const historyDir = path.join(dir, "history");
+					const histories = (await promises.readdir(historyDir)).filter((name) => /^\d+-[\da-f-]+\.json$/.test(name)).sort((a, b) => Number.parseInt(b, 10) - Number.parseInt(a, 10));
+					await Promise.all(histories.slice(20).map((name) => promises.unlink(path.join(historyDir, name))));
+				} catch {}
 				reply(res, 200, data);
 			} catch (error) {
 				reply(res, 400, { error: error instanceof Error ? error.message : "保存できません。" });
