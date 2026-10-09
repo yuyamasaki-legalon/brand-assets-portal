@@ -80,6 +80,7 @@ function createCatalogMiddleware(root, options = {}) {
 				at: (/* @__PURE__ */ new Date()).toISOString()
 			}
 		};
+		if (next.products.length > 100 || next.assets.length > 1e4 || new Set(next.products.map((p) => p.label.trim().toLowerCase())).size !== next.products.length) return false;
 		validate(next);
 		await promises.mkdir(path.join(dir, "history"), {
 			recursive: true,
@@ -91,9 +92,10 @@ function createCatalogMiddleware(root, options = {}) {
 		await promises.rename(temp, file);
 	}
 	async function load() {
-		initialization ||= importTrustOn().catch((error) => {
+		initialization ||= importTrustOn().then((result) => {
+			if (result === false) initialization = void 0;
+		}).catch(() => {
 			initialization = void 0;
-			throw error;
 		});
 		await initialization;
 		try {

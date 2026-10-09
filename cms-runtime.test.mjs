@@ -113,6 +113,63 @@ test("TrustOn import preserves saved edits and does not resurrect deletions on r
 		).json();
 		assert.equal(restarted.revision, 9);
 		assert.equal(restarted.assets.length, 11);
+		for (const reason of ["label", "products", "assets"]) {
+			await new Promise((resolve) => server.close(resolve));
+			const fixture = {
+				revision: 20,
+				products:
+					reason === "products"
+						? Array.from({ length: 100 }, (_, i) => ({
+								id: `p-${i}`,
+								label: `Product ${i}`,
+								state: "active",
+								order: i,
+							}))
+						: [
+								{
+									id: "Other",
+									label: reason === "label" ? "TrustOn" : "Other",
+									state: "active",
+									order: 0,
+								},
+							],
+				assets:
+					reason === "assets"
+						? Array.from({ length: 9995 }, (_, i) => ({
+								...trust[0],
+								id: `old-${i}`,
+								brand: "Other",
+								driveId: `existing-${i}`,
+							}))
+						: [],
+			};
+			await fs.writeFile(
+				path.join(dataDir, "catalog.json"),
+				JSON.stringify(fixture),
+			);
+			const attempt = await session();
+			const response = await fetch(attempt.endpoint, {
+				headers: { Cookie: attempt.cookie },
+			});
+			assert.equal(response.status, 200);
+			const unchanged = await response.json();
+			assert.deepEqual(unchanged, fixture);
+			const saved = await fetch(attempt.endpoint, {
+				method: "PUT",
+				headers: {
+					Cookie: attempt.cookie,
+					Origin: config.origin,
+					"X-CSRF-Token": attempt.auth.csrfToken,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(unchanged),
+			});
+			assert.equal(
+				saved.status,
+				200,
+				`${reason} collision must not block saving`,
+			);
+		}
 		assert.equal(
 			restarted.assets.some((a) => a.id === id),
 			false,
