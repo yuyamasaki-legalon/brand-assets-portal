@@ -3,6 +3,8 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { createHash } from "node:crypto";
+import { Script } from "node:vm";
 import { createProductionServer } from "./server.mjs";
 
 test("TrustOn import preserves saved edits and does not resurrect deletions on restart", async () => {
@@ -203,6 +205,57 @@ test("release runtime serves health and packaged assets but protects catalogue a
 		assert.equal((await fetch(`${base}/health`)).status, 200);
 		const html = await fetch(`${base}/brand-asset-portal/index.html`);
 		assert.equal(html.status, 200);
+		assert.doesNotMatch(
+			html.headers.get("content-security-policy"),
+			/script-src[^;]*sha256/,
+		);
+		const tomoni = await fetch(`${base}/tomoni-ai-html/index.html`);
+		assert.equal(tomoni.status, 200);
+		assert.match(tomoni.headers.get("content-type"), /text\/html/);
+		assert.equal(tomoni.headers.get("cache-control"), "no-store");
+		const presentation = await tomoni.text();
+		const policy = tomoni.headers.get("content-security-policy");
+		const scripts = [
+			...presentation
+				.replace(/\r\n?/g, "\n")
+				.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi),
+		];
+		assert.equal(scripts.length, 3);
+		for (const [i, script] of scripts.entries()) {
+			new Script(script[1], { filename: `tomoni-inline-${i}.js` });
+			const hash = createHash("sha256").update(script[1]).digest("base64");
+			assert.ok(policy.includes(`'sha256-${hash}'`));
+		}
+		assert.match(policy, /font-src 'self' data:/);
+		assert.match(policy, /connect-src 'none'/);
+		assert.doesNotMatch(
+			policy.match(/script-src[^;]+/)[0],
+			/unsafe-inline|unsafe-eval/,
+		);
+		assert.equal((await fetch(`${base}/tomoni-ai-html/`)).status, 200);
+		const head = await fetch(`${base}/tomoni-ai-html/index.html`, {
+			method: "HEAD",
+		});
+		assert.equal(head.status, 200);
+		assert.equal(await head.text(), "");
+		for (const license of ["BebasNeue-OFL.txt", "MPLUS1p-OFL.txt"]) {
+			const response = await fetch(
+				`${base}/tomoni-ai-html/licenses/${license}`,
+			);
+			assert.equal(response.status, 200);
+			assert.match(response.headers.get("content-type"), /text\/plain/);
+		}
+		for (const route of [
+			".DS_Store",
+			"app.js",
+			"index.template.html",
+			"source-slides.json",
+		]) {
+			assert.equal(
+				(await fetch(`${base}/tomoni-ai-html/${route}`)).status,
+				404,
+			);
+		}
 		const text = await html.text();
 		const bundle = text.match(/src="([^"]+\.js)"/);
 		assert.ok(bundle);
