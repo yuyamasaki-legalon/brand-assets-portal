@@ -122,83 +122,66 @@
     <div class="market-detail-actions">${detail(32,'TAM・SAMの算定を見る')}${detail(40,'3年間の売上計画を見る')}${detail(44,'50億円の獲得条件を見る')}</div>
   `,'market market-current');
 
-  add('gtm','法人で稼ぎ、IPを集める。','GO TO MARKET','GTM','lavender',13,`
-    ${header('11 / GO TO MARKET','法人で稼ぎ、<br>学生・個人でIPを集める。','法人の需要・対応案件と、クリエイターの作品供給を並行して増やす。')}
-    <div class="gtm-stage"><div class="gtm-side"><span class="giant-letter" aria-hidden="true">¥</span><h3>収益をつくる</h3><div class="gtm-person"><span class="letter">A</span><div><strong>IP保有・制作法人</strong><p>無料の検知から、対応依頼・回収支援へ。</p></div></div><div class="gtm-person"><span class="letter">B</span><div><strong>IP周辺・利用企業</strong><p>用途に合うIPを提案し、成約と再発注を増やす。</p></div></div></div><div class="gtm-join" aria-hidden="true">×</div><div class="gtm-side"><span class="giant-letter" aria-hidden="true">IP</span><h3>供給を増やす</h3><div class="gtm-person"><span class="letter">C</span><div><strong>専門学校・学生</strong><p>創作系2〜3校から、許諾できる作品を集める。</p></div></div><div class="gtm-person"><span class="letter">D</span><div><strong>個人・兼業クリエイター</strong><p>すでにファンのいるIPから、法人案件へ提案する。</p></div></div></div></div>
-    <p class="fine-print">回収支援は商用利用実績のある法人IPを中心に拡大します。登録・監視・発見は無料。広告費は法人獲得を優先します。</p>${detail(14,'4セグメントの獲得方法を見る')}
-  `,'gtm');
+  add('gtm','無料で供給を集め、事例で法人を獲る。','GO TO MARKET','GTM','lavender',13,`
+    ${header('11 / GO TO MARKET','無料で供給を集め、<br>事例で法人を獲る。','個人・学校・IPを持つ企業・使いたい企業。4カテゴリすべての参加を広げる。')}
+    <div class="gtm-category-grid">
+      <div class="gtm-category"><span class="category-no">01</span>${art('creator','normal','category-art')}<h3>個人クリエイター</h3><p>すでにファンがいる<br>個人・兼業のつくり手</p><span class="category-action">作品とファンを届ける</span></div>
+      <div class="gtm-category"><span class="category-no">02</span>${art('school','normal','category-art')}<h3>専門学校・学生</h3><p>アニメ・漫画・デザイン等<br>創作系学科と学校提携</p><span class="category-action">次の創作を育てる</span></div>
+      <div class="gtm-category"><span class="category-no">03</span>${art('buddy','guard','category-art')}<h3>IP保有・制作法人</h3><p>アニメ・出版・ゲームなど<br>商用IPを持つ企業</p><span class="category-action">IPを守り、活用する</span></div>
+      <div class="gtm-category"><span class="category-no">04</span>${art('company','normal','category-art')}<h3>IP周辺企業</h3><p>グッズ・広告・イベントなど<br>IPを使いたい企業</p><span class="category-action">IPを使い、企画にする</span></div>
+    </div>
+    <p class="gtm-free-rule reveal delay-3"><b>ALL FREE</b><span>登録・監視・発見は無料。収益は、対応・回収支援とライセンス成約から。</span></p>
+    ${detail(13,'4カテゴリと参考母数を見る')}
+  `,'gtm-summary');
 
-  add('report','最初の提案は、検知レポート。','THE FIRST CONVERSATION','GTM','paper',15,`
-    <div class="split"><div>${header('12 / THE FIRST CONVERSATION','最初の提案は、<br>検知レポート。','商用IPを持つ法人に、守る価値を見てもらう。<br>発見から、対応を依頼できる案件へ進める。')}
-      <div class="action-list"><div class="action reveal delay-1"><b>01</b><span>無料で登録・監視し、検知候補を共有する。</span></div><div class="action reveal delay-2"><b>02</b><span>権利・相手方・管轄・採算を確認する。</span></div><div class="action reveal delay-3"><b>03</b><span>権利者の依頼・承認と受託条件を確認し、専門家へ連携。</span></div></div>${detail(22,'検知レポートと対応の入口を見る')}</div>
-      <div class="report-cover"><span class="report-seal">FIRST PROOF</span><div class="report-en">IP PROTECTION<br>REPORT</div><div class="report-jp">侵害候補の検知レポート</div><div class="report-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="report-caption">対象IP・媒体・期間 / 重複・誤検知<br>権利・相手方・管轄 / 受託条件と対応方針<br>構想上のレポート例。実際の検知実績ではありません。</p></div></div>
-    <p class="fine-print">検知候補を請求案件や売上へ直接読み替えません。専門家と支援する5〜10案件で、受託・証拠・入金管理の運用を実証します。</p>
-  `,'report');
+  add('gtm-steps','無料登録から、守る実績、売れる実績へ。','BUILD THE FIRST PROOFS','GTM','paper',14,`
+    ${header('12 / BUILD THE FIRST PROOFS','無料登録から、<br class="mobile-break">守る・売れる実例へ。','3ステップで実績を積み上げ、次の法人提案につなげる。')}
+    <div class="gtm-proof-flow">
+      <div class="gtm-proof-step"><span class="proof-no">01</span><div class="proof-art">${A.creator()}</div><h3>無料登録を増やす</h3><p>4カテゴリすべてへ参加を案内。<br>作品・権利・利用条件を整える。</p><span class="proof-result">作品と参加者が集まる</span></div>
+      <span class="proof-arrow" aria-hidden="true">→</span>
+      <div class="gtm-proof-step"><span class="proof-no">02</span><div class="proof-art">${A.buddy('guard')}</div><h3>権利を守れた<br>事例をつくる</h3><p>侵害候補の確認から対応支援まで。<br>権利者と専門家で実例をつくる。</p><span class="proof-result">守る価値が伝わる</span></div>
+      <span class="proof-arrow" aria-hidden="true">→</span>
+      <div class="gtm-proof-step"><span class="proof-no">03</span><div class="proof-art">${A.company()}</div><h3>売上・利益の<br>事例をつくる</h3><p>企業とIPのマッチングを成立させ、<br>収益につながる実例を増やす。</p><span class="proof-result">使う価値が伝わる</span></div>
+    </div>
+    <p class="proof-feedback reveal delay-3"><span aria-hidden="true">↶</span>つくった事例を、次の法人提案へ。</p>
+    <p class="fine-print">これから実証する進め方です。権利者の承認を得た事例を提案に活用します。</p>${detail(14,'3ステップの内容を見る')}
+  `,'gtm-proofs');
 
-  add('creators','最初の仲間は、もうファンがいる人。','FIND THE FIRST PENGUINS','GTM','lime',17,`
-    <div class="split"><div>${header('13 / FIND THE FIRST PENGUINS','最初の仲間は、<br>もうファンがいる人。','作品にはファンがいる。<br>でも、企業への営業や契約まで手が回らない。<br>そんな兼業・個人クリエイターから出会いにいく。')}
-      <div class="evidence-strip reveal delay-2"><span>購入・再販</span><span>継続した反応</span><span>商品化の要望</span><span>許諾できる権利</span></div>
-      <p class="fine-print">フォロワー数だけで選びません。企業の用途との相性と、本人の参加意向を確認します。個別伴走は初期の事例候補に絞ります。</p>${detail(18,'選定する兆候と確認方法を見る')}</div>
-      <div class="discovery-field"><div class="discovery-core">${art('creator')}</div><span class="channel-chip">BOOTH</span><span class="channel-chip">LINEスタンプ</span><span class="channel-chip">SNS・短編アニメ</span><span class="channel-chip">即売会・紹介</span></div></div>
-  `,'creator-scene');
-
-  add('school','次のIPは、教室にも。','THE NEXT CREATORS','GTM','mint',19,`
-    <div class="split"><div>${header('14 / THE NEXT CREATORS','次のIPは、教室にも。','アニメーション・漫画・デザインの学科から。<br>まずは創作系2〜3校と、作品登録と企業提案を始める。')}
-      <div class="action-list"><div class="action reveal delay-1"><b>01</b><span>授業・ガイダンス・卒業制作展で参加を案内。</span></div><div class="action reveal delay-2"><b>02</b><span>学生本人が、権利・利用条件・公開範囲を確認して登録。</span></div><div class="action reveal delay-3"><b>03</b><span>許諾できる作品を法人へ紹介し、本人が利用を承認。</span></div></div>
-      <div class="school-facts reveal delay-3"><div class="school-fact"><strong>50<span>校</span></strong><span>3年目の提携目標</span></div><div class="school-fact"><strong>6,000<span>人</span></strong><span>50校 × 200人 × 登録率60%</span></div></div>
-      <p class="fine-print">事業計画上の目標です。学校全体の在籍数と対象学科の学生数を区別し、本人が許諾できる作品を集めます。</p>${detail(19,'学校提携と登録目標の前提を見る')}</div>
-      <div class="school-art">${art('school')}<div class="student-work">${A.buddy('celebrate')}</div></div></div>
-  `,'school');
-
-  add('buyers','買い手の案件から、取引をつくる。','TURN INTEREST INTO A DEAL','GTM','paper',16,`
-    ${header('15 / TURN INTEREST INTO A DEAL','買い手の案件から、<br>最初の取引をつくる。','メーカー・グッズ・広告・イベント企業へ。<br>企業の条件を先に聞き、合うIPを少数提案する。')}
-    <div class="brief-stage"><div class="brief-sheet reveal delay-1"><h3>THE CREATIVE BRIEF</h3><dl><dt>使い方</dt><dd>商品化 / 広告・販促 / イベント</dd><dt>企画条件</dt><dd>対象顧客 / 必要素材 / 表現</dd><dt>取引条件</dt><dd>予算 / 時期 / 地域 / 利用期間</dd></dl><p class="small-note">具体的な案件の条件を確認するための項目例。</p></div><div class="brief-result reveal delay-2"><h3>企業が声をかけ、<br>権利者が承認する。</h3><p>法人は無料で登録。<br>掲載IPへの関心表明も、案件からの相談も受け付ける。<br>条件調整と承認を経て、有償契約へ。</p><span class="stamp">FIRST DEAL!</span></div></div>
-    <p class="fine-print">成約した企業から手数料を受け取る設計です。問い合わせの時点で成約課金はしません。初回の実績を次の企画・再発注へつなげます。</p>${detail(21,'マッチングから契約までの流れを見る')}
-  `,'buyers');
-
-  add('ads','広告を打つなら、法人へ。','FOCUS THE ACQUISITION','GTM','lavender',23,`
-    ${header('16 / FOCUS THE ACQUISITION','広告を打つなら、法人へ。','対応を依頼できる商用IPと、予算のあるライセンス案件を集める。')}
-    <div class="ad-two"><div class="ad-column reveal delay-1"><span class="ad-letter">A</span><h3>IP保有法人へ</h3><p>「IP監視・無断利用対策」の課題を訴求。<br>無料の検知レポートから、対応の相談を受ける。</p><p class="ad-metric">見る指標：受託率 / 実入金率 / 回収期間 / 支援粗利</p></div><div class="ad-column reveal delay-2"><span class="ad-letter">B</span><h3>IP利用企業へ</h3><p>「商品化・コラボIP探し」の需要を訴求。<br>展示会・ウェビナー・代理店との紹介を組み合わせる。</p><p class="ad-metric">見る指標：成約利用率 / 年間取引数 / 再発注 / 手数料粗利</p></div></div>
-    <p class="punchline reveal delay-3">学生・個人は、学校・コミュニティ・紹介を中心に。</p><p class="fine-print">広告費は法人獲得を優先します。媒体・予算は、初期実証での受託と成約、獲得費用を見て決めます。</p>${detail(23)}
-  `,'advertising');
-
-  add('ninety-days','90日で、最初の実証を。','THE FIRST 90 DAYS','GTM','mint',24,`
-    ${header('17 / THE FIRST 90 DAYS','90日で、<br>最初の実証を。','法人の需要を聞き、専門家と対応を支援し、ライセンスの初回成約をつくる。')}
-    <div class="timeline"><div class="phase"><span class="phase-time">DAY 01 — 30</span><h3>法人の課題を聞く</h3><p>保有IP、既存の利用実績、侵害対応を確認。<br>利用企業の用途・予算・納期を聞く。<br>権利・管轄・受託条件を整理する。</p><div class="phase-target">保有法人10社<br>利用法人10社にヒアリング</div></div><div class="phase"><span class="phase-time">DAY 31 — 60</span><h3>専門家と対応を実証</h3><p>支援する案件を専門家と選ぶ。<br>証拠整理・手続き・入金管理を整える。<br>学校との提携と作品登録を進める。</p><div class="phase-target">支援5〜10案件<br>創作系2〜3校と提携</div></div><div class="phase"><span class="phase-time">DAY 61 — 90</span><h3>初回成約を積み上げる</h3><p>用途に合うIPを法人へ提案。<br>権利者の承認と契約を支援する。<br>再発注と採算を次の計画へ反映する。</p><div class="phase-target">ライセンス初回成約10件<br>受託・成約・粗利を検証</div></div></div>
-    <p class="fine-print">日程・件数は計画案です。回収入金は受託翌年度に20%を計画し、90日の支援件数を当期の回収売上とは扱いません。</p>${detail(43,'行動・役割・展開順序を見る')}
-  `,'ninety-days');
-
-  add('targets','登録の、その先を測る。','MEASURE WHAT CONTINUES','GTM','paper',25,`
-    ${header('18 / MEASURE WHAT CONTINUES','登録の、その先を測る。','初期90日は、法人の課題・受託運用・作品供給・ライセンス成約を確かめる。')}
-    <div class="kpi-row"><div class="kpi"><div class="kpi-label">法人ヒアリング</div><div class="kpi-value">20<span>社</span></div><p>IP保有法人10社＋利用法人10社。<br>需要・権利・案件・予算を確認。</p></div><div class="kpi"><div class="kpi-label">創作系学校の提携</div><div class="kpi-value">2–3<span>校</span></div><p>本人が許諾できる作品を集め、<br>企業へ紹介できる状態をつくる。</p></div><div class="kpi"><div class="kpi-label">専門家と支援する案件</div><div class="kpi-value">5–10<span>件</span></div><p>証拠・受託条件・役割を確認。<br>手続きと入金管理を実証。</p></div><div class="kpi"><div class="kpi-label">初回ライセンス成約</div><div class="kpi-value">10<span>件</span></div><p>成約率・所要期間・手数料粗利。<br>再発注と実入金まで追う。</p></div></div>
-    <p class="punchline reveal delay-3">成長は、受託・実入金・再発注・粗利で判断する。</p><p class="fine-print">すべて初期検証の目標です。受託件数と当年の回収入金件数は分け、回収期間と資金繰りも継続して追います。</p>${detail(25)}
-  `,'targets');
+  add('gtm-channels','個人はコミュニティ、法人は事例で。','TURN PROOF INTO REACH','GTM','mint',15,`
+    ${header('13 / TURN PROOF INTO REACH','個人はコミュニティ、<br>法人は事例で。','クリエイター同士のつながりと、既存の法人接点。集め方を分けて進める。')}
+    <div class="gtm-channel-grid">
+      <div class="gtm-channel"><div class="channel-heading">${art('creator','normal','channel-art')}<div><span class="channel-kicker">CREATORS</span><h3>コミュニティで広げる</h3></div></div><p>pixivFANBOX・コミケ参加サークルの<br>コミュニティを入口に、作品登録を広げる。</p><div class="gtm-channel-tags"><span>X</span><span>Facebook</span><span>Instagram</span></div><p class="channel-note">個人アカウントでも拡散。学校とは学科・授業単位でつながる。</p></div>
+      <div class="gtm-channel"><div class="channel-heading">${art('company','normal','channel-art')}<div><span class="channel-kicker">BUSINESS</span><h3>事例を軸に開拓する</h3></div></div><p>守れた・収益につながった事例を前面に。<br>LegalOn導入企業への訪問を検討する。</p><div class="visit-candidates"><span>セガ</span><span>ココナラ</span><span>ダイソー</span><span>日本ゼオン</span><span>BuzzFeed Japan</span></div><p class="channel-note">アニメ・出版・ゲーム会社はリスト化して案内。企業名はPDF記載の訪問候補で、IP課題・紹介可否・面談実績は未確認です。</p></div>
+    </div>
+    <p class="gtm-free-rule reveal delay-3"><b>B TO B</b><span>広告を行う場合は、法人獲得を優先する。</span></p>
+    ${detail(15,'集め方と訪問候補の位置付けを見る')}
+  `,'gtm-acquisition');
 
   add('economics','増やす前に、採算を見る。','MAKE THE ECONOMICS WORK','BUSINESS','lime',26,`
-    ${header('19 / MAKE THE ECONOMICS WORK','増やす前に、<br>採算を見る。','無料の監視原価と、対応・成約を支える人の時間まで。<br>入金までの期間を含めて、事業の採算を確かめる。')}
+    ${header('14 / MAKE THE ECONOMICS WORK','増やす前に、<br>採算を見る。','無料の監視原価と、対応・成約を支える人の時間まで。<br>入金までの期間を含めて、事業の採算を確かめる。')}
     <div class="unit-formulas"><div class="unit-formula reveal delay-1"><strong>回収支援の売上</strong><p>実入金案件数 × 平均実回収額 × 当社対価20%<br>当社固有の支援対価から、証拠・運用・連携費を管理。</p></div><div class="unit-formula reveal delay-2"><strong>成約の売上</strong><p>成約利用法人 × 年間取引数 × 許諾料 × 手数料20%<br>営業・条件調整・契約・分配の工数を引いて粗利を見る。</p></div><div class="unit-formula reveal delay-3"><strong>原価と資金繰り</strong><p>無料監視のAI・保存・確認費用と、受託後の運用費。<br>翌年度の回収入金と、実費立替を分けて管理する。</p></div></div>
     <p class="fine-print">裁判等の実費・専門家報酬・権利者の回収金は当社売上に含めません。同じ権利・期間の対価を二重計上せず、20%内の支援へ別の手続料を重ねません。</p>${detail(26)}
   `,'economics');
 
   add('network','積み重なるほど、つながる。','COMPOUNDING KNOWLEDGE','PRODUCT','dark',27,`
-    ${header('20 / COMPOUNDING KNOWLEDGE','実績が、次の取引を支える。','権利条件、承認の履歴、利用企業との接点。<br>継続する運用の中に、競争力を築く仮説。')}
+    ${header('15 / COMPOUNDING KNOWLEDGE','実績が、次の取引を支える。','権利条件、承認の履歴、利用企業との接点。<br>継続する運用の中に、競争力を築く仮説。')}
     <div class="network"><div class="network-node">権利条件の構造化<br><small>地域・期間・媒体・承認基準</small></div><div class="network-node">審査・契約の支援<br><small>繰り返す確認を減らす</small></div><div class="network-node">許諾・取引の履歴<br><small>承認条件・差戻し理由を蓄積</small></div><div class="network-node">利用企業との接点<br><small>需要を権利者へ返す</small></div><svg class="network-lines" viewBox="0 0 700 260" preserveAspectRatio="none" aria-hidden="true"><path d="M130 0H580Q630 0 630 50V210Q630 260 580 260H120Q70 260 70 210V50Q70 0 120 0Z" fill="none" stroke="#d1ff70" stroke-width="2.5"/><path d="M600 0L582 -7M600 0L582 7M630 235L623 218M630 235L637 218M95 260L112 253M95 260L112 267M70 25L63 42M70 25L77 42" stroke="#d1ff70" fill="none" stroke-width="2.5"/></svg>${art('buddy','normal','network-center')}</div>
     <p class="fine-print">登録数だけで競争力が実証されるとは考えません。監視の確認結果を含む運用履歴を、誤検知低減と取引条件の整理に役立てます。</p>${detail(27)}
   `,'network-scene');
 
   add('roadmap','ひとつの実証から、世界へ。','EARN THE RIGHT TO SCALE','NEXT','mint',28,`
-    ${header('21 / EARN THE RIGHT TO SCALE','ひとつの実証から、<br>世界へ。','商用IPと法人取引で運用を整え、専門家と提供できる地域を広げる。')}
+    ${header('16 / EARN THE RIGHT TO SCALE','ひとつの実証から、<br>世界へ。','商用IPと法人取引で運用を整え、専門家と提供できる地域を広げる。')}
     <div class="roadmap"><div class="roadmap-step reveal"><div class="roadmap-en">YEAR 1</div><h3>国内で運用をつくる</h3><p>商用IPの契約・証拠・入金管理。<br>対応受託2,000件、利用法人100社。</p><span class="roadmap-state">年商0.3億円 / 成約300件</span></div><div class="roadmap-step reveal delay-1"><div class="roadmap-en">YEAR 2</div><h3>海外対応を広げる</h3><p>現地専門家のネットワークを拡大。<br>対応受託1.5万件、利用法人400社。</p><span class="roadmap-state">年商7.6億円 / 回収入金400件</span></div><div class="roadmap-step reveal delay-2"><div class="roadmap-en">YEAR 3</div><h3>回収と再発注を増やす</h3><p>先行案件3,000件の回収入金。<br>利用法人1,000社で年1万取引。</p><span class="roadmap-state">年商50億円 / 長期SAM約3,000億円へ</span></div></div>
     <p class="fine-print">事業計画上の目標です。対象国の資格・対価設計、現地費用、実入金率と回収期間を検証して展開します。</p>${detail(40,'3年間の成立条件と売上計画を見る')}
   `,'roadmap-scene');
 
   add('together','IPの未来を、ともに。','LET’S MAKE THE FIRST PROOF','NEXT','lavender',29,`
-    <div class="split"><div><span class="tilt-label reveal">LET’S MAKE THE FIRST PROOF.</span><h2 class="reveal delay-1">IPの未来を、<br>ともに。</h2><p class="lead reveal delay-2">作品を預ける権利者。<br>新しい企画をつくる企業。<br>次の創作を育てる学校。<br>最初の実証を、一緒につくりたい。</p><div class="close-actions reveal delay-3"><button class="primary-button" type="button" data-source="29">共同実証の計画を見る<span aria-hidden="true">↗</span></button><button class="detail-link" type="button" data-goto="23">根拠と詳細へ</button></div><small>求める協力：対象IP・法人案件・学校窓口・実証責任者の選定。<br>本資料は事業構想と検証計画です。数値は目標案・仮説を含みます。</small></div><div class="closing-art">${art('buddy','celebrate')}<i class="star closing-star" aria-hidden="true"></i></div></div>
+    <div class="split"><div><span class="tilt-label reveal">LET’S MAKE THE FIRST PROOF.</span><h2 class="reveal delay-1">IPの未来を、<br>ともに。</h2><p class="lead reveal delay-2">作品を預ける権利者。<br>新しい企画をつくる企業。<br>次の創作を育てる学校。<br>最初の実証を、一緒につくりたい。</p><div class="close-actions reveal delay-3"><button class="primary-button" type="button" data-source="29">共同実証の計画を見る<span aria-hidden="true">↗</span></button><button class="detail-link" type="button" data-goto-id="references">根拠と詳細へ</button></div><small>求める協力：対象IP・法人案件・学校窓口・実証責任者の選定。<br>本資料は事業構想と検証計画です。数値は目標案・仮説を含みます。</small></div><div class="closing-art">${art('buddy','celebrate')}<i class="star closing-star" aria-hidden="true"></i></div></div>
   `,'closing');
 
   add('references','仮定は、検証で更新する。','THE REFERENCE LIBRARY','REFERENCE','paper',45,`
-    ${header('22 / THE REFERENCE LIBRARY','仮定は、<br>検証で更新する。','詳細資料46項目の本文・表・補足・出典を、この資料の中に収録。<br>プレゼンの流れを止めず、必要なときに根拠まで確かめられる。')}
-    <div class="source-groups"><div class="source-group reveal delay-1"><span class="source-en">MARKET</span><h3>TAM・SAM・SOM</h3><p>世界TAM約1.4兆円と、<br>長期SAM約3,000億円の算定式。<br>3年目SOM50億円の成立条件。</p>${detail(32,'市場の計算を見る')}</div><div class="source-group reveal delay-2"><span class="source-en">GTM</span><h3>営業・獲得・採算</h3><p>4セグメント、学校・個人の母数、<br>法人向けの提案と90日KPI。<br>目標と実績の区別。</p>${detail(14,'営業計画を見る')}</div><div class="source-group reveal delay-3"><span class="source-en">SOURCES</span><h3>公開情報と実体験</h3><p>Licensing International、CISAC、<br>文部科学省などの公開資料。<br>スイカ事例の証言と公開情報。</p>${detail(45,'出典の一覧を見る')}</div></div>
+    ${header('17 / THE REFERENCE LIBRARY','仮定は、<br>検証で更新する。','詳細資料46項目の本文・表・補足・出典を、この資料の中に収録。<br>プレゼンの流れを止めず、必要なときに根拠まで確かめられる。')}
+    <div class="source-groups"><div class="source-group reveal delay-1"><span class="source-en">MARKET</span><h3>TAM・SAM・SOM</h3><p>世界TAM約1.4兆円と、<br>長期SAM約3,000億円の算定式。<br>3年目SOM50億円の成立条件。</p>${detail(32,'市場の計算を見る')}</div><div class="source-group reveal delay-2"><span class="source-en">GTM</span><h3>営業・獲得・採算</h3><p>4カテゴリ・3ステップ・集め方。<br>法人訪問の候補と、参考母数。<br>数値計画は補足資料で確認。</p>${detail(13,'GTMの概要を見る')}</div><div class="source-group reveal delay-3"><span class="source-en">SOURCES</span><h3>公開情報と実体験</h3><p>Licensing International、CISAC、<br>文部科学省などの公開資料。<br>スイカ事例の証言と公開情報。</p>${detail(45,'出典の一覧を見る')}</div></div>
     <p class="fine-print">市場・事業計画の算定日：2026年10月18日。市場額は当社の年間サービス売上への換算値です。関連市場の売上・被害額・登録者数を直接加算しません。</p>
     <button class="primary-button" type="button" data-goto="0" style="margin-top:22px">最初のページへ<span aria-hidden="true">↑</span></button>
   `,'references');
@@ -235,6 +218,8 @@
     });
   }
   fitScenes();
+  const legacySceneIds={report:'gtm-steps',creators:'gtm',school:'gtm',buyers:'gtm-channels',ads:'gtm-channels','ninety-days':'gtm-steps',targets:'gtm-steps'};
+  const sceneIndex=id=>scenes.findIndex(s=>s.id===(legacySceneIds[id]||id));
   const pageAnnouncement=document.getElementById('page-announcement');
   function setCurrent(i,announce=true){
     if(i===current&&sections[i].classList.contains('is-current'))return;
@@ -286,7 +271,7 @@
   document.getElementById('menu-open').addEventListener('click',()=>indexDialog.showModal());
   document.querySelectorAll('[data-close-dialog]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
   [indexDialog,detailsDialog].forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}}));
-  document.addEventListener('click',e=>{const goto=e.target.closest('[data-goto]');if(goto){go(Number(goto.dataset.goto));return;}const source=e.target.closest('[data-source]');if(source){openDetails(Number(source.dataset.source));return;}if(e.target.closest('[data-open-details]'))openDetails(scenes[current].source);});
+  document.addEventListener('click',e=>{const byId=e.target.closest('[data-goto-id]');if(byId){const i=sceneIndex(byId.dataset.gotoId);if(i>=0)go(i);return;}const goto=e.target.closest('[data-goto]');if(goto){go(Number(goto.dataset.goto));return;}const source=e.target.closest('[data-source]');if(source){openDetails(Number(source.dataset.source));return;}if(e.target.closest('[data-open-details]'))openDetails(scenes[current].source);});
   document.querySelector('.wordmark').addEventListener('click',e=>{e.preventDefault();go(0);});
   async function toggleFullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch(_){pageAnnouncement.textContent='全画面表示はこのブラウザーでは利用できません。';}}
   document.getElementById('fullscreen').addEventListener('click',toggleFullscreen);
@@ -311,7 +296,7 @@
   let resizeFrame=0;
   window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{fitScenes();if(!indexDialog.open&&!detailsDialog.open)go(current,'instant');});},{passive:true});
   window.addEventListener('load',()=>{fitScenes();if(!indexDialog.open&&!detailsDialog.open)go(current,'instant');},{once:true});
-  window.addEventListener('hashchange',()=>{const i=scenes.findIndex(s=>s.id===location.hash.slice(1));if(i>=0)go(i);});
+  window.addEventListener('hashchange',()=>{const i=sceneIndex(location.hash.slice(1));if(i>=0)go(i);});
   const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting)entry.target.classList.add('is-seen');},{threshold:.15});sections.forEach(s=>observer.observe(s));
 
   const sourceSearch=document.getElementById('source-search');
@@ -335,7 +320,7 @@
   sourceSearch.addEventListener('input',()=>listSources(sourceSearch.value));
   function openDetails(number=1){sourceSearch.value='';showSource(number);if(!detailsDialog.open)detailsDialog.showModal();const active=sourceList.querySelector('.active');if(active)active.scrollIntoView({block:'nearest'});}
   listSources();
-  const initial=Math.max(0,scenes.findIndex(s=>s.id===location.hash.slice(1)));
+  const initial=Math.max(0,sceneIndex(location.hash.slice(1)));
   setCurrent(initial,false);
   if(initial>0)requestAnimationFrame(()=>go(initial,'instant'));
   document.fonts.ready.then(()=>{document.documentElement.classList.add('fonts-ready');fitScenes();if(!indexDialog.open&&!detailsDialog.open)go(current,'instant');});
