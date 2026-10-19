@@ -458,6 +458,14 @@ var types = {
 	".ico": "image/x-icon"
 };
 function createProductionServer(config, staticDir, seedPath, provider) {
+	let tomoniPolicy;
+	function getTomoniPolicy() {
+		tomoniPolicy ||= promises.readFile(path.join(staticDir, "tomoni-ai-html/index.html"), "utf8").then((html) => {
+			const hashes = [...html.replace(/\r\n?/g, "\n").matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map((match) => `'sha256-${createHash("sha256").update(match[1]).digest("base64")}'`);
+			return `default-src 'none'; script-src ${hashes.join(" ")}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'`;
+		});
+		return tomoniPolicy;
+	}
 	if (path.resolve(config.dataDir).startsWith(`${path.resolve(staticDir)}${path.sep}`) || path.resolve(config.dataDir) === path.resolve(staticDir)) throw new Error("CMS data must be outside the public directory");
 	const auth = createGoogleAuth(config, provider);
 	const catalog = createCatalogMiddleware(staticDir, {
@@ -493,8 +501,10 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 				res.end();
 				return;
 			}
-			const route = decodeURIComponent(pathname === "/" || pathname === "/index.html" ? "/brand-asset-portal/index.html" : pathname);
-			if (!(route === "/brand-asset-portal/index.html" || route === "/index.html" || /^\/(assets|brand-asset-portal-media)\//.test(route)) || route.split("/").some((part) => part.startsWith(".") || part.includes("\\"))) {
+			const route = decodeURIComponent(pathname === "/" || pathname === "/index.html" ? "/brand-asset-portal/index.html" : pathname === "/tomoni-ai-html/" || pathname === "/tomoni-ai-html" ? "/tomoni-ai-html/index.html" : pathname);
+			const tomoniPage = route === "/tomoni-ai-html/index.html";
+			const tomoniLicense = /^\/tomoni-ai-html\/licenses\/(?:BebasNeue-OFL\.txt|MPLUS1p-OFL\.txt|README\.md)$/.test(route);
+			if (!(tomoniPage || tomoniLicense || route === "/brand-asset-portal/index.html" || route === "/index.html" || /^\/(assets|brand-asset-portal-media)\//.test(route)) || route.split("/").some((part) => part.startsWith(".") || part.includes("\\"))) {
 				res.writeHead(404);
 				res.end();
 				return;
@@ -514,8 +524,9 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 				return;
 			}
 			const ext = path.extname(file);
+			if (tomoniPage) res.setHeader("Content-Security-Policy", await getTomoniPolicy());
 			res.writeHead(200, {
-				"Content-Type": types[ext] || "application/octet-stream",
+				"Content-Type": tomoniLicense ? "text/plain; charset=utf-8" : types[ext] || "application/octet-stream",
 				"Content-Length": stat.size,
 				"Cache-Control": ext === ".html" ? "no-store" : "public, max-age=3600"
 			});
