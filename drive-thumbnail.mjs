@@ -7,7 +7,10 @@ var imageTypes = new Set([
 	"image/gif"
 ]);
 async function readBounded(response, limit) {
-	if (Number(response.headers.get("content-length")) > limit) throw new Error("Too large");
+	if (Number(response.headers.get("content-length")) > limit) {
+		await response.body?.cancel().catch(() => {});
+		throw new Error("Too large");
+	}
 	const reader = response.body?.getReader();
 	if (!reader) throw new Error("Empty response");
 	const chunks = [];
@@ -53,14 +56,20 @@ function createDriveThumbnailHandler(authorize, fetchGoogle = fetch) {
 				redirect: "error"
 			};
 			const metadata = await fetchGoogle(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=thumbnailLink&supportsAllDrives=true`, options);
-			if (!metadata.ok) return reply(metadata.status === 401 ? 401 : 404);
+			if (!metadata.ok) {
+				await metadata.body?.cancel().catch(() => {});
+				return reply(metadata.status === 401 ? 401 : 404);
+			}
 			const data = JSON.parse((await readBounded(metadata, 16384)).toString("utf8"));
 			if (typeof data.thumbnailLink !== "string") return reply(404);
 			const url = new URL(data.thumbnailLink);
 			if (url.protocol !== "https:" || !url.hostname.endsWith(".googleusercontent.com") || url.username || url.password || url.port) return reply(404);
 			const image = await fetchGoogle(url.href, options);
 			const mime = image.headers.get("content-type")?.split(";")[0].trim().toLowerCase() || "";
-			if (!image.ok || !imageTypes.has(mime)) return reply(404);
+			if (!image.ok || !imageTypes.has(mime)) {
+				await image.body?.cancel().catch(() => {});
+				return reply(image.status === 401 ? 401 : 404);
+			}
 			const bytes = await readBounded(image, maxImageBytes);
 			if (!bytes.length) return reply(404);
 			reply(200, { dataUrl: `data:${mime};base64,${bytes.toString("base64")}` });

@@ -31,6 +31,10 @@ test('private thumbnail route preserves employee authentication and never grants
   };
   const nativeFetch = globalThis.fetch;
   let googleCalls = 0;
+  let cancelled = 0;
+  function unread(status, headers = {}) {
+    return new Response(new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(10)); }, cancel() { cancelled++; } }), {status,headers});
+  }
   let mode = 'image';
   globalThis.fetch = async (url, options) => {
     const target = String(url);
@@ -38,14 +42,17 @@ test('private thumbnail route preserves employee authentication and never grants
       googleCalls++;
       assert.equal(options.headers.Authorization, 'Bearer test-only-token');
       assert.equal(options.redirect,'error');
-      if (mode === 'forbidden') return new Response('', {status:403});
+      if (mode === 'forbidden') return unread(403);
+      if (mode === 'metadata-large-header') return unread(200, {'content-length':'20000'});
       if (mode === 'missing') return Response.json({});
       return Response.json({thumbnailLink:mode === 'unsafe'?'https://evil.example.test/private':'https://lh3.googleusercontent.com/fixture'});
     }
     if (target.startsWith('https://lh3.googleusercontent.com/')) {
       googleCalls++;
       assert.equal(options.headers.Authorization,'Bearer test-only-token');
-      if (mode === 'html') return new Response('<html/>',{headers:{'content-type':'text/html'}});
+      if (mode === 'html') return unread(200, {'content-type':'text/html'});
+      if (mode === 'image-forbidden') return unread(403, {'content-type':'image/png'});
+      if (mode === 'large-header') return unread(200, {'content-type':'image/png','content-length':'3000000'});
       return new Response(new Uint8Array(mode==='large'?2*1024*1024+1:10),{headers:{'content-type':'image/png'}});
     }
     return nativeFetch(url,options);
@@ -73,8 +80,10 @@ test('private thumbnail route preserves employee authentication and never grants
     assert.equal(image.status,200);
     assert.equal(image.headers.get('cache-control'),'private, no-store');
     assert.match((await image.json()).dataUrl,/^data:image\/png;base64,/);
-    for (const [nextMode,status] of [['forbidden',404],['missing',404],['unsafe',404],['html',404],['large',502]]) {
+    for (const [nextMode,status,shouldCancel] of [['forbidden',404,true],['missing',404,false],['unsafe',404,false],['html',404,true],['large',502,false],['image-forbidden',404,true],['large-header',502,true],['metadata-large-header',502,true]]) {
+      const priorCancelled=cancelled;
       mode=nextMode; assert.equal((await fetch(thumbnail,{headers})).status,status,nextMode);
+      if (shouldCancel) assert.equal(cancelled,priorCancelled+1,`${nextMode} must release its upstream body`);
     }
     const before=googleCalls;
     assert.equal((await fetch(`${base}/api/brand-assets/thumbnail/invalid!id`,{headers})).status,400);
