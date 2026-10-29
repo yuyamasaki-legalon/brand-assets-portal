@@ -259,6 +259,12 @@ test("release runtime serves health and packaged assets but protects catalogue a
 		const text = await html.text();
 		const bundle = text.match(/src="([^"]+\.js)"/);
 		assert.ok(bundle);
+		const javascript = await (await fetch(new URL(bundle[1], `${base}/brand-asset-portal/index.html`))).text();
+		const clientId = "525055087660-6f75p8dvjiktdhn3j8j6b395srlr88e9.apps.googleusercontent.com";
+		assert.ok(javascript.includes(clientId), "Drive client ID must be present in release");
+		assert.ok(javascript.includes("https://www.googleapis.com/auth/drive.readonly"));
+		const baseline = await fs.readFile("public/assets/index-BETZBgJ6.js", "utf8");
+		assert.equal(javascript.replace(`aN=${JSON.stringify(clientId)}`, "aN=(void 0)?.trim()??``"), baseline, "CMS permission code and all non-configuration bytes must remain unchanged");
 		assert.equal(
 			(await fetch(new URL(bundle[1], `${base}/brand-asset-portal/index.html`)))
 				.status,
