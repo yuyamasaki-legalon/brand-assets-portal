@@ -16,6 +16,11 @@ const filename = `index-drive-${hash}.js`;
 await fs.writeFile(`public/assets/${filename}`, updated);
 const htmlPath = "public/brand-asset-portal/index.html";
 const html = await fs.readFile(htmlPath, "utf8");
-if (!html.includes("../assets/index-BETZBgJ6.js")) throw new Error("Unexpected HTML entrypoint");
-await fs.writeFile(htmlPath, html.replace("../assets/index-BETZBgJ6.js", `../assets/${filename}`));
+const oldReference = "../assets/index-BETZBgJ6.js";
+const newReference = `../assets/${filename}`;
+if (html.includes(oldReference)) {
+  await fs.writeFile(htmlPath, html.replace(oldReference, newReference));
+} else if (!html.includes(newReference)) {
+  throw new Error("Unexpected HTML entrypoint");
+}
 console.log(`Built ${filename}; only the public Drive client ID changed.`);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -6,6 +7,13 @@ import { test } from "node:test";
 import { createHash } from "node:crypto";
 import { Script } from "node:vm";
 import { createProductionServer } from "./server.mjs";
+
+test("Drive configuration packaging can be repeated without changing the release", async () => {
+  const before = await fs.readFile("public/brand-asset-portal/index.html", "utf8");
+  execFileSync(process.execPath, ["scripts/restore-drive-client.mjs"], { stdio: "pipe" });
+  execFileSync(process.execPath, ["scripts/restore-drive-client.mjs"], { stdio: "pipe" });
+  assert.equal(await fs.readFile("public/brand-asset-portal/index.html", "utf8"), before);
+});
 
 test("TrustOn import preserves saved edits and does not resurrect deletions on restart", async () => {
 	const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "cms-truston-test-"));
