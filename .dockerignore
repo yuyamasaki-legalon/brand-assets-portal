@@ -3,6 +3,7 @@
 !package.json
 !package-lock.json
 !server.mjs
+!drive-thumbnail.mjs
 !cms-seed.json
 !public/
 !public/**

@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { CodeChallengeMethod, OAuth2Client } from "google-auth-library";
+import { createDriveThumbnailHandler } from "./drive-thumbnail.mjs";
 //#region src/pages/sandbox/brand-asset-portal/catalog-types.ts
 var defaultProducts = [
 	"LegalOn",
@@ -355,6 +356,7 @@ function createGoogleAuth(config, provider = googleProvider(config)) {
 			json(res, 200, {
 				mode: "production",
 				authenticated: Boolean(user),
+				canEdit: Boolean(user),
 				email: user?.email,
 				csrfToken: user?.csrfToken
 			});
@@ -468,6 +470,7 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 	}
 	if (path.resolve(config.dataDir).startsWith(`${path.resolve(staticDir)}${path.sep}`) || path.resolve(config.dataDir) === path.resolve(staticDir)) throw new Error("CMS data must be outside the public directory");
 	const auth = createGoogleAuth(config, provider);
+	const thumbnail = createDriveThumbnailHandler(auth.authorize);
 	const catalog = createCatalogMiddleware(staticDir, {
 		dataDir: config.dataDir,
 		seedPath,
@@ -487,6 +490,10 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 				return;
 			}
 			if (await auth.handle(req, res)) return;
+			if (pathname.startsWith("/api/brand-assets/thumbnail/")) {
+				await thumbnail(req, res, pathname.slice("/api/brand-assets/thumbnail/".length));
+				return;
+			}
 			if (pathname === "/api/brand-assets/catalog") {
 				catalog(req, res);
 				return;
