@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node --test cms-runtime.test.mjs"
+    "test": "node --test cms-runtime.test.mjs thumbnail-runtime.test.mjs"
   },
   "dependencies": {
     "google-auth-library": "11.2.0"

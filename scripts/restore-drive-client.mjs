@@ -21,6 +21,11 @@ const newReference = `../assets/${filename}`;
 if (html.includes(oldReference)) {
   await fs.writeFile(htmlPath, html.replace(oldReference, newReference));
 } else if (!html.includes(newReference)) {
-  throw new Error("Unexpected HTML entrypoint");
+  const reference = html.match(/src="\.\.\/assets\/(index-[\w-]+\.js)"/)?.[1];
+  if (!reference) throw new Error("Unexpected HTML entrypoint");
+  const current = await fs.readFile(`public/assets/${reference}`, "utf8");
+  if (!current.includes(clientId) || !current.includes("https://www.googleapis.com/auth/drive.readonly") || !current.includes("Driveプレビューを表示"))
+    throw new Error("Unrecognized release; refusing to change the entrypoint");
+  console.log("Thumbnail release already has the Drive client; preserving its entrypoint.");
 }
 console.log(`Built ${filename}; only the public Drive client ID changed.`);

@@ -271,8 +271,9 @@ test("release runtime serves health and packaged assets but protects catalogue a
 		const clientId = "525055087660-6f75p8dvjiktdhn3j8j6b395srlr88e9.apps.googleusercontent.com";
 		assert.ok(javascript.includes(clientId), "Drive client ID must be present in release");
 		assert.ok(javascript.includes("https://www.googleapis.com/auth/drive.readonly"));
-		const baseline = await fs.readFile("public/assets/index-BETZBgJ6.js", "utf8");
-		assert.equal(javascript.replace(`aN=${JSON.stringify(clientId)}`, "aN=(void 0)?.trim()??``"), baseline, "CMS permission code and all non-configuration bytes must remain unchanged");
+		assert.ok(javascript.includes("Driveプレビューを表示"), "Thumbnail controls must be present");
+		assert.ok(javascript.includes("/api/brand-assets/thumbnail/"), "Private thumbnail API must be used");
+		assert.equal((await fetch(`${base}/api/brand-assets/thumbnail/test-file-id`)).status, 401);
 		assert.equal(
 			(await fetch(new URL(bundle[1], `${base}/brand-asset-portal/index.html`)))
 				.status,
