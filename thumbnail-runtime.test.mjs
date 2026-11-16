@@ -19,8 +19,9 @@ test('editor restriction preserves downloads, thumbnail module and catalogue sto
     ['public/assets/index-DVTqD5NL.js', '3b7b0e7e75830b55ebf54e506296365766d045ec902cef1aa918e1a0736d7fdb'],
     ['public/assets/index-CvTfrECT.js', 'ef84c49ba7637c88bb7535c186b77eff6f35728a842efa97ff576b6f5f85d30b'],
     ['public/assets/index-C0GOlHqt.js', '694514f7e292c48f86d38148b2cae38d3f81621d367baf42a9396b6ecd523bd7'],
+    ['public/assets/index-DZPuwLNT.js', '3b3639d96ed086698a3bca989befd4cea913e1b06d938a382abfad2ea145330b'],
     ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
-    ['public/brand-asset-portal/index.html', '81691b38f5119ce004d2095589bf29535fbd79b4c916dae7d61660379e2261db'],
+    ['public/brand-asset-portal/index.html', '04417efa6693bca9b82fc98b1176734541b91d0307631b3dffde08c8aaaceeb4'],
     ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
   ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
   const previous = await fs.readFile('public/assets/index-BMZMSjyV.js', 'utf8');
@@ -28,10 +29,17 @@ test('editor restriction preserves downloads, thumbnail module and catalogue sto
   const addition = 'e.authMode===`production`&&!e.needsLogin&&e.email&&(0,m.jsx)(cu,{variant:`subtle`,onClick:()=>void e.logout(),children:`ログアウト`})';
   assert.ok(next.includes(addition), 'expected isolated header logout addition');
   assert.equal(next.replace(',' + addition, ''), previous, 'download and thumbnail code must be byte-identical');
-  assert.equal(createHash('sha256').update(await fs.readFile('cms-seed.json')).digest('hex'), 'c49414ae2682cba02924d86ad1d07d087151e94094ab618d5d3c5978d7910781');
+  assert.equal(createHash('sha256').update(await fs.readFile('cms-seed.json')).digest('hex'), '91d6332008b97b1cc5f4b5179ac301abb3ea16b0bcc461d4b8677a8d2e25b0e3');
   const seed = JSON.parse(await fs.readFile('cms-seed.json','utf8'));
+  const maps = seed.filter(asset=>asset.assetGroupId==='global-map-202610-v1-1');
+  assert.equal(maps.length,2);
+  assert.deepEqual(maps.map(asset=>[asset.driveId,asset.fileFormat]),[['14XR2usJdmPEQUcNVySFyiP6FMeMWxwU8','PNG'],['1HqgEQBCfFBTjuBQvlb4PTV72y4uY119E','AI']]);
+  assert.ok(maps.every(asset=>asset.publication==='published'&&asset.status==='current'&&asset.brand==='Shared'&&asset.assetDomain==='corporate'&&asset.tags.includes('地図')));
+  const priorSeed=seed.filter(asset=>!maps.includes(asset));
+  assert.equal(createHash('sha256').update(JSON.stringify(priorSeed)).digest('hex'),'9ff4f0e447813d180ab9a00de91cea631d0dfdc241261232f030c199ee221355','all previous catalogue records unchanged');
+  assert.equal((await fs.readFile('public/assets/index-DZPuwLNT.js','utf8')).replace(','+maps.map(asset=>JSON.stringify(asset)).join(','),''),await fs.readFile('public/assets/index-C0GOlHqt.js','utf8'),'frontend changes only by adding the two approved public map records');
   const template = seed.find(asset=>asset.id==='truston-powerpoint-template-potx');
-  assert.equal(createHash('sha256').update(JSON.stringify(seed.filter(asset=>asset!==template))).digest('hex'), '93343e4c29e5a596cf5b3ca1ee734669d331899bf7fdbf2aa01e838fe7c901c9');
+  assert.equal(createHash('sha256').update(JSON.stringify(priorSeed.filter(asset=>asset!==template))).digest('hex'), '93343e4c29e5a596cf5b3ca1ee734669d331899bf7fdbf2aa01e838fe7c901c9');
   assert.equal((await fs.readFile('public/assets/index-DVTqD5NL.js','utf8')).replace(','+JSON.stringify(template),''), await fs.readFile('public/assets/index-CmvfPcgm.js','utf8'), 'frontend changes only by adding the template data');
 });
 

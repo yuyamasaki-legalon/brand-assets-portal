@@ -49,11 +49,15 @@ test('viewers and editors retain product order, WorldMap format selection and TO
           if (failedLogout) { await route.fulfill({status:503,json:{error:'test failure'}}); return; }
         }
         try {
-          const response=await route.fetch({url:`${base}${url.pathname}${url.search}`,maxRedirects:0});
+          // The HTTPS test bridge can reuse a loopback socket closed by Node.
+          // Retry ECONNRESET only for reads, never assertions, HTTP errors or writes.
+          const response=await route.fetch({url:`${base}${url.pathname}${url.search}`,maxRedirects:0,maxRetries:request.method()==='GET'?2:0});
           if(url.pathname==='/api/brand-assets/catalog' && request.method()==='GET' && response.ok()) {
             const catalog=await response.json();
             // Simulate a saved catalogue whose order differs from the requested sidebar.
             catalog.products=catalog.products.map((product,index)=>({...product,order:99-index})).reverse();
+            // Replace shipped map seed records with these edited CMS fixtures.
+            catalog.assets=catalog.assets.filter(asset=>!mapAssets.some(map=>map.driveId===asset.driveId));
             catalog.assets.push(...mapAssets.filter(asset=>mapCase!=='png-only'||asset.fileFormat==='PNG').map(asset=>mapCase==='draft-ai'&&asset.fileFormat==='AI'?{...asset,publication:'draft'}:asset));
             if(mapCase==='with-unrelated') catalog.assets.push({...mapAssets[1],id:'test-unrelated-map',title:'Different Map',driveId:'another-map-version',driveUrl:'https://drive.google.com/file/d/another-map-version/view'});
             await route.fulfill({response,json:catalog});
@@ -71,6 +75,24 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       const header=page;
       await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toHaveCount(0);
+      // Real anonymous session + bundled public data, without a catalogue fixture.
+      await page.getByPlaceholder(/例.*ロゴ/).fill('地図');
+      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      await page.getByText('Global Map',{exact:true}).click();
+      const anonymousDialog=page.getByRole('dialog');
+      await expect(anonymousDialog.getByRole('combobox')).toHaveText(/^PNG/);
+      await anonymousDialog.getByRole('combobox').click();
+      await expect.poll(async()=> (await page.getByRole('option').allTextContents()).map(text=>text.trim().split(' · ')[0])).toEqual(['AI','PNG']);
+      await page.getByRole('option',{name:/^AI ·/}).click();
+      await expect(anonymousDialog.getByRole('combobox')).toHaveText(/^AI/);
+      await anonymousDialog.getByRole('button',{name:'閉じる',exact:true}).click();
+      assert.deepEqual(await page.evaluate(async()=>{
+        const session=await(await fetch('/api/auth/session')).json();
+        return {authenticated:session.authenticated,canEdit:session.canEdit,catalogueStatus:(await fetch('/api/brand-assets/catalog')).status};
+      }),{authenticated:false,canEdit:false,catalogueStatus:401});
+      await page.reload();
+      await page.getByPlaceholder(/例.*ロゴ/).fill('世界地図');
+      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
       // Complete real server-side OAuth handling with the fake provider, then
       // install its genuine Secure/HttpOnly session cookie on the HTTPS test origin.
       const start=await fetch(`${base}/api/auth/google/start`,{redirect:'manual'});
@@ -169,6 +191,9 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
       assert.equal(logoutRequests,2);
       assert.equal((await page.evaluate(async()=> (await fetch('/api/auth/session')).json())).authenticated,false);
+      await page.getByRole('button',{name:'条件をクリア',exact:true}).first().click();
+      await page.getByPlaceholder(/例.*ロゴ/).fill('地図');
+      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
       await context.close();
     }
   } finally {
