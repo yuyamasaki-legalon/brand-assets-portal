@@ -37,6 +37,7 @@ test("TrustOn import preserves saved edits and does not resurrect deletions on r
 		clientId: "test-client",
 		clientSecret: "not-a-real-credential",
 		domains: ["example.test"],
+		editorEmails: ["staff@example.test"],
 		dataDir,
 	};
 	let server;
@@ -198,6 +199,7 @@ test("release runtime serves health and packaged assets but protects catalogue a
 		clientId: "test-client",
 		clientSecret: "not-a-real-credential",
 		domains: ["example.test"],
+		editorEmails: ["staff@example.test"],
 		dataDir,
 	};
 	const server = createProductionServer(
@@ -326,6 +328,7 @@ test("committed saves survive history-listing failure; pre-commit failure preser
 		clientId: "test-client",
 		clientSecret: "not-a-real-credential",
 		domains: ["example.test"],
+		editorEmails: ["staff@example.test"],
 		dataDir,
 	};
 	let nonce;

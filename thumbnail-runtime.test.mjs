@@ -6,18 +6,16 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { createProductionServer } from './server.mjs';
 
-test('production auth/storage remain byte-identical except the approved session compatibility field and thumbnail route', async () => {
-  let source = await fs.readFile('server.mjs', 'utf8');
-  for (const addition of [
-    'import { createDriveThumbnailHandler } from "./drive-thumbnail.mjs";\n',
-    '\t\t\t\tcanEdit: Boolean(user),\n',
-    '\tconst thumbnail = createDriveThumbnailHandler(auth.authorize);\n',
-    '\t\t\tif (pathname.startsWith("/api/brand-assets/thumbnail/")) {\n\t\t\t\tawait thumbnail(req, res, pathname.slice("/api/brand-assets/thumbnail/".length));\n\t\t\t\treturn;\n\t\t\t}\n',
-  ]) {
-    assert.equal(source.split(addition).length, 2, 'Expected one approved addition');
-    source = source.replace(addition, '');
-  }
-  assert.equal(createHash('sha256').update(source).digest('hex'), '931e2d6667957c27421ec1ca715b40a39f0f52df4d11d443fa0c9e20b2d276d6');
+test('editor restriction preserves frontend, downloads, thumbnail module and catalogue storage', async () => {
+  const source = await fs.readFile('server.mjs', 'utf8');
+  const storage = source.split('//#region scripts/brand-asset-cms-api.ts\n')[1].split('//#endregion')[0];
+  assert.equal(createHash('sha256').update(storage).digest('hex'), '94ad8036cebe4ac77aaed3aa47f186502324a6d13f37bc37c1e79aa416a97ce1');
+  for (const [file, hash] of [
+    ['public/assets/index-BMZMSjyV.js', 'd3c408843f5e8189af7d588fe66cef2b1006a37abb10c2fa785e2cd77cdbd2da'],
+    ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
+    ['public/brand-asset-portal/index.html', '07c63cb4b2d4496ca45a14afc42cee1c5e91de7ad0eca86bedf99703e4541842'],
+    ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
+  ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
   assert.equal(createHash('sha256').update(await fs.readFile('cms-seed.json')).digest('hex'), '6943226b4a5845e160ee4590d544c01042f79e9d33bff635ec850720bb2b4c59');
 });
 
@@ -73,7 +71,7 @@ test('private thumbnail route preserves employee authentication and never grants
     const cookie=callback.headers.getSetCookie().find(value=>value.startsWith('__Host-brand_cms_session=')).split(';')[0];
     const session=await (await fetch(`${base}/api/auth/session`,{headers:{Cookie:cookie}})).json();
     assert.equal(session.authenticated,true);
-    assert.equal(session.canEdit,true,'Keep existing production employee editing policy');
+    assert.equal(session.canEdit,false,'Employees outside the editor list remain viewers');
     assert.equal((await fetch(thumbnail,{headers:{Cookie:cookie}})).status,401);
     const headers={Cookie:cookie,Authorization:'Bearer test-only-token'};
     const image=await fetch(thumbnail,{headers});

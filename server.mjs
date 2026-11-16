@@ -345,6 +345,18 @@ function createGoogleAuth(config, provider = googleProvider(config)) {
 		}
 		return user.actorId;
 	}
+	function canEdit(user) {
+		return Boolean(user && config.editorEmails?.some((email) => email.trim().toLowerCase() === user.email.toLowerCase()));
+	}
+	function authorizeCatalog(req, res) {
+		const actorId = authorize(req, res);
+		if (!actorId) return null;
+		if (req.method !== "GET" && !canEdit(session(req))) {
+			json(res, 403, { error: "CMSの変更権限がありません。管理担当者に連絡してください。" });
+			return null;
+		}
+		return actorId;
+	}
 	async function handle(req, res) {
 		const url = new URL(req.url || "/", config.origin);
 		if (!url.pathname.startsWith("/api/auth/")) return false;
@@ -356,7 +368,7 @@ function createGoogleAuth(config, provider = googleProvider(config)) {
 			json(res, 200, {
 				mode: "production",
 				authenticated: Boolean(user),
-				canEdit: Boolean(user),
+				canEdit: canEdit(user),
 				email: user?.email,
 				csrfToken: user?.csrfToken
 			});
@@ -424,7 +436,7 @@ function createGoogleAuth(config, provider = googleProvider(config)) {
 	}
 	return {
 		handle,
-		authorize
+		authorize: authorizeCatalog
 	};
 }
 //#endregion
@@ -435,6 +447,8 @@ function readProductionConfig(env) {
 	const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
 	const clientSecret = env.GOOGLE_OAUTH_CLIENT_SECRET;
 	const domains = (env.GOOGLE_ALLOWED_DOMAINS || "legalontech.jp").split(",").map((d) => d.trim().toLowerCase());
+	const editorEmails = [...new Set((env.CMS_EDITOR_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean))];
+	if (editorEmails.some((email) => !/^[^\s@,]+@[^\s@,]+$/.test(email) || !domains.includes(email.split("@")[1]))) throw new Error("CMS_EDITOR_EMAILS must contain company email addresses");
 	if (!clientId || !clientSecret || !env.CMS_DATA_DIR) throw new Error("Configure Google OAuth and a persistent CMS_DATA_DIR before startup");
 	if (!path.isAbsolute(env.CMS_DATA_DIR) || domains.some((d) => !/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(d))) throw new Error("Invalid CMS data directory or company domains");
 	if (env.RAILWAY_ENVIRONMENT_ID && (!env.RAILWAY_VOLUME_MOUNT_PATH || !(path.resolve(env.CMS_DATA_DIR) === path.resolve(env.RAILWAY_VOLUME_MOUNT_PATH) || path.resolve(env.CMS_DATA_DIR).startsWith(`${path.resolve(env.RAILWAY_VOLUME_MOUNT_PATH)}${path.sep}`)))) throw new Error("Railway requires a persistent volume for CMS_DATA_DIR");
@@ -443,6 +457,7 @@ function readProductionConfig(env) {
 		clientId,
 		clientSecret,
 		domains,
+		editorEmails,
 		dataDir: env.CMS_DATA_DIR
 	};
 }
@@ -561,4 +576,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 	createProductionServer(config, staticDir, seedPath).listen(Number(process.env.PORT || 3e3), "0.0.0.0");
 }
 //#endregion
-export { createProductionServer };
+export { createProductionServer, readProductionConfig };

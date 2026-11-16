@@ -8,6 +8,7 @@ on:
       - 'cms-*.json'
       - 'cms-runtime.test.mjs'
       - 'thumbnail-runtime.test.mjs'
+      - 'editor-runtime.test.mjs'
       - 'drive-thumbnail.mjs'
       - 'package*.json'
       - 'public/**'
