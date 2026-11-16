@@ -9,7 +9,7 @@ import { createProductionServer } from './server.mjs';
 test('editor restriction preserves downloads, thumbnail module and catalogue storage; header adds logout only', async () => {
   const source = await fs.readFile('server.mjs', 'utf8');
   const storage = source.split('//#region scripts/brand-asset-cms-api.ts\n')[1].split('//#endregion')[0];
-  assert.equal(createHash('sha256').update(storage).digest('hex'), 'e053941938b7d6c22daadc150465c15e41a97faecc8986ca4d46e2d4fb173a26');
+  assert.equal(createHash('sha256').update(storage).digest('hex'), '255f5791c10b742ba2b0b6473ae518ada3e8bc998e6d28f5460d0bba3b564c3d');
   const saveCode = source.slice(source.indexOf('\tfunction reply(res'), source.indexOf('//#endregion', source.indexOf('\tfunction reply(res')));
   assert.equal(createHash('sha256').update(saveCode).digest('hex'), 'd2e76de2e67912eaad08de06cf38fc97ed30f97c0590a078f2e573b7fe5e96be');
   for (const [file, hash] of [

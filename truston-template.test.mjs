@@ -70,5 +70,23 @@ test('POTX addition preserves saved edits, deduplicates, retries failures and ne
     assert.deepEqual(await client.read(),old);
     await fs.unlink(path.join(isolated,'history'));
     assert.equal((await client.read()).assets.length,old.assets.length+1,'next read retries safely');
+    // A blocked legacy batch must not prevent the independent one-file addition.
+    await stop();
+    config.dataDir=await fs.mkdtemp(path.join(root,'capacity-'));
+    const large={...old,appliedSeedUpdates:[],assets:Array.from({length:9995},(_,index)=>({...old.assets[0],id:`legacy-${index}`,driveId:`legacy-${index}`}))};
+    await fs.writeFile(path.join(config.dataDir,'catalog.json'),JSON.stringify(large));
+    client=await open();
+    const withTemplate=await client.read();
+    assert.equal(withTemplate.assets.length,9996);
+    assert.equal(withTemplate.assets.filter(asset=>asset.driveId===template.driveId).length,1);
+    assert.ok(withTemplate.appliedSeedUpdates.includes(marker));
+    assert.ok(!withTemplate.appliedSeedUpdates.includes('truston-drive-2026-10-09'));
+    assert.equal((await client.read()).revision,withTemplate.revision,'pending logo import does not duplicate template on retry');
+    // Free capacity, then verify the original batch was left retryable.
+    const trim=await fetch(client.endpoint,{method:'PUT',headers:client.headers,body:JSON.stringify({...withTemplate,assets:withTemplate.assets.slice(10),deletedAssetIds:withTemplate.assets.slice(0,10).map(asset=>asset.id)})});
+    assert.equal(trim.status,200);
+    const completed=await client.read();
+    assert.ok(completed.appliedSeedUpdates.includes('truston-drive-2026-10-09'));
+    assert.equal(completed.assets.filter(asset=>asset.driveId===template.driveId).length,1);
   }finally{await stop();await fs.rm(root,{recursive:true,force:true});}
 });

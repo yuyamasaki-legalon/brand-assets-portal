@@ -95,12 +95,18 @@ function createCatalogMiddleware(root, options = {}) {
 		await promises.rename(temp, file);
 	}
 	async function load() {
-		initialization ||= importTrustOn().then(async (result) => {
-			if (result !== false) result = await importTrustOn(templateUpdate, true);
-			if (result === false) initialization = void 0;
-		}).catch(() => {
-			initialization = void 0;
-		});
+		initialization ||= (async () => {
+			let pending = false;
+			for (const templateOnly of [false, true]) {
+				try {
+					const result = await importTrustOn(templateOnly ? templateUpdate : seedUpdate, templateOnly);
+					if (result === false) pending = true;
+				} catch {
+					pending = true;
+				}
+			}
+			if (pending) initialization = void 0;
+		})();
 		await initialization;
 		try {
 			return JSON.parse(await promises.readFile(file, "utf8"));
