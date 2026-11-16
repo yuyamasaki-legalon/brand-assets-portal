@@ -4,6 +4,9 @@
  import rawLocalMirrorManifest from "./local-mirror-manifest.json";
 +import { getKnownAssetFamily } from "./known-asset-families";
  import { compareProductFilters } from "./product-filter-order";
+@@ -823,1 +824,1 @@
+-            (domain === "all" || (group.representative.assetDomain || "brand") === domain) &&
++            (domain === "all" || group.variants.some((asset) => (asset.assetDomain || "brand") === domain)) &&
 @@ -1302,1 +1303,3 @@
 -                  <ContentHeaderTitle>{modalSelectedAsset.title}</ContentHeaderTitle>
 +                  <ContentHeaderTitle>
@@ -17,3 +20,8 @@
 +  const knownFamily = getKnownAssetFamily(asset);
 +  if (knownFamily) return knownFamily.id;
    if (asset.assetType === "ロゴ") {
+@@ -1994,1 +1999,3 @@
+-  if (selectedProducts.length > 0 && !selectedProducts.includes(group.representative.brand)) return false;
++  if (selectedProducts.length > 0 && !group.variants.some((asset) => selectedProducts.includes(asset.brand))) {
++    return false;
++  }

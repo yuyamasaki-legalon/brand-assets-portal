@@ -18,9 +18,9 @@ test('editor restriction preserves downloads, thumbnail module and catalogue sto
     ['public/assets/index-CmvfPcgm.js', 'c68ee1fa41921ae005009ad7808acca4a0ab3872031d50cc16e8c0ecad867f4b'],
     ['public/assets/index-DVTqD5NL.js', '3b7b0e7e75830b55ebf54e506296365766d045ec902cef1aa918e1a0736d7fdb'],
     ['public/assets/index-CvTfrECT.js', 'ef84c49ba7637c88bb7535c186b77eff6f35728a842efa97ff576b6f5f85d30b'],
-    ['public/assets/index-BINj-X9V.js', 'ecfaf646ceca5affcaf57479ad27e468a0354a8d710796fe0e212e772fcd17d5'],
+    ['public/assets/index-C0GOlHqt.js', '694514f7e292c48f86d38148b2cae38d3f81621d367baf42a9396b6ecd523bd7'],
     ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
-    ['public/brand-asset-portal/index.html', '431cf944d8e0f0bcc9c427a303783ded8291d104f7c3e09acf2b2418484de3de'],
+    ['public/brand-asset-portal/index.html', '81691b38f5119ce004d2095589bf29535fbd79b4c916dae7d61660379e2261db'],
     ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
   ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
   const previous = await fs.readFile('public/assets/index-BMZMSjyV.js', 'utf8');

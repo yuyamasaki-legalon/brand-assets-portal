@@ -9,9 +9,9 @@ import { createProductionServer } from './server.mjs';
 // Synthetic CMS records for the two Drive originals identified by the user.
 // The saved titles, CMS IDs, grouping IDs and categories intentionally differ.
 const mapAssets = [
-  {id:'test-world-map-ai',title:'202610_WorldMap_ver1.1.ai',assetGroupId:'separate-ai',brand:'Shared',fileFormat:'AI',assetType:'イラスト',driveId:'1HqgEQBCfFBTjuBQvlb4PTV72y4uY119E'},
+  {id:'test-world-map-ai',title:'202610_WorldMap_ver1.1.ai',assetGroupId:'separate-ai',brand:'LegalOn',fileFormat:'AI',assetType:'その他',driveId:'1HqgEQBCfFBTjuBQvlb4PTV72y4uY119E'},
   {id:'test-world-map-png',title:'Global Map',assetGroupId:'separate-png',brand:'Shared',fileFormat:'PNG',assetType:'図表',driveId:'14XR2usJdmPEQUcNVySFyiP6FMeMWxwU8'},
-].map(asset=>({...asset,status:'current',publication:'published',assetDomain:'corporate',updatedAt:'2026-11-16',tags:['地図'],driveUrl:`https://drive.google.com/file/d/${asset.driveId}/view`}));
+].map(asset=>({...asset,status:'current',publication:'published',assetDomain:asset.fileFormat==='AI'?'brand':'corporate',updatedAt:'2026-11-16',tags:['地図'],driveUrl:`https://drive.google.com/file/d/${asset.driveId}/view`}));
 
 test('viewers and editors retain product order, WorldMap format selection and TOP logout', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'editor-browser-'));
@@ -113,6 +113,17 @@ test('viewers and editors retain product order, WorldMap format selection and TO
         assert.equal(new URL(await page.evaluate(()=>window.testMapOpens.at(-1))).pathname,`/file/d/${driveId}/view`);
       }
       await dialog.getByRole('button',{name:'閉じる',exact:true}).click();
+      for(const product of ['LegalOn','全社共通']) {
+        const checkbox=page.getByRole('checkbox',{name:new RegExp(`^${product}`)}).locator('..');
+        await checkbox.click();
+        await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+        await checkbox.click();
+      }
+      for(const name of ['ブランド','コーポレート','すべて']) {
+        await page.getByRole('combobox',{name:'領域',exact:true}).click();
+        await page.getByRole('option',{name,exact:true}).click();
+        await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      }
       for(const format of ['AI','PNG']) {
         const checkbox=page.getByRole('checkbox',{name:format,exact:true}).locator('..');
         await checkbox.click();
