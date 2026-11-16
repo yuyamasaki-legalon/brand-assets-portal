@@ -1,0 +1,12 @@
+--- a/src/pages/sandbox/brand-asset-portal/index.tsx
++++ b/src/pages/sandbox/brand-asset-portal/index.tsx
+@@ -61,2 +61,3 @@
+ import rawLocalMirrorManifest from "./local-mirror-manifest.json";
++import { compareProductFilters } from "./product-filter-order";
+ import { useCatalog } from "./use-catalog";
+@@ -759,4 +760,4 @@
+   const activeProducts = useMemo(
+-    () => catalog.products.filter((p) => p.state === "active").sort((a, b) => a.order - b.order),
++    () => catalog.products.filter((p) => p.state === "active").sort(compareProductFilters),
+     [catalog.products],
+   );
