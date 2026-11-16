@@ -12513,5 +12513,27 @@
     "thumbnailColor": "dark",
     "colorVariant": "white",
     "variantLabel": "White"
+  },
+  {
+    "id": "truston-powerpoint-template-potx",
+    "assetGroupId": "truston-powerpoint-template",
+    "title": "TrustOn PowerPoint Template",
+    "brand": "TrustOn",
+    "fileFormat": "PPT",
+    "status": "current",
+    "publication": "published",
+    "assetDomain": "brand",
+    "recommended": false,
+    "locale": "JP",
+    "assetType": "テンプレート",
+    "usage": ["社内資料", "営業資料素材"],
+    "updatedAt": "2026-11-16T06:05:37.462Z",
+    "description": "TrustOnのPowerPointテンプレートです。原本はPOTX形式（TrustOn_template.potx）で、Google Driveから取得できます。",
+    "tags": ["TrustOn", "PowerPoint", "PPT", "PPTX", "POTX", "template", "テンプレート"],
+    "driveId": "1ycsMOAX4bNwisqDO4DrKcJpzYiGbfFz7",
+    "driveUrl": "https://drive.google.com/file/d/1ycsMOAX4bNwisqDO4DrKcJpzYiGbfFz7/view?usp=drivesdk",
+    "colorVariant": "color",
+    "variantLabel": "PowerPoint Template",
+    "thumbnailColor": "light"
   }
 ]

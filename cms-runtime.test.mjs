@@ -18,11 +18,12 @@ test("Drive configuration packaging can be repeated without changing the release
 test("TrustOn import preserves saved edits and does not resurrect deletions on restart", async () => {
 	const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "cms-truston-test-"));
 	const seed = JSON.parse(await fs.readFile("cms-seed.json", "utf8"));
-	const trust = seed.filter((a) => a.brand === "TrustOn");
+	const trust = seed.filter((a) => a.brand === "TrustOn" && a.assetType !== "テンプレート");
 	assert.equal(trust.length, 12);
 	assert.equal(new Set(trust.map((a) => a.driveId)).size, 12);
 	const previous = {
 		revision: 7,
+		appliedSeedUpdates: ["truston-potx-template-2026-11-16"],
 		products: [
 			{ id: "TrustOn", label: "Edited TrustOn", state: "ended", order: 0 },
 		],
@@ -128,6 +129,7 @@ test("TrustOn import preserves saved edits and does not resurrect deletions on r
 			await new Promise((resolve) => server.close(resolve));
 			const fixture = {
 				revision: 20,
+				appliedSeedUpdates: ["truston-potx-template-2026-11-16"],
 				products:
 					reason === "products"
 						? Array.from({ length: 100 }, (_, i) => ({

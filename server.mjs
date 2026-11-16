@@ -49,10 +49,12 @@ function createCatalogMiddleware(root, options = {}) {
 	let queue = Promise.resolve();
 	let initialization;
 	const seedUpdate = "truston-drive-2026-10-09";
+	const templateUpdate = "truston-potx-template-2026-11-16";
+	const templateDriveId = "1ycsMOAX4bNwisqDO4DrKcJpzYiGbfFz7";
 	async function readSeed() {
 		return JSON.parse(await promises.readFile(options.seedPath || path.join(root, "src/pages/sandbox/brand-asset-portal/assets-index.json"), "utf8"));
 	}
-	async function importTrustOn() {
+	async function importTrustOn(update = seedUpdate, templateOnly = false) {
 		let current;
 		try {
 			current = JSON.parse(await promises.readFile(file, "utf8"));
@@ -60,8 +62,8 @@ function createCatalogMiddleware(root, options = {}) {
 			if (error.code === "ENOENT") return;
 			throw error;
 		}
-		if (current.appliedSeedUpdates?.includes(seedUpdate)) return;
-		const incoming = (await readSeed()).filter((asset) => asset.brand === "TrustOn");
+		if (current.appliedSeedUpdates?.includes(update)) return;
+		const incoming = (await readSeed()).filter((asset) => asset.brand === "TrustOn" && (templateOnly ? asset.driveId === templateDriveId : asset.driveId !== templateDriveId));
 		if (!incoming.length) return;
 		const ids = new Set(current.assets.map((asset) => asset.id));
 		const driveIds = new Set(current.assets.map((asset) => asset.driveId).filter(Boolean));
@@ -75,9 +77,9 @@ function createCatalogMiddleware(root, options = {}) {
 				order: Math.max(-1, ...current.products.map((p) => p.order)) + 1
 			}],
 			assets: [...current.assets, ...incoming.filter((asset) => !ids.has(asset.id) && !driveIds.has(asset.driveId))],
-			appliedSeedUpdates: [...current.appliedSeedUpdates || [], seedUpdate],
+			appliedSeedUpdates: [...current.appliedSeedUpdates || [], update],
 			lastChange: {
-				actorId: "system:truston-seed-import",
+				actorId: templateOnly ? "system:truston-template-import" : "system:truston-seed-import",
 				at: (/* @__PURE__ */ new Date()).toISOString()
 			}
 		};
@@ -93,7 +95,8 @@ function createCatalogMiddleware(root, options = {}) {
 		await promises.rename(temp, file);
 	}
 	async function load() {
-		initialization ||= importTrustOn().then((result) => {
+		initialization ||= importTrustOn().then(async (result) => {
+			if (result !== false) result = await importTrustOn(templateUpdate, true);
 			if (result === false) initialization = void 0;
 		}).catch(() => {
 			initialization = void 0;
@@ -108,7 +111,10 @@ function createCatalogMiddleware(root, options = {}) {
 				revision: 0,
 				products: defaultProducts,
 				assets,
-				appliedSeedUpdates: assets.some((a) => a.brand === "TrustOn") ? [seedUpdate] : []
+				appliedSeedUpdates: [
+					...(assets.some((a) => a.brand === "TrustOn" && a.driveId !== templateDriveId) ? [seedUpdate] : []),
+					...(assets.some((a) => a.driveId === templateDriveId) ? [templateUpdate] : [])
+				]
 			};
 		}
 	}

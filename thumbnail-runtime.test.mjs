@@ -9,13 +9,16 @@ import { createProductionServer } from './server.mjs';
 test('editor restriction preserves downloads, thumbnail module and catalogue storage; header adds logout only', async () => {
   const source = await fs.readFile('server.mjs', 'utf8');
   const storage = source.split('//#region scripts/brand-asset-cms-api.ts\n')[1].split('//#endregion')[0];
-  assert.equal(createHash('sha256').update(storage).digest('hex'), '94ad8036cebe4ac77aaed3aa47f186502324a6d13f37bc37c1e79aa416a97ce1');
+  assert.equal(createHash('sha256').update(storage).digest('hex'), 'e053941938b7d6c22daadc150465c15e41a97faecc8986ca4d46e2d4fb173a26');
+  const saveCode = source.slice(source.indexOf('\tfunction reply(res'), source.indexOf('//#endregion', source.indexOf('\tfunction reply(res')));
+  assert.equal(createHash('sha256').update(saveCode).digest('hex'), 'd2e76de2e67912eaad08de06cf38fc97ed30f97c0590a078f2e573b7fe5e96be');
   for (const [file, hash] of [
     ['public/assets/index-BMZMSjyV.js', 'd3c408843f5e8189af7d588fe66cef2b1006a37abb10c2fa785e2cd77cdbd2da'],
     ['public/assets/index-DrcZfM-y.js', 'f24a1151c0359eee8d5ccacd278547320bea7835abb594506acd59e1dc10b37d'],
     ['public/assets/index-CmvfPcgm.js', 'c68ee1fa41921ae005009ad7808acca4a0ab3872031d50cc16e8c0ecad867f4b'],
+    ['public/assets/index-DVTqD5NL.js', '3b7b0e7e75830b55ebf54e506296365766d045ec902cef1aa918e1a0736d7fdb'],
     ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
-    ['public/brand-asset-portal/index.html', 'edd84ef577f6d25a07b8837c83591d8d5e8302902ecde0f1a9c3fe8467db0d9e'],
+    ['public/brand-asset-portal/index.html', '01be227c42bac0c0966c6f5e7f8b9556fb994a31c03a01d1d51fa3df8c5447c4'],
     ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
   ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
   const previous = await fs.readFile('public/assets/index-BMZMSjyV.js', 'utf8');
@@ -23,7 +26,11 @@ test('editor restriction preserves downloads, thumbnail module and catalogue sto
   const addition = 'e.authMode===`production`&&!e.needsLogin&&e.email&&(0,m.jsx)(cu,{variant:`subtle`,onClick:()=>void e.logout(),children:`ログアウト`})';
   assert.ok(next.includes(addition), 'expected isolated header logout addition');
   assert.equal(next.replace(',' + addition, ''), previous, 'download and thumbnail code must be byte-identical');
-  assert.equal(createHash('sha256').update(await fs.readFile('cms-seed.json')).digest('hex'), '6943226b4a5845e160ee4590d544c01042f79e9d33bff635ec850720bb2b4c59');
+  assert.equal(createHash('sha256').update(await fs.readFile('cms-seed.json')).digest('hex'), 'c49414ae2682cba02924d86ad1d07d087151e94094ab618d5d3c5978d7910781');
+  const seed = JSON.parse(await fs.readFile('cms-seed.json','utf8'));
+  const template = seed.find(asset=>asset.id==='truston-powerpoint-template-potx');
+  assert.equal(createHash('sha256').update(JSON.stringify(seed.filter(asset=>asset!==template))).digest('hex'), '93343e4c29e5a596cf5b3ca1ee734669d331899bf7fdbf2aa01e838fe7c901c9');
+  assert.equal((await fs.readFile('public/assets/index-DVTqD5NL.js','utf8')).replace(','+JSON.stringify(template),''), await fs.readFile('public/assets/index-CmvfPcgm.js','utf8'), 'frontend changes only by adding the template data');
 });
 
 test('private thumbnail route preserves employee authentication and never grants anonymous editing', async () => {

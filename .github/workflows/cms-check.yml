@@ -10,6 +10,7 @@ on:
       - 'thumbnail-runtime.test.mjs'
       - 'editor-runtime.test.mjs'
       - 'editor-browser.test.mjs'
+      - 'truston-template.test.mjs'
       - 'drive-thumbnail.mjs'
       - 'package*.json'
       - 'public/**'
