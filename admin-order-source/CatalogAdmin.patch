@@ -1,0 +1,8 @@
+--- a/src/pages/sandbox/brand-asset-portal/CatalogAdmin.tsx
++++ b/src/pages/sandbox/brand-asset-portal/CatalogAdmin.tsx
+@@ -30,1 +30,2 @@
+ import { getDriveDownloadLink, getDriveFileId } from "./drive-file";
++import { compareProductFilters } from "./product-filter-order";
+@@ -339,1 +340,1 @@
+-                      options={products.map((p) => ({
++                      options={[...products].sort(compareProductFilters).map((p) => ({
