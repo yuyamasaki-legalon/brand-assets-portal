@@ -8,6 +8,8 @@ on:
       - 'cms-*.json'
       - 'cms-runtime.test.mjs'
       - 'thumbnail-runtime.test.mjs'
+      - 'editor-runtime.test.mjs'
+      - 'editor-browser.test.mjs'
       - 'drive-thumbnail.mjs'
       - 'package*.json'
       - 'public/**'
@@ -17,7 +19,7 @@ permissions:
   contents: read
 jobs:
   runtime:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,4 +30,6 @@ jobs:
       - run: node --check server.mjs
       - run: node --check drive-thumbnail.mjs
       - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: node --test editor-browser.test.mjs
       - run: docker build --tag brand-asset-cms:test .
