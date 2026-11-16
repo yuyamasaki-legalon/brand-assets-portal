@@ -42,6 +42,13 @@ test('TOP logout is visible and works for viewers and editors without granting e
         }
         try {
           const response=await route.fetch({url:`${base}${url.pathname}${url.search}`,maxRedirects:0});
+          if(url.pathname==='/api/brand-assets/catalog' && request.method()==='GET' && response.ok()) {
+            const catalog=await response.json();
+            // Simulate a saved catalogue whose order differs from the requested sidebar.
+            catalog.products=catalog.products.map((product,index)=>({...product,order:99-index})).reverse();
+            await route.fulfill({response,json:catalog});
+            return;
+          }
           await route.fulfill({response});
         } catch (error) {
           if (!/closed|aborted|cancelled|interrupted/i.test(String(error))) throw error;
@@ -66,6 +73,8 @@ test('TOP logout is visible and works for viewers and editors without granting e
       await page.reload();
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toBeVisible();
       await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toHaveCount(email.startsWith('editor')?1:0);
+      const expected=['LegalOn','GovernOn','DocumentOn','TrustOn','WorkOn','DealOn','LearningOn','On Technologies','全社共通'];
+      await expect.poll(()=>page.getByRole('checkbox').evaluateAll((inputs,labels)=>inputs.map(input=>input.parentElement.innerText.split('\n')[0]).filter(label=>labels.includes(label)),expected)).toEqual(expected);
       await header.getByRole('button',{name:'ログアウト',exact:true}).click();
       await expect.poll(()=>logoutRequests).toBe(1);
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toBeVisible();
