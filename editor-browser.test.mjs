@@ -49,7 +49,9 @@ test('viewers and editors retain product order, WorldMap format selection and TO
           if (failedLogout) { await route.fulfill({status:503,json:{error:'test failure'}}); return; }
         }
         try {
-          const response=await route.fetch({url:`${base}${url.pathname}${url.search}`,maxRedirects:0});
+          // The HTTPS test bridge can reuse a loopback socket closed by Node.
+          // Retry ECONNRESET only for reads, never assertions, HTTP errors or writes.
+          const response=await route.fetch({url:`${base}${url.pathname}${url.search}`,maxRedirects:0,maxRetries:request.method()==='GET'?2:0});
           if(url.pathname==='/api/brand-assets/catalog' && request.method()==='GET' && response.ok()) {
             const catalog=await response.json();
             // Simulate a saved catalogue whose order differs from the requested sidebar.
