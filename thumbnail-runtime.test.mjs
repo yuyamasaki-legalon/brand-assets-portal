@@ -6,16 +6,22 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { createProductionServer } from './server.mjs';
 
-test('editor restriction preserves frontend, downloads, thumbnail module and catalogue storage', async () => {
+test('editor restriction preserves downloads, thumbnail module and catalogue storage; header adds logout only', async () => {
   const source = await fs.readFile('server.mjs', 'utf8');
   const storage = source.split('//#region scripts/brand-asset-cms-api.ts\n')[1].split('//#endregion')[0];
   assert.equal(createHash('sha256').update(storage).digest('hex'), '94ad8036cebe4ac77aaed3aa47f186502324a6d13f37bc37c1e79aa416a97ce1');
   for (const [file, hash] of [
     ['public/assets/index-BMZMSjyV.js', 'd3c408843f5e8189af7d588fe66cef2b1006a37abb10c2fa785e2cd77cdbd2da'],
+    ['public/assets/index-DrcZfM-y.js', 'f24a1151c0359eee8d5ccacd278547320bea7835abb594506acd59e1dc10b37d'],
     ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
-    ['public/brand-asset-portal/index.html', '07c63cb4b2d4496ca45a14afc42cee1c5e91de7ad0eca86bedf99703e4541842'],
+    ['public/brand-asset-portal/index.html', 'f43d9f2e586efec87a42955550a01b9b4159c61364f1bb37738f77996fd03848'],
     ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
   ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
+  const previous = await fs.readFile('public/assets/index-BMZMSjyV.js', 'utf8');
+  const next = await fs.readFile('public/assets/index-DrcZfM-y.js', 'utf8');
+  const addition = 'e.authMode===`production`&&!e.needsLogin&&e.email&&(0,m.jsx)(cu,{variant:`subtle`,onClick:()=>void e.logout(),children:`ログアウト`})';
+  assert.ok(next.includes(addition), 'expected isolated header logout addition');
+  assert.equal(next.replace(',' + addition, ''), previous, 'download and thumbnail code must be byte-identical');
   assert.equal(createHash('sha256').update(await fs.readFile('cms-seed.json')).digest('hex'), '6943226b4a5845e160ee4590d544c01042f79e9d33bff635ec850720bb2b4c59');
 });
 

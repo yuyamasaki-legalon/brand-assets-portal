@@ -1,0 +1,14 @@
+--- a/src/pages/sandbox/brand-asset-portal/index.tsx
++++ b/src/pages/sandbox/brand-asset-portal/index.tsx
+@@ -1043,6 +1043,11 @@
+                   アセット管理
+                 </Button>
+               )}
++              {catalogApi.authMode === "production" && !catalogApi.needsLogin && catalogApi.email && (
++                <Button variant="subtle" onClick={() => void catalogApi.logout()}>
++                  ログアウト
++                </Button>
++              )}
+             </ButtonGroup>
+           }
+           leading={
