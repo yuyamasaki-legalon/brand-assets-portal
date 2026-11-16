@@ -80,6 +80,17 @@ test('TOP logout is visible and works for viewers and editors without granting e
       await page.getByRole('checkbox',{name:'PPT',exact:true}).locator('..').click();
       await expect(page.getByText('TrustOn PowerPoint Template',{exact:true})).toBeVisible();
       await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      if(email.startsWith('editor')) {
+        await page.getByRole('button',{name:'アセット管理',exact:true}).click();
+        await page.getByRole('button',{name:'アセットを登録',exact:true}).click();
+        const productSelect=page.getByRole('combobox').first();
+        await productSelect.click();
+        await expect.poll(async()=> (await page.getByRole('option').allTextContents()).map(label=>label.trim())).toEqual(expected);
+        await page.getByRole('option',{name:'TrustOn',exact:true}).click();
+        await expect(productSelect).toHaveText('TrustOn');
+        await page.getByRole('button',{name:'キャンセル',exact:true}).click();
+        await page.getByRole('button',{name:'ポータルへ戻る',exact:true}).click();
+      }
       await header.getByRole('button',{name:'ログアウト',exact:true}).click();
       await expect.poll(()=>logoutRequests).toBe(1);
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toBeVisible();
