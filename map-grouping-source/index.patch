@@ -1,0 +1,19 @@
+--- a/src/pages/sandbox/brand-asset-portal/index.tsx
++++ b/src/pages/sandbox/brand-asset-portal/index.tsx
+@@ -63,2 +63,3 @@
+ import rawLocalMirrorManifest from "./local-mirror-manifest.json";
++import { getKnownAssetFamily } from "./known-asset-families";
+ import { compareProductFilters } from "./product-filter-order";
+@@ -1302,1 +1303,3 @@
+-                  <ContentHeaderTitle>{modalSelectedAsset.title}</ContentHeaderTitle>
++                  <ContentHeaderTitle>
++                    {getKnownAssetFamily(modalSelectedAsset)?.title ?? modalSelectedAsset.title}
++                  </ContentHeaderTitle>
+@@ -1919,1 +1922,1 @@
+-    title: representative.title,
++    title: getKnownAssetFamily(representative)?.title ?? representative.title,
+@@ -1928,2 +1931,4 @@
+ function getAssetFamilyKey(asset: Asset) {
++  const knownFamily = getKnownAssetFamily(asset);
++  if (knownFamily) return knownFamily.id;
+   if (asset.assetType === "ロゴ") {

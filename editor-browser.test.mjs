@@ -6,7 +6,14 @@ import { test } from 'node:test';
 import { chromium } from '@playwright/test';
 import { createProductionServer } from './server.mjs';
 
-test('TOP logout is visible and works for viewers and editors without granting editing rights', async () => {
+// Synthetic CMS records for the two Drive originals identified by the user.
+// The saved titles, CMS IDs, grouping IDs and categories intentionally differ.
+const mapAssets = [
+  {id:'test-world-map-ai',title:'202610_WorldMap_ver1.1.ai',assetGroupId:'separate-ai',brand:'Shared',fileFormat:'AI',assetType:'イラスト',driveId:'1HqgEQBCfFBTjuBQvlb4PTV72y4uY119E'},
+  {id:'test-world-map-png',title:'Global Map',assetGroupId:'separate-png',brand:'Shared',fileFormat:'PNG',assetType:'図表',driveId:'14XR2usJdmPEQUcNVySFyiP6FMeMWxwU8'},
+].map(asset=>({...asset,status:'current',publication:'published',assetDomain:'corporate',updatedAt:'2026-11-16',tags:['地図'],driveUrl:`https://drive.google.com/file/d/${asset.driveId}/view`}));
+
+test('viewers and editors retain product order, WorldMap format selection and TOP logout', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'editor-browser-'));
   const config = { origin:'https://portal.example.test', clientId:'test-client', clientSecret:'not-a-real-credential', domains:['example.test'], editorEmails:['editor@example.test'], dataDir:root };
   let email, nonce;
@@ -25,6 +32,7 @@ test('TOP logout is visible and works for viewers and editors without granting e
       await context.addInitScript(()=>localStorage.setItem('brand-asset-portal.thumbnail-sign-in-notice-dismissed.v1','true'));
       let failedLogout=true;
       let logoutRequests=0;
+      let mapCase='both';
       await context.route('**/*', async route=>{
         const request=route.request(), url=new URL(request.url());
         if(url.href==='https://accounts.google.com/gsi/client') { await route.fulfill({status:200,contentType:'text/javascript',body:'window.google={accounts:{oauth2:{initTokenClient(){return {requestAccessToken(){}}}}}};'}); return; }
@@ -46,6 +54,8 @@ test('TOP logout is visible and works for viewers and editors without granting e
             const catalog=await response.json();
             // Simulate a saved catalogue whose order differs from the requested sidebar.
             catalog.products=catalog.products.map((product,index)=>({...product,order:99-index})).reverse();
+            catalog.assets.push(...mapAssets.filter(asset=>mapCase!=='png-only'||asset.fileFormat==='PNG').map(asset=>mapCase==='draft-ai'&&asset.fileFormat==='AI'?{...asset,publication:'draft'}:asset));
+            if(mapCase==='with-unrelated') catalog.assets.push({...mapAssets[1],id:'test-unrelated-map',title:'Different Map',driveId:'another-map-version',driveUrl:'https://drive.google.com/file/d/another-map-version/view'});
             await route.fulfill({response,json:catalog});
             return;
           }
@@ -75,6 +85,54 @@ test('TOP logout is visible and works for viewers and editors without granting e
       await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toHaveCount(email.startsWith('editor')?1:0);
       const expected=['LegalOn','GovernOn','DocumentOn','TrustOn','WorkOn','DealOn','LearningOn','On Technologies','全社共通'];
       await expect.poll(()=>page.getByRole('checkbox').evaluateAll((inputs,labels)=>inputs.map(input=>input.parentElement.innerText.split('\n')[0]).filter(label=>labels.includes(label)),expected)).toEqual(expected);
+      await expect(page.getByRole('combobox',{name:'領域',exact:true})).toHaveText('すべて');
+      const search=page.getByPlaceholder(/例.*ロゴ/);
+      await search.fill('地図');
+      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(1);
+      await page.getByText('Global Map',{exact:true}).click();
+      const dialog=page.getByRole('dialog');
+      const formats=dialog.getByRole('combobox');
+      await expect(formats).toHaveText(/^PNG/);
+      await page.evaluate(()=>{
+        window.testMapDownloads=[]; window.testMapOpens=[];
+        HTMLAnchorElement.prototype.click=function(){window.testMapDownloads.push({url:this.href,name:this.download});};
+        window.open=(url)=>{window.testMapOpens.push(String(url));return null;};
+      });
+      for(const [format,driveId] of [['AI',mapAssets[0].driveId],['PNG',mapAssets[1].driveId]]) {
+        await formats.click();
+        await expect.poll(async()=> (await page.getByRole('option').allTextContents()).map(text=>text.trim().split(' · ')[0])).toEqual(['AI','PNG']);
+        await page.getByRole('option',{name:new RegExp(`^${format} ·`)}).click();
+        await expect(formats).toHaveText(new RegExp(`^${format}`));
+        await expect(dialog.getByText('Global Map',{exact:true}).first()).toBeVisible();
+        await dialog.getByRole('button',{name:'Direct download',exact:true}).click();
+        await dialog.getByRole('button',{name:'Open in Google Drive',exact:true}).click();
+        const download=await page.evaluate(()=>window.testMapDownloads.at(-1));
+        assert.equal(new URL(download.url).searchParams.get('id'),driveId);
+        assert.ok(download.name.toLowerCase().endsWith(`.${format.toLowerCase()}`));
+        assert.equal(new URL(await page.evaluate(()=>window.testMapOpens.at(-1))).pathname,`/file/d/${driveId}/view`);
+      }
+      await dialog.getByRole('button',{name:'閉じる',exact:true}).click();
+      for(const format of ['AI','PNG']) {
+        const checkbox=page.getByRole('checkbox',{name:format,exact:true}).locator('..');
+        await checkbox.click();
+        await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+        await checkbox.click();
+      }
+      await search.fill('202610_WorldMap_ver1.1.ai');
+      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(1);
+      for(mapCase of ['draft-ai','png-only','with-unrelated']) {
+        await page.reload();
+        await search.fill('地図');
+        await expect(page.getByText(`${mapCase==='with-unrelated'?2:1}件の結果`,{exact:true})).toBeVisible();
+        await page.getByText('Global Map',{exact:true}).click();
+        await formats.click();
+        await expect(page.getByRole('option')).toHaveCount(mapCase==='with-unrelated'?2:1);
+        await page.keyboard.press('Escape');
+        await dialog.getByRole('button',{name:'閉じる',exact:true}).click();
+      }
+      mapCase='both';
+      await page.reload();
       await page.getByPlaceholder(/例.*ロゴ/).fill('TrustOn POTX');
       await page.getByRole('checkbox',{name:/TrustOn/}).locator('..').click();
       await page.getByRole('checkbox',{name:'PPT',exact:true}).locator('..').click();

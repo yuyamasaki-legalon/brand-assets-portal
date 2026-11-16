@@ -18,8 +18,9 @@ test('editor restriction preserves downloads, thumbnail module and catalogue sto
     ['public/assets/index-CmvfPcgm.js', 'c68ee1fa41921ae005009ad7808acca4a0ab3872031d50cc16e8c0ecad867f4b'],
     ['public/assets/index-DVTqD5NL.js', '3b7b0e7e75830b55ebf54e506296365766d045ec902cef1aa918e1a0736d7fdb'],
     ['public/assets/index-CvTfrECT.js', 'ef84c49ba7637c88bb7535c186b77eff6f35728a842efa97ff576b6f5f85d30b'],
+    ['public/assets/index-BINj-X9V.js', 'ecfaf646ceca5affcaf57479ad27e468a0354a8d710796fe0e212e772fcd17d5'],
     ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
-    ['public/brand-asset-portal/index.html', '58463b959460e6d987895b5e8ca119db9399d63fc0a6fbb536cd04dc4503ecd8'],
+    ['public/brand-asset-portal/index.html', '431cf944d8e0f0bcc9c427a303783ded8291d104f7c3e09acf2b2418484de3de'],
     ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
   ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
   const previous = await fs.readFile('public/assets/index-BMZMSjyV.js', 'utf8');
