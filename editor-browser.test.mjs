@@ -75,6 +75,11 @@ test('TOP logout is visible and works for viewers and editors without granting e
       await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toHaveCount(email.startsWith('editor')?1:0);
       const expected=['LegalOn','GovernOn','DocumentOn','TrustOn','WorkOn','DealOn','LearningOn','On Technologies','全社共通'];
       await expect.poll(()=>page.getByRole('checkbox').evaluateAll((inputs,labels)=>inputs.map(input=>input.parentElement.innerText.split('\n')[0]).filter(label=>labels.includes(label)),expected)).toEqual(expected);
+      await page.getByPlaceholder(/例.*ロゴ/).fill('TrustOn POTX');
+      await page.getByRole('checkbox',{name:/TrustOn/}).locator('..').click();
+      await page.getByRole('checkbox',{name:'PPT',exact:true}).locator('..').click();
+      await expect(page.getByText('TrustOn PowerPoint Template',{exact:true})).toBeVisible();
+      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
       await header.getByRole('button',{name:'ログアウト',exact:true}).click();
       await expect.poll(()=>logoutRequests).toBe(1);
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toBeVisible();
