@@ -198,6 +198,10 @@ test('viewers and editors retain product order, WorldMap format selection and TO
         await page.getByPlaceholder(/例.*ロゴ/).fill('Shared UI registration');
         await expect(page.getByText('Shared UI registration',{exact:true})).toHaveCount(1);
       }
+      if(email.startsWith('editor')) {
+        await page.getByRole('button',{name:'アセット管理',exact:true}).click();
+        await expect(page.getByRole('button',{name:'最新データを読み込む',exact:true})).toBeVisible();
+      }
       await header.getByRole('button',{name:'ログアウト',exact:true}).click();
       await expect.poll(()=>logoutRequests).toBe(1);
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toBeVisible();
@@ -207,6 +211,7 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
       assert.equal(logoutRequests,2);
       assert.equal((await page.evaluate(async()=> (await fetch('/api/auth/session')).json())).authenticated,false);
+      if(email.startsWith('editor')) await page.getByRole('button',{name:'ポータルへ戻る',exact:true}).click();
       await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
       await expect(page.getByText('Global Map',{exact:true})).toHaveCount(0);
       await page.reload();

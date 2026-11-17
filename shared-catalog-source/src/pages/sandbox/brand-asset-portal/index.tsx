@@ -990,7 +990,8 @@ const BrandAssetPortal = () => {
     return (
       <CatalogManagement
         onClose={() => {
-          void catalogApi.reload().finally(() => setAdminOpen(false));
+          setAdminOpen(false);
+          void catalogApi.reload(true);
         }}
       />
     );
