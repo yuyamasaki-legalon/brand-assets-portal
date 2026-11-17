@@ -22,10 +22,13 @@ function Login() {
           <ContentHeader>
             <ContentHeaderTitle>Brand Asset Portal</ContentHeaderTitle>
           </ContentHeader>
-          <EmptyState title="会社Googleアカウントでログインしてください">
-            <Text>会社アカウントで認証すると、管理権限に関係なく同じ公開アセットを検索できます。</Text>
+          <EmptyState title="アセット管理にはログインが必要です">
+            <Text>検索・閲覧はログイン不要です。アセットの登録・変更は許可された会社アカウントのみ利用できます。</Text>
             <Button variant="solid" onClick={() => window.location.assign("/api/auth/google/start")}>
               会社のGoogleアカウントでログイン
+            </Button>
+            <Button variant="subtle" onClick={() => window.location.assign("/brand-asset-portal/index.html")}>
+              ログインせずに閲覧する
             </Button>
           </EmptyState>
         </PageLayoutBody>

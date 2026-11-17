@@ -67,7 +67,7 @@ export function createProductionServer(
     importsPath: path.join(path.dirname(seedPath), "cms-imports.json"),
     publicOrigin: config.origin,
     authorize: auth.authorize,
-    authorizeRead: auth.authorizeEmployee,
+    publicSearch: true,
   });
   return createServer((req, res) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -111,19 +111,12 @@ export function createProductionServer(
             : pathname,
       );
       const tomoniPage = route === "/tomoni-ai-html/index.html";
-      let privateScript = false;
       // Retain historical artifacts on disk, but never serve stale bundles
       // containing the former anonymous catalogue or their source maps/JSON.
       if (/^\/assets\/.*\.(?:js|mjs|json|map)$/i.test(route)) {
         const [loginScripts, portalScripts] = await currentScripts();
-        privateScript = !loginScripts.has(route) && portalScripts.has(route);
-        if (!loginScripts.has(route) && !privateScript) {
+        if (!loginScripts.has(route) && !portalScripts.has(route)) {
           res.writeHead(404, { "Cache-Control": "no-store" });
-          res.end();
-          return;
-        }
-        if (privateScript && !auth.hasSession(req)) {
-          res.writeHead(401, { "Cache-Control": "private, no-store" });
           res.end();
           return;
         }
@@ -143,9 +136,7 @@ export function createProductionServer(
         res.end();
         return;
       }
-      const servedRoute =
-        route === "/brand-asset-portal/index.html" && !auth.hasSession(req) ? "/brand-asset-portal/login.html" : route;
-      const file = path.resolve(staticDir, `.${servedRoute}`);
+      const file = path.resolve(staticDir, `.${route}`);
       const realFile = await fs.realpath(file);
       const realRoot = await fs.realpath(staticDir);
       if (!realFile.startsWith(`${realRoot}${path.sep}`)) {
@@ -164,7 +155,7 @@ export function createProductionServer(
       res.writeHead(200, {
         "Content-Type": tomoniLicense ? "text/plain; charset=utf-8" : types[ext] || "application/octet-stream",
         "Content-Length": stat.size,
-        "Cache-Control": privateScript ? "private, no-store" : ext === ".html" ? "no-store" : "public, max-age=3600",
+        "Cache-Control": ext === ".html" ? "no-store" : "public, max-age=3600",
       });
       if (req.method === "HEAD") {
         res.end();

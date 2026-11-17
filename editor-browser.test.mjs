@@ -11,7 +11,7 @@ import { createProductionServer } from './server.mjs';
 const mapAssets = [
   {id:'test-world-map-ai',title:'202610_WorldMap_ver1.1.ai',assetGroupId:'separate-ai',brand:'LegalOn',fileFormat:'AI',assetType:'その他',driveId:'1HqgEQBCfFBTjuBQvlb4PTV72y4uY119E'},
   {id:'test-world-map-png',title:'Global Map',assetGroupId:'separate-png',brand:'Shared',fileFormat:'PNG',assetType:'図表',driveId:'14XR2usJdmPEQUcNVySFyiP6FMeMWxwU8'},
-].map(asset=>({...asset,status:'current',publication:'published',assetDomain:asset.fileFormat==='AI'?'brand':'corporate',updatedAt:'2026-11-16',tags:['地図'],driveUrl:`https://drive.google.com/file/d/${asset.driveId}/view`}));
+].map(asset=>({...asset,status:'current',publication:'published',assetDomain:asset.fileFormat==='AI'?'brand':'corporate',displayFamily:{id:'global-map-202610-v1-1',title:'Global Map'},updatedAt:'2026-11-16',tags:['地図'],driveUrl:`https://drive.google.com/file/d/${asset.driveId}/view`}));
 
 test('viewers and editors retain product order, WorldMap format selection and TOP logout', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'editor-browser-'));
@@ -35,6 +35,7 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await context.addInitScript(()=>localStorage.setItem('brand-asset-portal.thumbnail-sign-in-notice-dismissed.v1','true'));
       let failedLogout=true;
       let failSearch=false;
+      let failSession=false;
       let logoutRequests=0;
       let mapCase='both';
       await context.route('**/*', async route=>{
@@ -45,6 +46,11 @@ test('viewers and editors retain product order, WorldMap format selection and TO
           return;
         }
         if (url.origin!==config.origin) { await route.abort(); return; }
+        if (url.pathname==='/api/auth/google/start') {
+          await route.fulfill({status:200,contentType:'text/plain',body:'Test management sign-in'});
+          return;
+        }
+        if (url.pathname==='/api/auth/session' && failSession) { await route.fulfill({status:503,json:{error:'test optional session failure'}}); return; }
         if (url.pathname==='/api/auth/logout') {
           logoutRequests++;
           assert.equal(request.method(),'POST');
@@ -64,7 +70,7 @@ test('viewers and editors retain product order, WorldMap format selection and TO
             // Replace shipped map seed records with these edited CMS fixtures.
             catalog.assets=catalog.assets.filter(asset=>!mapAssets.some(map=>map.driveId===asset.driveId));
             catalog.assets.push(...mapAssets.filter(asset=>mapCase!=='png-only'||asset.fileFormat==='PNG').map(asset=>mapCase==='draft-ai'&&asset.fileFormat==='AI'?{...asset,publication:'draft'}:asset));
-            if(mapCase==='with-unrelated') catalog.assets.push({...mapAssets[1],id:'test-unrelated-map',title:'Different Map',driveId:'another-map-version',driveUrl:'https://drive.google.com/file/d/another-map-version/view'});
+            if(mapCase==='with-unrelated') catalog.assets.push({...mapAssets[1],id:'test-unrelated-map',title:'Different Map',displayFamily:null,driveId:'another-map-version',driveUrl:'https://drive.google.com/file/d/another-map-version/view'});
             await route.fulfill({response,json:catalog});
             return;
           }
@@ -78,17 +84,36 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await page.goto(`${config.origin}/brand-asset-portal/index.html`);
       // Aegis Header renders a layout container, not a semantic <header>.
       const header=page;
-      await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
+      await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toBeVisible();
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toHaveCount(0);
-      // No bundled snapshot is visible before company authentication.
-      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
-      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(0);
+      // Anonymous search uses the exact same server-side published catalogue.
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toBeVisible();
+      await page.getByPlaceholder(/例.*ロゴ/).fill('地図');
+      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(1);
+      const anonymousCatalog=await page.evaluate(async()=> (await fetch('/api/brand-assets/search')).json());
+      assert.equal(anonymousCatalog.assets.some(asset=>asset.id==='test-private-draft'),false);
+      await page.getByText('Global Map',{exact:true}).click();
+      await expect(page.getByRole('dialog').getByRole('combobox')).toHaveText(/^PNG/);
+      await page.getByRole('dialog').getByRole('button',{name:'閉じる',exact:true}).click();
+      // The management button starts OAuth; it cannot open editor UI anonymously.
+      const authStart=page.waitForRequest(request=>new URL(request.url()).pathname==='/api/auth/google/start');
+      await header.getByRole('button',{name:'アセット管理',exact:true}).click();
+      await authStart;
+      await expect(page.getByText('Test management sign-in',{exact:true})).toBeVisible();
+      await expect(page.getByRole('button',{name:'アセットを登録',exact:true})).toHaveCount(0);
+      // Remove the synthetic OAuth session before testing optional-auth failure.
+      await context.clearCookies();
+      failSession=true;
+      await page.goto(`${config.origin}/brand-asset-portal/index.html`);
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toBeVisible();
+      failSession=false;
+      await page.reload();
       assert.deepEqual(await page.evaluate(async()=>{
         const session=await(await fetch('/api/auth/session')).json();
         return {authenticated:session.authenticated,canEdit:session.canEdit,catalogueStatus:(await fetch('/api/brand-assets/catalog')).status,searchStatus:(await fetch('/api/brand-assets/search')).status};
-      }),{authenticated:false,canEdit:false,catalogueStatus:401,searchStatus:401});
+      }),{authenticated:false,canEdit:false,catalogueStatus:401,searchStatus:200});
       await page.reload();
-      await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
+      await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toBeVisible();
       // Complete real server-side OAuth handling with the fake provider, then
       // install its genuine Secure/HttpOnly session cookie on the HTTPS test origin.
       const start=await fetch(`${base}/api/auth/google/start`,{redirect:'manual'});
@@ -100,6 +125,7 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await context.addCookies([{name:sessionCookie.slice(0,separator),value:sessionCookie.slice(separator+1),url:config.origin,secure:true,httpOnly:true,sameSite:'Lax'}]);
       await page.reload();
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toBeVisible();
+      assert.deepEqual(await page.evaluate(async()=> (await fetch('/api/brand-assets/search')).json()),anonymousCatalog);
       await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toHaveCount(email.startsWith('editor')?1:0);
       const expected=['LegalOn','GovernOn','DocumentOn','TrustOn','WorkOn','DealOn','LearningOn','On Technologies','全社共通'];
       await expect.poll(()=>page.getByRole('checkbox').evaluateAll((inputs,labels)=>inputs.map(input=>input.parentElement.innerText.split('\n')[0]).filter(label=>labels.includes(label)),expected)).toEqual(expected);
@@ -208,15 +234,19 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       failedLogout=false;
       await header.getByRole('button',{name:'ログアウト',exact:true}).click();
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toHaveCount(0);
-      await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
+      if(!email.startsWith('editor')) await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toBeVisible();
       assert.equal(logoutRequests,2);
       assert.equal((await page.evaluate(async()=> (await fetch('/api/auth/session')).json())).authenticated,false);
       if(email.startsWith('editor')) await page.getByRole('button',{name:'ポータルへ戻る',exact:true}).click();
-      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
-      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(0);
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toBeVisible();
+      await page.getByRole('button',{name:'条件をクリア',exact:true}).first().click();
+      await page.getByPlaceholder(/例.*ロゴ/).fill('地図');
+      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(1);
       await page.reload();
-      await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
-      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
+      await expect(header.getByRole('button',{name:'アセット管理',exact:true})).toBeVisible();
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toBeVisible();
+      await page.getByPlaceholder(/例.*ロゴ/).fill(email.startsWith('editor')?'Shared UI registration':'地図');
+      await expect(page.getByText(email.startsWith('editor')?'Shared UI registration':'Global Map',{exact:true})).toHaveCount(1);
       await context.close();
     }
   } finally {

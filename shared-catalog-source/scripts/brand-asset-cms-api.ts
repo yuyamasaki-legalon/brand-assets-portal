@@ -17,6 +17,7 @@ type CatalogApiOptions = {
   publicOrigin?: string;
   authorize?: (req: IncomingMessage, res: ServerResponse) => string | null;
   authorizeRead?: (req: IncomingMessage, res: ServerResponse) => string | null;
+  publicSearch?: boolean;
 };
 
 export function createCatalogMiddleware(root: string, options: CatalogApiOptions = {}) {
@@ -310,10 +311,13 @@ export function createCatalogMiddleware(root: string, options: CatalogApiOptions
     )
       return reply(res, 403, { error: "アクセス元が一致しません。" });
     if (localSession) return reply(res, req.method === "GET" ? 200 : 405, { mode: "local", authenticated: false });
-    const authorize = search ? options.authorizeRead || options.authorize : options.authorize;
-    const actorId = authorize?.(req, res);
-    if (options.authorize && !actorId) return;
+    // Only the sanitized, read-only projection can opt into anonymous access.
+    // Never use this policy for the full catalogue or any write.
     if (search && req.method !== "GET") return reply(res, 405, { error: "閲覧専用APIです。" });
+    const publicRead = search && options.publicSearch === true;
+    const authorize = publicRead ? undefined : search ? options.authorizeRead || options.authorize : options.authorize;
+    const actorId = authorize?.(req, res);
+    if (options.authorize && !publicRead && !actorId) return;
     if (req.method === "GET") {
       queue = queue.then(() =>
         load()

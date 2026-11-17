@@ -27,21 +27,32 @@ export function useCatalog(scope: "search" | "admin" = "search") {
       pendingRead.current = controller;
       setLoading(true);
       try {
-        const authResponse = await fetch("/api/auth/session", { cache: "no-store", signal: controller.signal });
-        if (!authResponse.ok || !authResponse.headers.get("content-type")?.includes("application/json"))
-          throw new Error("ログイン状態を確認できません。再読み込みしてください。");
-        const auth = await authResponse.json();
-        if (controller.signal.aborted) return;
-        if (auth.mode !== "local" && auth.mode !== "production") throw new Error("認証APIの応答が正しくありません。");
-        setAuthMode(auth.mode);
-        setEmail(auth.email || "");
-        csrfToken.current = auth.csrfToken || "";
-        const authenticated = auth.mode === "local" || auth.authenticated === true;
-        const editor = authenticated && (auth.mode === "local" || auth.canEdit === true);
-        setNeedsLogin(!authenticated);
-        setCanEdit(editor);
-        if (!authenticated) throw new Error("会社のGoogleアカウントでログインしてください。");
-        if (scope === "admin" && !editor) throw new Error("CMSの管理権限がありません。");
+        try {
+          const authResponse = await fetch("/api/auth/session", { cache: "no-store", signal: controller.signal });
+          if (!authResponse.ok || !authResponse.headers.get("content-type")?.includes("application/json"))
+            throw new Error("ログイン状態を確認できません。再読み込みしてください。");
+          const auth = await authResponse.json();
+          if (controller.signal.aborted) return;
+          if (auth.mode !== "local" && auth.mode !== "production") throw new Error("認証APIの応答が正しくありません。");
+          setAuthMode(auth.mode);
+          setEmail(auth.email || "");
+          csrfToken.current = auth.csrfToken || "";
+          const authenticated = auth.mode === "local" || auth.authenticated === true;
+          const editor = authenticated && (auth.mode === "local" || auth.canEdit === true);
+          setNeedsLogin(!authenticated);
+          setCanEdit(editor);
+          if (scope === "admin" && !authenticated) throw new Error("会社のGoogleアカウントでログインしてください。");
+          if (scope === "admin" && !editor) throw new Error("CMSの管理権限がありません。");
+        } catch (authError) {
+          if (controller.signal.aborted) return;
+          if (scope === "admin") throw authError;
+          // Search is independent of the optional management session.
+          setAuthMode("unavailable");
+          setCanEdit(false);
+          setNeedsLogin(true);
+          setEmail("");
+          csrfToken.current = "";
+        }
         const response = await fetch(`/api/brand-assets/${scope === "admin" ? "catalog" : "search"}`, {
           cache: "no-store",
           signal: controller.signal,
@@ -116,6 +127,7 @@ export function useCatalog(scope: "search" | "admin" = "search") {
       setNeedsLogin(true);
       setLoading(false);
       setError("");
+      if (scope === "search") await reload(true);
     } catch {
       setError("ログアウトできませんでした。再試行してください。");
     }
