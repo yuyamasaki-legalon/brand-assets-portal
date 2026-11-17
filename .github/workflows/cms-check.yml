@@ -11,6 +11,7 @@ on:
       - 'editor-runtime.test.mjs'
       - 'editor-browser.test.mjs'
       - 'truston-template.test.mjs'
+      - 'shared-catalog.test.mjs'
       - 'drive-thumbnail.mjs'
       - 'package*.json'
       - 'public/**'

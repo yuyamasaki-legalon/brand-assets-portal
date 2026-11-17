@@ -21,6 +21,9 @@ test('viewers and editors retain product order, WorldMap format selection and TO
     authorizationUrl(state, value) { nonce=value; return `https://accounts.example.test/login?state=${state}`; },
     async exchangeAndVerify() { return {iss:'https://accounts.google.com',aud:config.clientId,sub:email,email,email_verified:true,hd:'example.test',nonce,exp:Math.floor(Date.now()/1000)+3600}; },
   };
+  const seed=JSON.parse(await fs.readFile('cms-seed.json','utf8'));
+  const products=['LegalOn','GovernOn','WorkOn','DealOn','LearningOn','DocumentOn','TrustOn','On Technologies','Shared'].map((id,order)=>({id,label:id==='Shared'?'全社共通':id,state:'active',order}));
+  await fs.writeFile(path.join(root,'catalog.json'),JSON.stringify({revision:0,products,assets:[...seed,{...mapAssets[1],id:'test-private-draft',driveId:'private-draft',driveUrl:'https://drive.google.com/file/d/private-draft/view',title:'Private draft remains intact',publication:'draft'}],appliedSeedUpdates:['truston-drive-2026-10-09','truston-potx-template-2026-11-16']}));
   const server = createProductionServer(config, path.resolve('public'), path.resolve('cms-seed.json'), provider);
   let browser;
   try {
@@ -31,6 +34,7 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       const context=await browser.newContext();
       await context.addInitScript(()=>localStorage.setItem('brand-asset-portal.thumbnail-sign-in-notice-dismissed.v1','true'));
       let failedLogout=true;
+      let failSearch=false;
       let logoutRequests=0;
       let mapCase='both';
       await context.route('**/*', async route=>{
@@ -48,11 +52,12 @@ test('viewers and editors retain product order, WorldMap format selection and TO
           assert.ok(request.headers()['x-csrf-token']);
           if (failedLogout) { await route.fulfill({status:503,json:{error:'test failure'}}); return; }
         }
+        if(url.pathname==='/api/brand-assets/search' && failSearch) { await route.fulfill({status:503,json:{error:'test read failure'}}); return; }
         try {
           // The HTTPS test bridge can reuse a loopback socket closed by Node.
           // Retry ECONNRESET only for reads, never assertions, HTTP errors or writes.
           const response=await route.fetch({url:`${base}${url.pathname}${url.search}`,maxRedirects:0,maxRetries:request.method()==='GET'?2:0});
-          if(url.pathname==='/api/brand-assets/catalog' && request.method()==='GET' && response.ok()) {
+          if(url.pathname==='/api/brand-assets/search' && request.method()==='GET' && response.ok()) {
             const catalog=await response.json();
             // Simulate a saved catalogue whose order differs from the requested sidebar.
             catalog.products=catalog.products.map((product,index)=>({...product,order:99-index})).reverse();
@@ -75,24 +80,15 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       const header=page;
       await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
       await expect(header.getByRole('button',{name:'ログアウト',exact:true})).toHaveCount(0);
-      // Real anonymous session + bundled public data, without a catalogue fixture.
-      await page.getByPlaceholder(/例.*ロゴ/).fill('地図');
-      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
-      await page.getByText('Global Map',{exact:true}).click();
-      const anonymousDialog=page.getByRole('dialog');
-      await expect(anonymousDialog.getByRole('combobox')).toHaveText(/^PNG/);
-      await anonymousDialog.getByRole('combobox').click();
-      await expect.poll(async()=> (await page.getByRole('option').allTextContents()).map(text=>text.trim().split(' · ')[0])).toEqual(['AI','PNG']);
-      await page.getByRole('option',{name:/^AI ·/}).click();
-      await expect(anonymousDialog.getByRole('combobox')).toHaveText(/^AI/);
-      await anonymousDialog.getByRole('button',{name:'閉じる',exact:true}).click();
+      // No bundled snapshot is visible before company authentication.
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
+      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(0);
       assert.deepEqual(await page.evaluate(async()=>{
         const session=await(await fetch('/api/auth/session')).json();
-        return {authenticated:session.authenticated,canEdit:session.canEdit,catalogueStatus:(await fetch('/api/brand-assets/catalog')).status};
-      }),{authenticated:false,canEdit:false,catalogueStatus:401});
+        return {authenticated:session.authenticated,canEdit:session.canEdit,catalogueStatus:(await fetch('/api/brand-assets/catalog')).status,searchStatus:(await fetch('/api/brand-assets/search')).status};
+      }),{authenticated:false,canEdit:false,catalogueStatus:401,searchStatus:401});
       await page.reload();
-      await page.getByPlaceholder(/例.*ロゴ/).fill('世界地図');
-      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
       // Complete real server-side OAuth handling with the fake provider, then
       // install its genuine Secure/HttpOnly session cookie on the HTTPS test origin.
       const start=await fetch(`${base}/api/auth/google/start`,{redirect:'manual'});
@@ -171,6 +167,14 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await page.getByRole('checkbox',{name:'PPT',exact:true}).locator('..').click();
       await expect(page.getByText('TrustOn PowerPoint Template',{exact:true})).toBeVisible();
       await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      failSearch=true;
+      await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+      await expect(page.getByText('共有カタログを取得できませんでした',{exact:true})).toBeVisible();
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
+      await expect(page.getByText('TrustOn PowerPoint Template',{exact:true})).toHaveCount(0);
+      failSearch=false;
+      await page.getByRole('button',{name:'再読み込み',exact:true}).click();
+      await expect(page.getByText('TrustOn PowerPoint Template',{exact:true})).toBeVisible();
       if(email.startsWith('editor')) {
         await page.getByRole('button',{name:'アセット管理',exact:true}).click();
         await page.getByRole('button',{name:'アセットを登録',exact:true}).click();
@@ -179,8 +183,20 @@ test('viewers and editors retain product order, WorldMap format selection and TO
         await expect.poll(async()=> (await page.getByRole('option').allTextContents()).map(label=>label.trim())).toEqual(expected);
         await page.getByRole('option',{name:'TrustOn',exact:true}).click();
         await expect(productSelect).toHaveText('TrustOn');
-        await page.getByRole('button',{name:'キャンセル',exact:true}).click();
+        await page.getByRole('textbox',{name:/^アセット名/}).fill('Shared UI registration');
+        await page.getByRole('textbox',{name:/^Google Driveのファイルリンク/}).fill('https://drive.google.com/file/d/test-ui-shared-asset/view');
+        await page.getByRole('combobox',{name:'公開状態',exact:true}).click();
+        await page.getByRole('option',{name:'公開',exact:true}).click();
+        await page.getByRole('button',{name:'保存して反映',exact:true}).click();
+        await expect(page.getByText('保存しました。公開データとフィルターに反映されています。',{exact:true})).toBeVisible();
+        const persisted=JSON.parse(await fs.readFile(path.join(root,'catalog.json'),'utf8'));
+        assert.ok(persisted.assets.some(asset=>asset.id==='test-private-draft' && asset.publication==='draft'),'UI save must preserve excluded drafts');
+        assert.ok(persisted.assets.some(asset=>asset.title==='Shared UI registration' && asset.publication==='published'));
         await page.getByRole('button',{name:'ポータルへ戻る',exact:true}).click();
+        await expect(page.getByPlaceholder(/例.*ロゴ/)).toBeVisible();
+        await page.getByRole('button',{name:'条件をクリア',exact:true}).first().click();
+        await page.getByPlaceholder(/例.*ロゴ/).fill('Shared UI registration');
+        await expect(page.getByText('Shared UI registration',{exact:true})).toHaveCount(1);
       }
       await header.getByRole('button',{name:'ログアウト',exact:true}).click();
       await expect.poll(()=>logoutRequests).toBe(1);
@@ -191,9 +207,11 @@ test('viewers and editors retain product order, WorldMap format selection and TO
       await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
       assert.equal(logoutRequests,2);
       assert.equal((await page.evaluate(async()=> (await fetch('/api/auth/session')).json())).authenticated,false);
-      await page.getByRole('button',{name:'条件をクリア',exact:true}).first().click();
-      await page.getByPlaceholder(/例.*ロゴ/).fill('地図');
-      await expect(page.getByText('1件の結果',{exact:true})).toBeVisible();
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
+      await expect(page.getByText('Global Map',{exact:true})).toHaveCount(0);
+      await page.reload();
+      await expect(header.getByRole('button',{name:'会社のGoogleアカウントでログイン',exact:true})).toBeVisible();
+      await expect(page.getByPlaceholder(/例.*ロゴ/)).toHaveCount(0);
       await context.close();
     }
   } finally {

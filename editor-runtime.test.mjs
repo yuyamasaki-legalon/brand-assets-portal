@@ -40,19 +40,21 @@ test('only listed employees may save or delete; other employees may read and log
     const viewer=await login('viewer@example.test');
     assert.equal(viewer.session.authenticated,true);
     assert.equal(viewer.session.canEdit,false);
-    const read=await fetch(`${base}/api/brand-assets/catalog`,{headers:{Cookie:viewer.cookie}});
+    assert.equal((await fetch(`${base}/api/brand-assets/catalog`,{headers:{Cookie:viewer.cookie}})).status,403);
+    const read=await fetch(`${base}/api/brand-assets/search`,{headers:{Cookie:viewer.cookie}});
     assert.equal(read.status,200);
     const catalog=await read.json();
     for(const payload of [catalog,{...catalog,assets:catalog.assets.slice(1),deletedAssetIds:[catalog.assets[0].id]},{...catalog,products:catalog.products.map(p=>({...p,state:'ended'}))}]) {
       assert.equal((await fetch(`${base}/api/brand-assets/catalog`,{method:'PUT',headers:viewer.headers,body:JSON.stringify(payload)})).status,403);
     }
-    await assert.rejects(fs.access(path.join(root,'catalog.json')));
+    await fs.access(path.join(root,'catalog.json'));
     const editor=await login('STAFF@example.test');
     assert.equal(editor.session.canEdit,true);
-    const saved=await fetch(`${base}/api/brand-assets/catalog`,{method:'PUT',headers:editor.headers,body:JSON.stringify(catalog)});
+    const full=await(await fetch(`${base}/api/brand-assets/catalog`,{headers:{Cookie:editor.cookie}})).json();
+    const saved=await fetch(`${base}/api/brand-assets/catalog`,{method:'PUT',headers:editor.headers,body:JSON.stringify(full)});
     assert.equal(saved.status,200);
     assert.equal((await saved.json()).revision,catalog.revision+1);
-    const reread=await(await fetch(`${base}/api/brand-assets/catalog`,{headers:{Cookie:viewer.cookie}})).json();
+    const reread=await(await fetch(`${base}/api/brand-assets/search`,{headers:{Cookie:viewer.cookie}})).json();
     assert.equal(reread.revision,catalog.revision+1);
     const published=await fetch(`${base}/brand-asset-portal/index.html`);
     assert.equal(published.status,200);

@@ -284,6 +284,11 @@ test("release runtime serves health and packaged assets but protects catalogue a
 			200,
 		);
 		assert.equal((await fetch(`${base}/api/brand-assets/catalog`)).status, 401);
+		assert.equal((await fetch(`${base}/api/brand-assets/search`)).status, 401);
+		for (const old of ['index-DZPuwLNT.js','index-C0GOlHqt.js','index-BETZBgJ6.js'])
+			assert.equal((await fetch(`${base}/assets/${old}`)).status,404,'historical catalogue bundles must not be served');
+		for (const privateFile of ['cms-seed.json','cms-imports.json','assets/source.map','assets/catalog.json'])
+			assert.equal((await fetch(`${base}/${privateFile}`)).status,404);
 		assert.equal(
 			(
 				await fetch(`${base}/api/brand-assets/catalog`, {
