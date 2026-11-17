@@ -1,5 +1,7 @@
 # Shared employee catalogue — 2026-11-17
 
+> Reader authentication is superseded by PUBLIC-SEARCH-RELEASE.md. Published search is explicitly public with user approval; management authentication and the shared persistent store remain.
+
 Supersedes the anonymous snapshot behavior in PUBLIC-WORLDMAP-RELEASE.md. The user authorized production deployment after tests and review.
 
 ## Contract
