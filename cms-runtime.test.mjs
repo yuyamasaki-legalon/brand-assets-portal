@@ -271,7 +271,19 @@ test("release runtime serves health and packaged assets but protects catalogue a
 		const text = await html.text();
 		const bundle = text.match(/src="([^"]+\.js)"/);
 		assert.ok(bundle);
-		const javascript = await (await fetch(new URL(bundle[1], `${base}/brand-asset-portal/index.html`))).text();
+		const loginJavascript = await (await fetch(new URL(bundle[1], `${base}/brand-asset-portal/index.html`))).text();
+		assert.ok(loginJavascript.includes('会社のGoogleアカウントでログイン'));
+		const privateHtml = await fs.readFile('public/brand-asset-portal/index.html','utf8');
+		const privateEntry = privateHtml.match(/src="([^"]+\.js)"/)[1];
+		assert.equal((await fetch(new URL(privateEntry,`${base}/brand-asset-portal/index.html`))).status,401,'metadata-containing portal JS requires company authentication');
+		const javascript = await fs.readFile(path.resolve('public/brand-asset-portal',privateEntry),'utf8');
+		const inventory = JSON.parse(await fs.readFile('cms-seed.json','utf8')).map(asset=>asset.driveId).filter(Boolean);
+		for(const reference of [...text.matchAll(/(?:src|href)="([^"?]+\.js)"/g)].map(match=>match[1])) {
+			const response = await fetch(new URL(reference,`${base}/brand-asset-portal/index.html`));
+			assert.equal(response.status,200);
+			const publicScript = await response.text();
+			for(const driveId of inventory) assert.equal(publicScript.includes(driveId),false,'anonymous login dependencies must not contain asset Drive IDs');
+		}
 		const clientId = "525055087660-6f75p8dvjiktdhn3j8j6b395srlr88e9.apps.googleusercontent.com";
 		assert.ok(javascript.includes(clientId), "Drive client ID must be present in release");
 		assert.ok(javascript.includes("https://www.googleapis.com/auth/drive.readonly"));

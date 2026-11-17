@@ -24,7 +24,7 @@ async function fixture() {
   async function login(value){email=value;const start=await fetch(`${base}/api/auth/google/start`,{redirect:'manual'});const state=new URL(start.headers.get('location')).searchParams.get('state');const result=await fetch(`${base}/api/auth/google/callback?state=${state}&code=test`,{redirect:'manual',headers:{Cookie:start.headers.getSetCookie()[0].split(';')[0]}});if(result.status!==302)return{status:result.status};const cookie=result.headers.getSetCookie().find(value=>value.startsWith('__Host-brand_cms_session=')).split(';')[0];const session=await(await fetch(`${base}/api/auth/session`,{headers:{Cookie:cookie}})).json();return{status:302,cookie,headers:{Cookie:cookie,Origin:config.origin,'X-CSRF-Token':session.csrfToken,'Content-Type':'application/json'}};}
   async function request(route,user,body){return fetch(`${base}/api/brand-assets/${route}`,{method:body?'PUT':'GET',headers:user?.headers,body:body?JSON.stringify(body):undefined});}
   async function read(route,user){const response=await request(route,user);assert.equal(response.status,200,await response.clone().text());assert.match(response.headers.get('cache-control'),/no-store/);return response.json();}
-  return {root,file,seedPath,importsPath,start,stop,login,request,read,async cleanup(){await stop();await fs.rm(root,{recursive:true,force:true});}};
+  return {root,file,seedPath,importsPath,start,stop,login,request,read,staticRequest:(route,user)=>fetch(`${base}${route}`,{headers:user?.headers}),async cleanup(){await stop();await fs.rm(root,{recursive:true,force:true});}};
 }
 
 test('all company readers share published content, while drafts and writes stay editor-only',async()=>{
@@ -37,6 +37,10 @@ test('all company readers share published content, while drafts and writes stay 
     assert.equal((await f.request('catalog')).status,401);
     assert.equal((await f.login('outsider@other.test')).status,403);
     const viewer=await f.login('viewer@example.test'),editor=await f.login('editor@example.test');
+    const portalHtml=await(await f.staticRequest('/brand-asset-portal/index.html',viewer)).text();
+    const privateEntry=new URL(portalHtml.match(/src="([^"]+\.js)"/)[1],'https://portal.example.test/brand-asset-portal/index.html').pathname;
+    assert.equal((await f.staticRequest(privateEntry)).status,401);
+    const privateScript=await f.staticRequest(privateEntry,viewer);assert.equal(privateScript.status,200);assert.equal(privateScript.headers.get('cache-control'),'private, no-store');
     assert.equal((await f.request('catalog',viewer)).status,403);
     const initial=await f.read('search',viewer);
     assert.deepEqual(initial,await f.read('search',editor));

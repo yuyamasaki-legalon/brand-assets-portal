@@ -54,6 +54,7 @@ describe("production company Google auth", () => {
     const publicDir = path.join(root, "public");
     await fs.mkdir(path.join(publicDir, "brand-asset-portal"), { recursive: true });
     await fs.writeFile(path.join(publicDir, "brand-asset-portal/index.html"), "Test portal");
+    await fs.writeFile(path.join(publicDir, "brand-asset-portal/login.html"), "Test login");
     await fs.writeFile(path.join(publicDir, ".env"), "must never be served");
     const seed = path.join(root, "seed.json");
     await fs.writeFile(path.join(root, "cms-imports.json"), "[]");

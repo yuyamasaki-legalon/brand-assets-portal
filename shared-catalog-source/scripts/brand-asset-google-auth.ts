@@ -216,5 +216,10 @@ export function createGoogleAuth(config: AuthConfig, provider: GoogleProvider = 
     json(res, 404, { error: "認証操作が見つかりません。" });
     return true;
   }
-  return { handle, authorize: authorizeCatalog, authorizeEmployee: authorize };
+  return {
+    handle,
+    authorize: authorizeCatalog,
+    authorizeEmployee: authorize,
+    hasSession: (req: IncomingMessage) => Boolean(session(req)),
+  };
 }

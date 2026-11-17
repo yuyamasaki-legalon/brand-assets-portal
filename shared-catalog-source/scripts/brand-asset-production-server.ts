@@ -28,19 +28,19 @@ export function createProductionServer(
   provider?: GoogleProvider,
 ) {
   let tomoniPolicy: Promise<string> | undefined;
-  let portalScripts: Promise<Set<string>> | undefined;
-  function currentPortalScripts() {
-    portalScripts ||= fs
-      .readFile(path.join(staticDir, "brand-asset-portal/index.html"), "utf8")
-      .then(
-        (html) =>
-          new Set(
-            [...html.matchAll(/<script\b[^>]*\bsrc="((?:\.\.\/|\/)assets\/[^"?]+\.js)"/g)].map(
-              (match) => new URL(match[1], "https://portal.invalid/brand-asset-portal/index.html").pathname,
-            ),
+  let scripts: Promise<Set<string>[]> | undefined;
+  function currentScripts() {
+    scripts ||= Promise.all(
+      ["login", "index"].map(async (entry) => {
+        const html = await fs.readFile(path.join(staticDir, `brand-asset-portal/${entry}.html`), "utf8");
+        return new Set(
+          [...html.matchAll(/(?:src|href)="((?:\.\.\/|\/)assets\/[^"?]+\.js)"/g)].map(
+            (match) => new URL(match[1], "https://portal.invalid/brand-asset-portal/index.html").pathname,
           ),
-      );
-    return portalScripts;
+        );
+      }),
+    );
+    return scripts;
   }
   function getTomoniPolicy() {
     tomoniPolicy ||= fs.readFile(path.join(staticDir, "tomoni-ai-html/index.html"), "utf8").then((html) => {
@@ -111,12 +111,22 @@ export function createProductionServer(
             : pathname,
       );
       const tomoniPage = route === "/tomoni-ai-html/index.html";
+      let privateScript = false;
       // Retain historical artifacts on disk, but never serve stale bundles
       // containing the former anonymous catalogue or their source maps/JSON.
-      if (/^\/assets\/.*\.(?:js|mjs|json|map)$/i.test(route) && !(await currentPortalScripts()).has(route)) {
-        res.writeHead(404, { "Cache-Control": "no-store" });
-        res.end();
-        return;
+      if (/^\/assets\/.*\.(?:js|mjs|json|map)$/i.test(route)) {
+        const [loginScripts, portalScripts] = await currentScripts();
+        privateScript = !loginScripts.has(route) && portalScripts.has(route);
+        if (!loginScripts.has(route) && !privateScript) {
+          res.writeHead(404, { "Cache-Control": "no-store" });
+          res.end();
+          return;
+        }
+        if (privateScript && !auth.hasSession(req)) {
+          res.writeHead(401, { "Cache-Control": "private, no-store" });
+          res.end();
+          return;
+        }
       }
       const tomoniLicense = /^\/tomoni-ai-html\/licenses\/(?:BebasNeue-OFL\.txt|MPLUS1p-OFL\.txt|README\.md)$/.test(
         route,
@@ -125,6 +135,7 @@ export function createProductionServer(
         tomoniPage ||
         tomoniLicense ||
         route === "/brand-asset-portal/index.html" ||
+        route === "/brand-asset-portal/login.html" ||
         route === "/index.html" ||
         /^\/(assets|brand-asset-portal-media)\//.test(route);
       if (!allowed || route.split("/").some((part) => part.startsWith(".") || part.includes("\\"))) {
@@ -132,7 +143,9 @@ export function createProductionServer(
         res.end();
         return;
       }
-      const file = path.resolve(staticDir, `.${route}`);
+      const servedRoute =
+        route === "/brand-asset-portal/index.html" && !auth.hasSession(req) ? "/brand-asset-portal/login.html" : route;
+      const file = path.resolve(staticDir, `.${servedRoute}`);
       const realFile = await fs.realpath(file);
       const realRoot = await fs.realpath(staticDir);
       if (!realFile.startsWith(`${realRoot}${path.sep}`)) {
@@ -151,7 +164,7 @@ export function createProductionServer(
       res.writeHead(200, {
         "Content-Type": tomoniLicense ? "text/plain; charset=utf-8" : types[ext] || "application/octet-stream",
         "Content-Length": stat.size,
-        "Cache-Control": ext === ".html" ? "no-store" : "public, max-age=3600",
+        "Cache-Control": privateScript ? "private, no-store" : ext === ".html" ? "no-store" : "public, max-age=3600",
       });
       if (req.method === "HEAD") {
         res.end();
