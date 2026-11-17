@@ -5,6 +5,7 @@
 !server.mjs
 !drive-thumbnail.mjs
 !cms-seed.json
+!cms-imports.json
 !public/
 !public/**
 **/.env*

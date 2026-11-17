@@ -1,11 +1,11 @@
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { createReadStream, promises } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { CodeChallengeMethod, OAuth2Client } from "google-auth-library";
 import { createDriveThumbnailHandler } from "./drive-thumbnail.mjs";
+import { CodeChallengeMethod, OAuth2Client } from "google-auth-library";
 //#region src/pages/sandbox/brand-asset-portal/catalog-types.ts
 var defaultProducts = [
 	"LegalOn",
@@ -23,6 +23,9 @@ var defaultProducts = [
 	state: "active",
 	order
 }));
+function isPublished(asset, products) {
+	return asset.publication !== "draft" && asset.status !== "archived" && products.some((p) => p.id === asset.brand && p.state === "active") && (!asset.expiresAt || asset.expiresAt >= (/* @__PURE__ */ new Date()).toISOString().slice(0, 10));
+}
 //#endregion
 //#region src/pages/sandbox/brand-asset-portal/drive-file.ts
 function getDriveFileId(link) {
@@ -40,6 +43,56 @@ function getDriveFileId(link) {
 }
 function getDriveDownloadLink(id) {
 	return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`;
+}
+//#endregion
+//#region scripts/brand-asset-catalog-view.ts
+function publishedCatalog(catalog) {
+	const keys = [
+		"id",
+		"title",
+		"brand",
+		"fileFormat",
+		"status",
+		"assetType",
+		"updatedAt",
+		"assetDomain",
+		"publication",
+		"description",
+		"usage",
+		"tags",
+		"driveUrl",
+		"driveId",
+		"downloadUrl",
+		"thumbnailUrl",
+		"usageRights",
+		"expiresAt",
+		"assetGroupId",
+		"color",
+		"colorVariant",
+		"locale",
+		"variantLabel",
+		"recommended",
+		"thumbnailColor",
+		"allowBrowseOnly"
+	];
+	const products = catalog.products.filter((product) => product.state === "active").map(({ id, label, state, order }) => ({
+		id,
+		label,
+		state,
+		order
+	}));
+	const assets = catalog.assets.filter((asset) => isPublished(asset, products)).map((asset) => Object.fromEntries(keys.filter((key) => Object.hasOwn(asset, key)).map((key) => [key, asset[key]])));
+	const visible = new Set(assets.map((asset) => asset.id));
+	const originals = new Map(catalog.assets.map((asset) => [asset.id, asset]));
+	for (let i = 0; i < assets.length; i++) for (const key of ["replacedBy", "previousVersionId"]) {
+		const value = originals.get(assets[i].id)[key];
+		if (typeof value === "string" && visible.has(value)) Object.assign(assets[i], { [key]: value });
+	}
+	return {
+		revision: catalog.revision,
+		products,
+		assets
+	};
 }
 //#endregion
 //#region scripts/brand-asset-cms-api.ts
@@ -96,33 +149,87 @@ function createCatalogMiddleware(root, options = {}) {
 	}
 	async function load() {
 		initialization ||= (async () => {
+			try {
+				await promises.access(file);
+			} catch (error) {
+				if (error.code !== "ENOENT") throw error;
+				const assets = await readSeed();
+				const initial = {
+					revision: 0,
+					products: defaultProducts,
+					assets,
+					appliedSeedUpdates: [...assets.some((a) => a.brand === "TrustOn" && a.driveId !== templateDriveId) ? [seedUpdate] : [], ...assets.some((a) => a.driveId === templateDriveId) ? [templateUpdate] : []]
+				};
+				validate(initial);
+				await promises.mkdir(dir, {
+					recursive: true,
+					mode: 448
+				});
+				const temp = `${file}.${randomUUID()}.tmp`;
+				await promises.writeFile(temp, JSON.stringify(initial), { mode: 384 });
+				await promises.rename(temp, file);
+			}
 			let pending = false;
-			for (const templateOnly of [false, true]) {
-				try {
-					const result = await importTrustOn(templateOnly ? templateUpdate : seedUpdate, templateOnly);
-					if (result === false) pending = true;
-				} catch {
-					pending = true;
+			for (const templateOnly of [false, true]) try {
+				if (await importTrustOn(templateOnly ? templateUpdate : seedUpdate, templateOnly) === false) pending = true;
+			} catch {
+				pending = true;
+			}
+			if (options.importsPath) {
+				const batches = JSON.parse(await promises.readFile(options.importsPath, "utf8"));
+				if (!Array.isArray(batches) || new Set(batches.map((batch) => batch.id)).size !== batches.length) throw new Error("Invalid catalogue imports");
+				for (const batch of batches) {
+					if (!/^[a-z0-9-]{1,100}$/.test(batch.id) || !Array.isArray(batch.assets)) throw new Error("Invalid catalogue import");
+					const current = JSON.parse(await promises.readFile(file, "utf8"));
+					if (current.appliedSeedUpdates?.includes(batch.id)) continue;
+					const ids = new Set(current.assets.map((asset) => asset.id));
+					const driveIds = new Set(current.assets.map((asset) => getDriveFileId(asset.driveUrl) || asset.driveId).filter(Boolean));
+					const incoming = batch.assets.filter((asset) => {
+						const driveId = getDriveFileId(asset.driveUrl);
+						if (!driveId) throw new Error("Imported assets require a Drive file URL");
+						if (ids.has(asset.id) || driveIds.has(driveId)) return false;
+						ids.add(asset.id);
+						driveIds.add(driveId);
+						asset.driveId = driveId;
+						asset.downloadUrl = getDriveDownloadLink(driveId);
+						return true;
+					});
+					const next = {
+						...current,
+						revision: current.revision + 1,
+						assets: [...current.assets, ...incoming],
+						appliedSeedUpdates: [...current.appliedSeedUpdates || [], batch.id],
+						lastChange: {
+							actorId: "system:catalog-import",
+							at: (/* @__PURE__ */ new Date()).toISOString()
+						}
+					};
+					validate(next);
+					await promises.mkdir(path.join(dir, "history"), {
+						recursive: true,
+						mode: 448
+					});
+					await promises.writeFile(path.join(dir, "history", `${current.revision}-${randomUUID()}.json`), JSON.stringify(current), { mode: 384 });
+					const temp = `${file}.${randomUUID()}.tmp`;
+					await promises.writeFile(temp, JSON.stringify(next), { mode: 384 });
+					await promises.rename(temp, file);
+					await pruneHistory();
 				}
 			}
 			if (pending) initialization = void 0;
-		})();
+		})().catch((error) => {
+			initialization = void 0;
+			throw error;
+		});
 		await initialization;
+		return JSON.parse(await promises.readFile(file, "utf8"));
+	}
+	async function pruneHistory() {
 		try {
-			return JSON.parse(await promises.readFile(file, "utf8"));
-		} catch (error) {
-			if (error.code !== "ENOENT") throw error;
-			const assets = await readSeed();
-			return {
-				revision: 0,
-				products: defaultProducts,
-				assets,
-				appliedSeedUpdates: [
-					...(assets.some((a) => a.brand === "TrustOn" && a.driveId !== templateDriveId) ? [seedUpdate] : []),
-					...(assets.some((a) => a.driveId === templateDriveId) ? [templateUpdate] : [])
-				]
-			};
-		}
+			const historyDir = path.join(dir, "history");
+			const histories = (await promises.readdir(historyDir)).filter((name) => /^\d+-[\da-f-]+\.json$/.test(name)).sort((a, b) => Number.parseInt(b, 10) - Number.parseInt(a, 10));
+			await Promise.all(histories.slice(20).map((name) => promises.unlink(path.join(historyDir, name))));
+		} catch {}
 	}
 	function reply(res, status, body) {
 		res.writeHead(status, {
@@ -197,8 +304,9 @@ function createCatalogMiddleware(root, options = {}) {
 	}
 	return (req, res, next = () => {}) => {
 		const route = req.url?.split("?")[0];
+		const search = route === "/api/brand-assets/search";
 		const localSession = !options.authorize && route === "/api/auth/session";
-		if (route !== "/api/brand-assets/catalog" && !localSession) return next();
+		if (route !== "/api/brand-assets/catalog" && !search && !localSession) return next();
 		const host = req.headers.host || "";
 		const address = req.socket.remoteAddress || "";
 		if (!options.authorize && (!/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host) || ![
@@ -212,10 +320,11 @@ function createCatalogMiddleware(root, options = {}) {
 			mode: "local",
 			authenticated: false
 		});
-		const actorId = options.authorize?.(req, res);
+		const actorId = (search ? options.authorizeRead || options.authorize : options.authorize)?.(req, res);
 		if (options.authorize && !actorId) return;
+		if (search && req.method !== "GET") return reply(res, 405, { error: "閲覧専用APIです。" });
 		if (req.method === "GET") {
-			load().then((data) => reply(res, 200, data)).catch(() => reply(res, 500, { error: "保存データを読み込めません。" }));
+			queue = queue.then(() => load().then((data) => reply(res, 200, search ? publishedCatalog(data) : data)).catch(() => reply(res, 500, { error: "保存データを読み込めません。" })));
 			return;
 		}
 		if (req.method !== "PUT") return reply(res, 405, { error: "対応していない操作です。" });
@@ -363,7 +472,7 @@ function createGoogleAuth(config, provider = googleProvider(config)) {
 	function authorizeCatalog(req, res) {
 		const actorId = authorize(req, res);
 		if (!actorId) return null;
-		if (req.method !== "GET" && !canEdit(session(req))) {
+		if (!canEdit(session(req))) {
 			json(res, 403, { error: "CMSの変更権限がありません。管理担当者に連絡してください。" });
 			return null;
 		}
@@ -448,7 +557,9 @@ function createGoogleAuth(config, provider = googleProvider(config)) {
 	}
 	return {
 		handle,
-		authorize: authorizeCatalog
+		authorize: authorizeCatalog,
+		authorizeEmployee: authorize,
+		hasSession: (req) => Boolean(session(req))
 	};
 }
 //#endregion
@@ -488,21 +599,30 @@ var types = {
 };
 function createProductionServer(config, staticDir, seedPath, provider) {
 	let tomoniPolicy;
+	let scripts;
+	function currentScripts() {
+		scripts ||= Promise.all(["login", "index"].map(async (entry) => {
+			const html = await promises.readFile(path.join(staticDir, `brand-asset-portal/${entry}.html`), "utf8");
+			return new Set([...html.matchAll(/(?:src|href)="((?:\.\.\/|\/)assets\/[^"?]+\.js)"/g)].map((match) => new URL(match[1], "https://portal.invalid/brand-asset-portal/index.html").pathname));
+		}));
+		return scripts;
+	}
 	function getTomoniPolicy() {
 		tomoniPolicy ||= promises.readFile(path.join(staticDir, "tomoni-ai-html/index.html"), "utf8").then((html) => {
-			const hashes = [...html.replace(/\r\n?/g, "\n").matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map((match) => `'sha256-${createHash("sha256").update(match[1]).digest("base64")}'`);
-			return `default-src 'none'; script-src ${hashes.join(" ")}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'`;
+			return `default-src 'none'; script-src ${[...html.replace(/\r\n?/g, "\n").matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map((match) => `'sha256-${createHash("sha256").update(match[1] || "").digest("base64")}'`).join(" ")}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'`;
 		});
 		return tomoniPolicy;
 	}
 	if (path.resolve(config.dataDir).startsWith(`${path.resolve(staticDir)}${path.sep}`) || path.resolve(config.dataDir) === path.resolve(staticDir)) throw new Error("CMS data must be outside the public directory");
 	const auth = createGoogleAuth(config, provider);
-	const thumbnail = createDriveThumbnailHandler(auth.authorize);
+	const thumbnail = createDriveThumbnailHandler(auth.authorizeEmployee);
 	const catalog = createCatalogMiddleware(staticDir, {
 		dataDir: config.dataDir,
 		seedPath,
+		importsPath: path.join(path.dirname(seedPath), "cms-imports.json"),
 		publicOrigin: config.origin,
-		authorize: auth.authorize
+		authorize: auth.authorize,
+		authorizeRead: auth.authorizeEmployee
 	});
 	return createServer((req, res) => {
 		res.setHeader("X-Content-Type-Options", "nosniff");
@@ -518,10 +638,10 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 			}
 			if (await auth.handle(req, res)) return;
 			if (pathname.startsWith("/api/brand-assets/thumbnail/")) {
-				await thumbnail(req, res, pathname.slice("/api/brand-assets/thumbnail/".length));
+				await thumbnail(req, res, pathname.slice(28));
 				return;
 			}
-			if (pathname === "/api/brand-assets/catalog") {
+			if (pathname === "/api/brand-assets/catalog" || pathname === "/api/brand-assets/search") {
 				catalog(req, res);
 				return;
 			}
@@ -537,13 +657,29 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 			}
 			const route = decodeURIComponent(pathname === "/" || pathname === "/index.html" ? "/brand-asset-portal/index.html" : pathname === "/tomoni-ai-html/" || pathname === "/tomoni-ai-html" ? "/tomoni-ai-html/index.html" : pathname);
 			const tomoniPage = route === "/tomoni-ai-html/index.html";
+			let privateScript = false;
+			if (/^\/assets\/.*\.(?:js|mjs|json|map)$/i.test(route)) {
+				const [loginScripts, portalScripts] = await currentScripts();
+				privateScript = !loginScripts.has(route) && portalScripts.has(route);
+				if (!loginScripts.has(route) && !privateScript) {
+					res.writeHead(404, { "Cache-Control": "no-store" });
+					res.end();
+					return;
+				}
+				if (privateScript && !auth.hasSession(req)) {
+					res.writeHead(401, { "Cache-Control": "private, no-store" });
+					res.end();
+					return;
+				}
+			}
 			const tomoniLicense = /^\/tomoni-ai-html\/licenses\/(?:BebasNeue-OFL\.txt|MPLUS1p-OFL\.txt|README\.md)$/.test(route);
-			if (!(tomoniPage || tomoniLicense || route === "/brand-asset-portal/index.html" || route === "/index.html" || /^\/(assets|brand-asset-portal-media)\//.test(route)) || route.split("/").some((part) => part.startsWith(".") || part.includes("\\"))) {
+			if (!(tomoniPage || tomoniLicense || route === "/brand-asset-portal/index.html" || route === "/brand-asset-portal/login.html" || route === "/index.html" || /^\/(assets|brand-asset-portal-media)\//.test(route)) || route.split("/").some((part) => part.startsWith(".") || part.includes("\\"))) {
 				res.writeHead(404);
 				res.end();
 				return;
 			}
-			const file = path.resolve(staticDir, `.${route}`);
+			const servedRoute = route === "/brand-asset-portal/index.html" && !auth.hasSession(req) ? "/brand-asset-portal/login.html" : route;
+			const file = path.resolve(staticDir, `.${servedRoute}`);
 			const realFile = await promises.realpath(file);
 			const realRoot = await promises.realpath(staticDir);
 			if (!realFile.startsWith(`${realRoot}${path.sep}`)) {
@@ -562,7 +698,7 @@ function createProductionServer(config, staticDir, seedPath, provider) {
 			res.writeHead(200, {
 				"Content-Type": tomoniLicense ? "text/plain; charset=utf-8" : types[ext] || "application/octet-stream",
 				"Content-Length": stat.size,
-				"Cache-Control": ext === ".html" ? "no-store" : "public, max-age=3600"
+				"Cache-Control": privateScript ? "private, no-store" : ext === ".html" ? "no-store" : "public, max-age=3600"
 			});
 			if (req.method === "HEAD") {
 				res.end();

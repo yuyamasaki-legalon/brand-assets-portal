@@ -1,0 +1,7 @@
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -1511,3 +1511,4 @@
+             input: {
+               index: path.resolve(workspaceRoot, "brand-asset-portal/index.html"),
++              login: path.resolve(workspaceRoot, "brand-asset-portal/login.html"),
+             },

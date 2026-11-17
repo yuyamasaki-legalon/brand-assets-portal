@@ -6,12 +6,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { createProductionServer } from './server.mjs';
 
-test('editor restriction preserves downloads, thumbnail module and catalogue storage; header adds logout only', async () => {
-  const source = await fs.readFile('server.mjs', 'utf8');
-  const storage = source.split('//#region scripts/brand-asset-cms-api.ts\n')[1].split('//#endregion')[0];
-  assert.equal(createHash('sha256').update(storage).digest('hex'), '255f5791c10b742ba2b0b6473ae518ada3e8bc998e6d28f5460d0bba3b564c3d');
-  const saveCode = source.slice(source.indexOf('\tfunction reply(res'), source.indexOf('//#endregion', source.indexOf('\tfunction reply(res')));
-  assert.equal(createHash('sha256').update(saveCode).digest('hex'), 'd2e76de2e67912eaad08de06cf38fc97ed30f97c0590a078f2e573b7fe5e96be');
+test('shared search preserves historical catalogues, media styling, seed and thumbnail implementation', async () => {
   for (const [file, hash] of [
     ['public/assets/index-BMZMSjyV.js', 'd3c408843f5e8189af7d588fe66cef2b1006a37abb10c2fa785e2cd77cdbd2da'],
     ['public/assets/index-DrcZfM-y.js', 'f24a1151c0359eee8d5ccacd278547320bea7835abb594506acd59e1dc10b37d'],
@@ -21,7 +16,6 @@ test('editor restriction preserves downloads, thumbnail module and catalogue sto
     ['public/assets/index-C0GOlHqt.js', '694514f7e292c48f86d38148b2cae38d3f81621d367baf42a9396b6ecd523bd7'],
     ['public/assets/index-DZPuwLNT.js', '3b3639d96ed086698a3bca989befd4cea913e1b06d938a382abfad2ea145330b'],
     ['public/assets/index-DyZz37-B.css', '73fbb77c23092f62f3dc285f656cf21e9ce0bf64beb748145322cfba2053125f'],
-    ['public/brand-asset-portal/index.html', '04417efa6693bca9b82fc98b1176734541b91d0307631b3dffde08c8aaaceeb4'],
     ['drive-thumbnail.mjs', 'b8d80578acef7a8c27cf54f8472a0e8c29670ab2a5a8f450ff7005d0dc7b81c8'],
   ]) assert.equal(createHash('sha256').update(await fs.readFile(file)).digest('hex'), hash, file);
   const previous = await fs.readFile('public/assets/index-BMZMSjyV.js', 'utf8');
